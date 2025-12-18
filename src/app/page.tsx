@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { RequestForm } from '@/components/forms/RequestForm';
+import { FormMOD01 } from '@/components/forms/FormMOD01';
+import { FormMOD02 } from '@/components/forms/FormMOD02';
 import { TechnologyRequest } from '@/types';
-import { FileText, LayoutDashboard, Plus } from 'lucide-react';
+import { FileText, LayoutDashboard, Plus, Stethoscope } from 'lucide-react';
+
+type ViewType = 'dashboard' | 'mod01' | 'mod02';
 
 export default function Home() {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'new-request'>('dashboard');
+  const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [requests, setRequests] = useState<TechnologyRequest[]>([]);
 
   return (
@@ -23,14 +26,14 @@ export default function Home() {
                   Gestionale Tecnologie Sanitarie
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Sistema Multi-Track per HTA - Azienda Sanitaria
+                  Sistema Multi-Track per HTA - Azienda Sanitaria USL Toscana Nord Ovest
                 </p>
               </div>
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setCurrentView('dashboard')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
                   currentView === 'dashboard'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -40,15 +43,26 @@ export default function Home() {
                 Dashboard
               </button>
               <button
-                onClick={() => setCurrentView('new-request')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg ${
-                  currentView === 'new-request'
+                onClick={() => setCurrentView('mod01')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  currentView === 'mod01'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 <Plus className="w-5 h-5" />
-                Nuova Richiesta
+                MOD.01 - Attrezzature
+              </button>
+              <button
+                onClick={() => setCurrentView('mod02')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                  currentView === 'mod02'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <Stethoscope className="w-5 h-5" />
+                MOD.02 - Ecografi
               </button>
             </div>
           </div>
@@ -56,9 +70,10 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <main className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
-        {currentView === 'new-request' && <RequestForm />}
+        {currentView === 'mod01' && <FormMOD01 />}
+        {currentView === 'mod02' && <FormMOD02 />}
       </main>
 
       {/* Footer */}
@@ -66,6 +81,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <p className="text-center text-sm text-gray-600">
             Sistema Multi-Track HTA - Conforme a Procedura TS + DGR 306/2024 + DGR 737/2022
+          </p>
+          <p className="text-center text-xs text-gray-500 mt-2">
+            Azienda USL Toscana Nord Ovest - Dipartimento Tecnico - U.O. Tecnologie
           </p>
         </div>
       </footer>
