@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
+import { PriceList } from '@/components/PriceList';
 import { TechnologyRequest } from '@/types';
-import { FileText, LayoutDashboard, Plus, Stethoscope } from 'lucide-react';
+import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign } from 'lucide-react';
+import priceListData from '../../price_list_data.json';
 
-type ViewType = 'dashboard' | 'mod01' | 'mod02';
+type ViewType = 'dashboard' | 'mod01' | 'mod02' | 'pricelist';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -30,39 +32,50 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-2">
               <button
                 onClick={() => setCurrentView('dashboard')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                   currentView === 'dashboard'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                <LayoutDashboard className="w-5 h-5" />
+                <LayoutDashboard className="w-4 h-4" />
                 Dashboard
               </button>
               <button
                 onClick={() => setCurrentView('mod01')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                   currentView === 'mod01'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                <Plus className="w-5 h-5" />
-                MOD.01 - Attrezzature
+                <Plus className="w-4 h-4" />
+                MOD.01
               </button>
               <button
                 onClick={() => setCurrentView('mod02')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                   currentView === 'mod02'
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
-                <Stethoscope className="w-5 h-5" />
-                MOD.02 - Ecografi
+                <Stethoscope className="w-4 h-4" />
+                MOD.02
+              </button>
+              <button
+                onClick={() => setCurrentView('pricelist')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                  currentView === 'pricelist'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <DollarSign className="w-4 h-4" />
+                Listino
               </button>
             </div>
           </div>
@@ -74,6 +87,7 @@ export default function Home() {
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
         {currentView === 'mod01' && <FormMOD01 />}
         {currentView === 'mod02' && <FormMOD02 />}
+        {currentView === 'pricelist' && <PriceList data={priceListData} />}
       </main>
 
       {/* Footer */}
