@@ -5,11 +5,13 @@ import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
 import { PriceList } from '@/components/PriceList';
+import { RequestManager } from '@/components/RequestManager';
 import { TechnologyRequest } from '@/types';
-import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign } from 'lucide-react';
+import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
+import pianoAcquistiData from '../../piano_acquisti_data.json';
 
-type ViewType = 'dashboard' | 'mod01' | 'mod02' | 'pricelist';
+type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'pricelist';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -43,6 +45,17 @@ export default function Home() {
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
+              </button>
+              <button
+                onClick={() => setCurrentView('richieste')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                  currentView === 'richieste'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <ClipboardList className="w-4 h-4" />
+                Richieste
               </button>
               <button
                 onClick={() => setCurrentView('mod01')}
@@ -85,6 +98,7 @@ export default function Home() {
       {/* Main Content */}
       <main className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
+        {currentView === 'richieste' && <RequestManager data={pianoAcquistiData} />}
         {currentView === 'mod01' && <FormMOD01 />}
         {currentView === 'mod02' && <FormMOD02 />}
         {currentView === 'pricelist' && <PriceList data={priceListData} />}
