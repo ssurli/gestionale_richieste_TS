@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { FileText, Printer, Save } from 'lucide-react';
+import { PriceSuggestion, SelectedCatalogItem, CatalogoEstarItem } from '@/components/PriceSuggestion';
+import catalogoEstar from '../../../catalogo_estar.json';
 
 /**
  * MOD.01_TS - MODULO RICHIESTA ATTREZZATURE SANITARIE
@@ -87,6 +89,21 @@ export function FormMOD01() {
     dataRichiedente: new Date().toISOString().split('T')[0],
     dataDirettoreUO: ''
   });
+
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogoEstarItem | null>(null);
+
+  const handleSelectPrice = (price: number, item: CatalogoEstarItem) => {
+    setSelectedCatalogItem(item);
+    setFormData({
+      ...formData,
+      costoAcquisto: price.toString(),
+      descrizione: formData.descrizione || item.descrizione
+    });
+  };
+
+  const handleClearCatalogItem = () => {
+    setSelectedCatalogItem(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -223,6 +240,24 @@ export function FormMOD01() {
                 />
               </div>
             </div>
+
+            {/* Price Suggestions from Catalogo ESTAR */}
+            {formData.descrizione && !selectedCatalogItem && (
+              <PriceSuggestion
+                catalogo={catalogoEstar as CatalogoEstarItem[]}
+                searchText={formData.descrizione}
+                onSelectPrice={handleSelectPrice}
+              />
+            )}
+
+            {/* Show selected catalog item */}
+            {selectedCatalogItem && (
+              <SelectedCatalogItem
+                item={selectedCatalogItem}
+                onClear={handleClearCatalogItem}
+              />
+            )}
+
             <div>
               <label className="block text-sm font-medium mb-1">
                 Caratteristiche Tecniche principali<sup>3</sup> *

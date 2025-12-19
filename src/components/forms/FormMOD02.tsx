@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { FileText, Printer, Save, Plus, Trash2 } from 'lucide-react';
+import { PriceSuggestion, SelectedCatalogItem, CatalogoEstarItem } from '@/components/PriceSuggestion';
+import catalogoEstar from '../../../catalogo_estar.json';
 
 /**
  * MOD.02_TS - MODULO RICHIESTA ACQUISTO/SOSTITUZIONE/AGGIORNAMENTO ECOGRAFI
@@ -169,6 +171,20 @@ export function FormMOD02() {
     setFormData({ ...formData, apparecchiaturaEsistenti: newApparecchiature });
   };
 
+  const [selectedCatalogItem, setSelectedCatalogItem] = useState<CatalogoEstarItem | null>(null);
+
+  const handleSelectPrice = (price: number, item: CatalogoEstarItem) => {
+    setSelectedCatalogItem(item);
+    setFormData({
+      ...formData,
+      costoAcquisto: price.toString()
+    });
+  };
+
+  const handleClearCatalogItem = () => {
+    setSelectedCatalogItem(null);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('MOD.02 Submitted:', formData);
@@ -288,6 +304,23 @@ export function FormMOD02() {
                 placeholder="Descrivere la tipologia di Ecotomografo richiesto e le caratteristiche funzionali necessarie"
               />
             </div>
+
+            {/* Price Suggestions from Catalogo ESTAR - Search for "ecografo" */}
+            {formData.caratteristicheTecniche && !selectedCatalogItem && (
+              <PriceSuggestion
+                catalogo={catalogoEstar as CatalogoEstarItem[]}
+                searchText={formData.caratteristicheTecniche.includes('ecografo') || formData.caratteristicheTecniche.includes('Ecografo') ? formData.caratteristicheTecniche : 'ecografo ' + formData.caratteristicheTecniche}
+                onSelectPrice={handleSelectPrice}
+              />
+            )}
+
+            {/* Show selected catalog item */}
+            {selectedCatalogItem && (
+              <SelectedCatalogItem
+                item={selectedCatalogItem}
+                onClear={handleClearCatalogItem}
+              />
+            )}
 
             <div>
               <label className="block text-sm font-medium mb-2">

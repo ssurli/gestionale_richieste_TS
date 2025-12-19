@@ -1,0 +1,194 @@
+[
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG001",
+    "descrizione": "ECG (con trasmissione tracciati)",
+    "costo_unitario": 4000.0,
+    "iva_percentuale": 5,
+    "applicabile_a": "CDC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG002",
+    "descrizione": "Holter cardiaco (registratore)",
+    "costo_unitario": 2000.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "CDC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG003",
+    "descrizione": "Spirometro",
+    "costo_unitario": 2600.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "CDC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG004",
+    "descrizione": "Ecografo portatile",
+    "costo_unitario": 16000.0,
+    "iva_percentuale": 5,
+    "applicabile_a": "CDC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG005",
+    "descrizione": "Monitor multiparametrico",
+    "costo_unitario": 8000.0,
+    "iva_percentuale": 5,
+    "applicabile_a": "CDC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG006",
+    "descrizione": "DAE con aspiratore",
+    "costo_unitario": 1500.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG007",
+    "descrizione": "Apparecchio radiologico",
+    "costo_unitario": 56000.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG008",
+    "descrizione": "Emogasanalizzatore",
+    "costo_unitario": 0.0,
+    "iva_percentuale": 0,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG009",
+    "descrizione": "POC (Point of Care)",
+    "costo_unitario": 0.0,
+    "iva_percentuale": 0,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG010",
+    "descrizione": "Carrello emergenza",
+    "costo_unitario": 800.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG011",
+    "descrizione": "ECG portatile",
+    "costo_unitario": 4000.0,
+    "iva_percentuale": 5,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG012",
+    "descrizione": "Spirometro (ODC)",
+    "costo_unitario": 2600.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG013",
+    "descrizione": "Ecografo (ODC)",
+    "costo_unitario": 16000.0,
+    "iva_percentuale": 5,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Dispositivi Diagnostici",
+    "codice": "DIAG014",
+    "descrizione": "Telemedicina (STANZA)",
+    "costo_unitario": 10000.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "ODC"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR001",
+    "descrizione": "Lettino visita elettrico",
+    "costo_unitario": 848.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR002",
+    "descrizione": "Lettino ginecologico",
+    "costo_unitario": 1766.61,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR003",
+    "descrizione": "Letto degenza elettrico",
+    "costo_unitario": 1412.4,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR004",
+    "descrizione": "DAE con aspiratore",
+    "costo_unitario": 1500.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR005",
+    "descrizione": "Lampada visita",
+    "costo_unitario": 1200.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR006",
+    "descrizione": "Frigofarmaco",
+    "costo_unitario": 2460.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR007",
+    "descrizione": "Lavapadelle",
+    "costo_unitario": 5048.34,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR008",
+    "descrizione": "Vuotatorio",
+    "costo_unitario": 1868.14,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR009",
+    "descrizione": "Sollevatore",
+    "costo_unitario": 4680.0,
+    "iva_percentuale": 4,
+    "applicabile_a": "COMUNE"
+  },
+  {
+    "categoria": "Attrezzature Sanitarie",
+    "codice": "ATTR010",
+    "descrizione": "Riunito oculistico completo",
+    "costo_unitario": 20000.0,
+    "iva_percentuale": 22,
+    "applicabile_a": "COMUNE"
+  }
+]
