@@ -329,7 +329,12 @@ export function RequestManager({ data }: RequestManagerProps) {
                         <div className="text-right">
                           <p className="text-sm text-gray-500">Costo stimato</p>
                           <p className="text-lg font-bold text-blue-600">
-                            €{parseFloat(item.costo_iva_esclusa).toLocaleString('it-IT')}
+                            {new Intl.NumberFormat('it-IT', {
+                              style: 'currency',
+                              currency: 'EUR',
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            }).format(parseFloat(item.costo_iva_esclusa))}
                           </p>
                         </div>
                       )}

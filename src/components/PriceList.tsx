@@ -91,11 +91,23 @@ export function PriceList({ data }: PriceListProps) {
 
   // Format price
   const formatPrice = (price: string): string => {
-    const numPrice = parseFloat(price.replace(',', '.'));
+    // Handle both Italian format (1.234,56) and US format (1234.56)
+    let cleaned = price.replace(/\s/g, ''); // Remove spaces
+
+    // If contains comma, it's Italian format: remove dots, replace comma with dot
+    if (cleaned.includes(',')) {
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    }
+
+    const numPrice = parseFloat(cleaned);
+
+    if (isNaN(numPrice)) return '€ 0,00';
+
     return new Intl.NumberFormat('it-IT', {
       style: 'currency',
       currency: 'EUR',
       minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(numPrice);
   };
 

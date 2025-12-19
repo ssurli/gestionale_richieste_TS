@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FileText, Printer, Save, Plus, Trash2 } from 'lucide-react';
 import { PriceSuggestion, SelectedCatalogItem, CatalogoEstarItem } from '@/components/PriceSuggestion';
+import { CurrencyInput } from '@/components/CurrencyInput';
 import catalogoEstar from '../../../catalogo_estar.json';
 
 /**
@@ -955,16 +956,14 @@ export function FormMOD02() {
                 {formData.tipoContratto === 'acquisto' && (
                   <div>
                     <label className="block text-sm mb-1">Stima COSTO ACQUISTO (IVA esclusa)</label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">€</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
-                        value={formData.costoAcquisto}
-                        onChange={e => setFormData({ ...formData, costoAcquisto: e.target.value })}
-                      />
-                    </div>
+                    <CurrencyInput
+                      value={formData.costoAcquisto}
+                      onChange={(value) => setFormData({ ...formData, costoAcquisto: value })}
+                      placeholder="es: 16.000,00"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Formato italiano: 1.234,56 (punto per migliaia, virgola per decimali)
+                    </p>
                   </div>
                 )}
               </div>
