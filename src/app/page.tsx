@@ -5,11 +5,14 @@ import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
 import { PriceList } from '@/components/PriceList';
-import { RequestManager } from '@/components/RequestManager';
+import { RequestManager, PianoAcquistiItem } from '@/components/RequestManager';
 import { TechnologyRequest } from '@/types';
 import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
-import pianoAcquistiData from '../../piano_acquisti_data.json';
+import pianoAcquistiDataRaw from '../../piano_acquisti_data.json';
+
+// Type cast to fix TypeScript inference from JSON
+const pianoAcquistiData = pianoAcquistiDataRaw as PianoAcquistiItem[];
 
 type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'pricelist';
 
