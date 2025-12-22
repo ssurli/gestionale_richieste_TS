@@ -68,15 +68,20 @@ export function RequestManager({ data }: RequestManagerProps) {
   const filteredData = useMemo(() => {
     return data.filter(item => {
       const searchLower = searchTerm.toLowerCase();
+
+      // Convert to string safely for search
+      const toSearchableString = (val: string | number | null | undefined) =>
+        val ? String(val).toLowerCase() : '';
+
       const matchesSearch =
-        item.descrizione?.toLowerCase().includes(searchLower) ||
-        item.richiedente?.toLowerCase().includes(searchLower) ||
-        item.unita_operativa?.toLowerCase().includes(searchLower) ||
-        item.reparto_presidio?.toLowerCase().includes(searchLower);
+        toSearchableString(item.descrizione).includes(searchLower) ||
+        toSearchableString(item.richiedente).includes(searchLower) ||
+        toSearchableString(item.unita_operativa).includes(searchLower) ||
+        toSearchableString(item.reparto_presidio).includes(searchLower);
 
       const matchesTipo = tipoModuloFilter === 'all' || item.tipo_modulo === tipoModuloFilter;
-      const matchesUO = uoFilter === 'all' || item.unita_operativa === uoFilter;
-      const matchesMotivo = motivoFilter === 'all' || item.motivo_acquisizione === motivoFilter;
+      const matchesUO = uoFilter === 'all' || String(item.unita_operativa || '') === uoFilter;
+      const matchesMotivo = motivoFilter === 'all' || String(item.motivo_acquisizione || '') === motivoFilter;
 
       return matchesSearch && matchesTipo && matchesUO && matchesMotivo;
     });
