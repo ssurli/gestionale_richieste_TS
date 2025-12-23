@@ -343,7 +343,7 @@ export function RequestManager({ data }: RequestManagerProps) {
                               currency: 'EUR',
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2,
-                            }).format(parseFloat(item.costo_iva_esclusa))}
+                            }).format(Number(item.costo_iva_esclusa))}
                           </p>
                         </div>
                       )}
