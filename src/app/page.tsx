@@ -4,22 +4,31 @@ import { useState } from 'react';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
+import { FormFastTrack } from '@/components/forms/FormFastTrack';
+import { FormSemplificato } from '@/components/forms/FormSemplificato';
 import { PriceList } from '@/components/PriceList';
 import { RequestManager, PianoAcquistiItem } from '@/components/RequestManager';
 import { MultitrackGuide } from '@/components/MultitrackGuide';
+import { LandingPage } from '@/components/LandingPage';
 import { TechnologyRequest } from '@/types';
-import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route } from 'lucide-react';
+import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route, Zap, CheckCircle } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
 import pianoAcquistiDataRaw from '../../piano_acquisti_data.json';
 
 // Type cast to fix TypeScript inference from JSON
 const pianoAcquistiData = pianoAcquistiDataRaw as PianoAcquistiItem[];
 
-type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'pricelist' | 'multitrack';
+type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'fasttrack' | 'semplificato' | 'pricelist' | 'multitrack';
 
 export default function Home() {
+  const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [requests, setRequests] = useState<TechnologyRequest[]>([]);
+
+  // Se mostra landing, renderizza solo quella
+  if (showLanding) {
+    return <LandingPage onEnterSystem={() => setShowLanding(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -95,6 +104,28 @@ export default function Home() {
                 MOD.02
               </button>
               <button
+                onClick={() => setCurrentView('fasttrack')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                  currentView === 'fasttrack'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <Zap className="w-4 h-4" />
+                Fast Track
+              </button>
+              <button
+                onClick={() => setCurrentView('semplificato')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                  currentView === 'semplificato'
+                    ? 'bg-yellow-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Semplificato
+              </button>
+              <button
                 onClick={() => setCurrentView('pricelist')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                   currentView === 'pricelist'
@@ -117,6 +148,8 @@ export default function Home() {
         {currentView === 'multitrack' && <MultitrackGuide />}
         {currentView === 'mod01' && <FormMOD01 />}
         {currentView === 'mod02' && <FormMOD02 />}
+        {currentView === 'fasttrack' && <FormFastTrack />}
+        {currentView === 'semplificato' && <FormSemplificato />}
         {currentView === 'pricelist' && <PriceList data={priceListData} />}
       </main>
 

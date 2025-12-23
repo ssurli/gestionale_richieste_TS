@@ -23,8 +23,8 @@ Il **Gestionale Tecnologie Sanitarie** è un sistema completo per la gestione de
 ### Caratteristiche Principali
 
 - ✅ **Sistema Multi-Track**: 4 livelli di urgenza (da 24h a 45 giorni)
-- ✅ **Triage Automatico**: Assegnazione intelligente del percorso
-- ✅ **Moduli Ufficiali**: MOD.01 (generale) e MOD.02 (ecografi)
+- ✅ **Sistema di Supporto al Triage**: Assegnazione track da parte del Coordinatore CommAz
+- ✅ **Moduli Ufficiali**: MOD.01 (generale), MOD.02 (ecografi), Fast Track e Semplificato
 - ✅ **Catalogo ESTAR**: Suggerimenti prezzi in tempo reale
 - ✅ **Storico Richieste**: 106 richieste pregresse consultabili
 - ✅ **Listino Prezzi**: 88 ordinativi storici come riferimento
@@ -44,7 +44,7 @@ graph LR
     D --> E
     E --> F[Invio Richiesta]
     F --> G[Sistema genera ID]
-    G --> H[Triage Automatico]
+    G --> H[Triage da Coordinatore CommAz]
 ```
 
 **Attori:**
@@ -59,9 +59,9 @@ graph LR
 
 ---
 
-### Fase 2: Triage Automatico
+### Fase 2: Sistema di Supporto al Triage
 
-Il sistema analizza automaticamente la richiesta e assegna il **Track** appropriato:
+Il **Coordinatore della Commissione Aziendale** (Coordinatore CommAz), supportato dal sistema, analizza la richiesta e assegna il **Track** appropriato:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -267,14 +267,23 @@ COMPLETATA
 
 ---
 
-### 4. Responsabile HTA
+### 4. Coordinatore CommAz / Responsabile HTA
+**Figura chiave del sistema multi-track**
+
 **Responsabilità:**
+- 🎯 **Triage di tutte le richieste** e assegnazione al track appropriato
+- 🔍 Pre-screening tecnico-economico
+- ✅ Verifica eligibilità per Fast Track e Procedura Semplificata
+- 📋 Coordinamento lavori della Commissione Aziendale per Track 3 e 4
+- 📊 Mantenimento registro tracciabilità richieste
 - 📈 Condurre valutazioni HTA complete (Track 4)
-- 📊 Produrre report di valutazione
+- 📊 Produrre report trimestrali alla Direzione
 - 🤝 Coordinare esperti esterni
 
 **Accesso Sistema:**
-- Richieste Track 4 assegnate
+- Dashboard di tutte le richieste in ingresso
+- Sistema di assegnazione track
+- Registro tracciabilità richieste
 - Template report HTA
 - Database evidence scientifica
 

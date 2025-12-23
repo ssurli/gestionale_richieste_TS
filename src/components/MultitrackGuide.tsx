@@ -35,7 +35,7 @@ export function MultitrackGuide() {
         'Convenzione ESTAR attiva',
         'Manutenzione ordinaria o service attivo'
       ],
-      workflow: 'Richiesta → Triage → Responsabile HTA → Direttore Amministrativo → Ordine',
+      workflow: 'Richiesta → Triage → Coordinatore CommAz → Direttore Amministrativo → Ordine',
       example: 'Sostituzione ECG carrellato rotto, stesso modello in convenzione ESTAR'
     },
     {
@@ -108,12 +108,15 @@ export function MultitrackGuide() {
       ]
     },
     {
-      name: 'Responsabile HTA',
-      subtitle: '(Dipartimento Tecnico)',
+      name: 'Coordinatore CommAz',
+      subtitle: '(Responsabile HTA - Dipartimento Tecnico)',
       responsibilities: [
-        'Coordinare il processo di triage',
-        'Assegnare il Track appropriato',
-        'Supervisionare la valutazione tecnica'
+        'Triage di tutte le richieste e assegnazione track',
+        'Pre-screening tecnico-economico',
+        'Verifica eligibilità Fast Track e Semplificata',
+        'Coordinamento Commissione Aziendale',
+        'Mantenimento registro tracciabilità',
+        'Produzione report trimestrali'
       ]
     },
     {
