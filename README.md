@@ -375,7 +375,7 @@ Progetto proprietario - Azienda Sanitaria
 ## 👥 Autori
 
 - **Sviluppo iniziale**: Sistema basato su documentazione aziendale
-- **Procedura TS**: UO Tecnologie Sanitarie USLTO
+- **Procedura TS**: UOC Tecnologie Sanitarie USLTO
 - **ADDENDUM Multi-Track**: Regolamento Aziendale HTA
 - **ADDENDUM Service/Consumabili**: Gestione criticità contratti
 

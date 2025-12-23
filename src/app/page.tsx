@@ -36,8 +36,19 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FileText className="w-8 h-8 text-blue-600" />
+            <div className="flex items-center gap-4">
+              <img
+                src="/logo-usl-tno.png"
+                alt="USL Toscana Nord Ovest"
+                className="h-16 w-auto object-contain"
+                onError={(e) => {
+                  // Fallback to icon if logo not found
+                  e.currentTarget.style.display = 'none';
+                  const icon = e.currentTarget.nextElementSibling;
+                  if (icon) icon.classList.remove('hidden');
+                }}
+              />
+              <FileText className="w-8 h-8 text-blue-600 hidden" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Gestionale Tecnologie Sanitarie
@@ -160,7 +171,7 @@ export default function Home() {
             Sistema Multi-Track HTA - Conforme a Procedura TS + DGR 306/2024 + DGR 737/2022
           </p>
           <p className="text-center text-xs text-gray-500 mt-2">
-            Azienda USL Toscana Nord Ovest - Dipartimento Tecnico - U.O. Tecnologie
+            Azienda USL Toscana Nord Ovest - Dipartimento Tecnico - UOC Tecnologie
           </p>
         </div>
       </footer>
