@@ -54,8 +54,8 @@ export function PriceList({ data }: PriceListProps) {
       });
     } else {
       filtered.sort((a, b) => {
-        const priceA = parseFloat(a['Totale Ordinativo'].replace(',', '.'));
-        const priceB = parseFloat(b['Totale Ordinativo'].replace(',', '.'));
+        const priceA = parseItalianPrice(a['Totale Ordinativo']);
+        const priceB = parseItalianPrice(b['Totale Ordinativo']);
         return priceB - priceA; // Highest first
       });
     }
@@ -89,17 +89,30 @@ export function PriceList({ data }: PriceListProps) {
     return null;
   };
 
-  // Format price
-  const formatPrice = (price: string): string => {
-    // Handle both Italian format (1.234,56) and US format (1234.56)
+  // Parse Italian price format to number
+  const parseItalianPrice = (price: string): number => {
     let cleaned = price.replace(/\s/g, ''); // Remove spaces
 
-    // If contains comma, it's Italian format: remove dots, replace comma with dot
+    // Italian format detection:
+    // - Has comma: remove all dots (thousands), replace comma with dot
+    // - Multiple dots without comma: Italian thousands separator
+    // - Single dot: could be US format OR Italian with no decimals - keep as is
     if (cleaned.includes(',')) {
+      // Definitely Italian: 1.234,56 or 1234,56
       cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else if ((cleaned.match(/\./g) || []).length > 1) {
+      // Multiple dots without comma: 46.675.59 is Italian format 46.675,59
+      // Last dot should be comma, others are thousands
+      const lastDotIndex = cleaned.lastIndexOf('.');
+      cleaned = cleaned.substring(0, lastDotIndex).replace(/\./g, '') + '.' + cleaned.substring(lastDotIndex + 1);
     }
 
-    const numPrice = parseFloat(cleaned);
+    return parseFloat(cleaned) || 0;
+  };
+
+  // Format price
+  const formatPrice = (price: string): string => {
+    const numPrice = parseItalianPrice(price);
 
     if (isNaN(numPrice)) return '€ 0,00';
 
@@ -128,7 +141,7 @@ export function PriceList({ data }: PriceListProps) {
   // Calculate statistics
   const stats = useMemo(() => {
     const total = filteredData.reduce((sum, item) => {
-      return sum + parseFloat(item['Totale Ordinativo'].replace(',', '.'));
+      return sum + parseItalianPrice(item['Totale Ordinativo']);
     }, 0);
 
     const avgPrice = filteredData.length > 0 ? total / filteredData.length : 0;
