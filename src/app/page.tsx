@@ -6,15 +6,16 @@ import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
 import { PriceList } from '@/components/PriceList';
 import { RequestManager, PianoAcquistiItem } from '@/components/RequestManager';
+import { MultitrackGuide } from '@/components/MultitrackGuide';
 import { TechnologyRequest } from '@/types';
-import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList } from 'lucide-react';
+import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
 import pianoAcquistiDataRaw from '../../piano_acquisti_data.json';
 
 // Type cast to fix TypeScript inference from JSON
 const pianoAcquistiData = pianoAcquistiDataRaw as PianoAcquistiItem[];
 
-type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'pricelist';
+type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'pricelist' | 'multitrack';
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -61,6 +62,17 @@ export default function Home() {
                 Richieste
               </button>
               <button
+                onClick={() => setCurrentView('multitrack')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
+                  currentView === 'multitrack'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <Route className="w-4 h-4" />
+                Sistema
+              </button>
+              <button
                 onClick={() => setCurrentView('mod01')}
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm ${
                   currentView === 'mod01'
@@ -102,6 +114,7 @@ export default function Home() {
       <main className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
         {currentView === 'richieste' && <RequestManager data={pianoAcquistiData} />}
+        {currentView === 'multitrack' && <MultitrackGuide />}
         {currentView === 'mod01' && <FormMOD01 />}
         {currentView === 'mod02' && <FormMOD02 />}
         {currentView === 'pricelist' && <PriceList data={priceListData} />}
