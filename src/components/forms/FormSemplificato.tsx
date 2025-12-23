@@ -44,7 +44,7 @@ interface FormData {
 
   // Dati economici
   costoStimato: string;
-  fonteFi nanziamento: string;
+  fonteFinanziamento: string;
 
   // Impatto organizzativo
   impattoOrganizzativo: string;
@@ -79,7 +79,7 @@ export function FormSemplificato() {
     tipoUpgrade: '',
     attrezzaturaInteressata: '',
     costoStimato: '',
-    fonteFiPrevisto: '',
+    fonteFinanziamento: '',
     impattoOrganizzativo: '',
     formazioneNecessaria: '',
     adeguamentiStrutturali: '',
