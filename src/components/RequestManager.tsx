@@ -55,13 +55,17 @@ export function RequestManager({ data }: RequestManagerProps) {
 
   // Extract unique values for filters
   const uniqueUO = useMemo(() => {
-    const uos = new Set(data.map(item => item.unita_operativa).filter(Boolean));
-    return Array.from(uos).sort();
+    const uos = data
+      .map(item => item.unita_operativa)
+      .filter((uo): uo is string | number => uo != null);
+    return Array.from(new Set(uos)).sort();
   }, [data]);
 
   const uniqueMotivi = useMemo(() => {
-    const motivi = new Set(data.map(item => item.motivo_acquisizione).filter(Boolean));
-    return Array.from(motivi).sort();
+    const motivi = data
+      .map(item => item.motivo_acquisizione)
+      .filter((motivo): motivo is string | number => motivo != null);
+    return Array.from(new Set(motivi)).sort();
   }, [data]);
 
   // Filter data
