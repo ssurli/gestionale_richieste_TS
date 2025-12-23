@@ -29,6 +29,20 @@ Il **Gestionale Tecnologie Sanitarie** è un sistema completo per la gestione de
 - ✅ **Storico Richieste**: 106 richieste pregresse consultabili
 - ✅ **Listino Prezzi**: 88 ordinativi storici come riferimento
 
+### 📝 Quale Modulo Utilizzare?
+
+| Track | Modulo da Compilare | Quando Usarlo |
+|-------|---------------------|---------------|
+| **Track 1 - Urgenza Critica** | MOD.01 o MOD.02 | Urgenze critiche (safety, blocco servizi) |
+| **Track 2 - Fast Track** | **Modulo Fast Track** | Sostituzioni 1:1, convenzioni ESTAR, <€15K |
+| **Track 3 - Semplificata** | **Modulo Semplificato** | Donazioni <€50K, ampliamenti, upgrade |
+| **Track 4 - HTA Completo** | MOD.01 o MOD.02 | Nuove tecnologie, alto impatto, >€100K |
+
+**Nota importante:**
+- **MOD.01**: per tutte le attrezzature sanitarie generali
+- **MOD.02**: specifico solo per ecografi
+- **Fast Track** e **Semplificato**: moduli dedicati introdotti dall'ADDENDUM Multi-Track
+
 ---
 
 ## 🔄 Flusso Operativo Completo
@@ -102,6 +116,7 @@ Il **Coordinatore della Commissione Aziendale** (Coordinatore CommAz), supportat
 ### Track 1: URGENZA CRITICA
 **⏱️ Tempo Max: 24-48 ore**
 **🎨 Colore: Rosso (#dc2626)**
+**📝 Modulo: MOD.01 (generale) o MOD.02 (ecografi)**
 
 **Criteri:**
 - ⚠️ Safety critica per pazienti o operatori
@@ -121,6 +136,7 @@ Richiesta → Triage → Coordinatore CommAz → Direttore Sanitario → Ordine
 ### Track 2: FAST TRACK
 **⏱️ Tempo Max: 5-7 giorni**
 **🎨 Colore: Arancione (#ea580c)**
+**📝 Modulo: FAST TRACK (Allegato 2-bis)**
 
 **Criteri:**
 - 🔁 Sostituzione 1:1 di attrezzatura esistente
@@ -130,7 +146,7 @@ Richiesta → Triage → Coordinatore CommAz → Direttore Sanitario → Ordine
 
 **Workflow:**
 ```
-Richiesta → Triage → Responsabile HTA → Direttore Amministrativo → Ordine
+Richiesta → Triage → Coordinatore CommAz → Direttore Amministrativo → Ordine
 ```
 
 **Esempio:**
@@ -141,6 +157,7 @@ Richiesta → Triage → Responsabile HTA → Direttore Amministrativo → Ordin
 ### Track 3: SEMPLIFICATA
 **⏱️ Tempo Max: 15-20 giorni**
 **🎨 Colore: Giallo (#ca8a04)**
+**📝 Modulo: SEMPLIFICATO (Allegato 2-ter)**
 
 **Criteri:**
 - 🎁 Donazione con valore <€50.000
@@ -161,6 +178,7 @@ Richiesta → Triage → CommAz → Direzione Sanitaria → Direzione Amministra
 ### Track 4: HTA COMPLETO
 **⏱️ Tempo Max: 30-45 giorni**
 **🎨 Colore: Blu (#2563eb)**
+**📝 Modulo: MOD.01 (generale) o MOD.02 (ecografi)**
 
 **Criteri:**
 - 🆕 Nuova tecnologia mai utilizzata in azienda

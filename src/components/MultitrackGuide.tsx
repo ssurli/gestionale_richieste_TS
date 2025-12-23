@@ -9,6 +9,7 @@ export function MultitrackGuide() {
       id: 1,
       name: 'URGENZA CRITICA',
       time: '24-48 ore',
+      modulo: 'MOD.01 o MOD.02',
       color: 'bg-red-600',
       borderColor: 'border-red-600',
       bgLight: 'bg-red-50',
@@ -25,6 +26,7 @@ export function MultitrackGuide() {
       id: 2,
       name: 'FAST TRACK',
       time: '5-7 giorni',
+      modulo: 'Fast Track (Allegato 2-bis)',
       color: 'bg-orange-600',
       borderColor: 'border-orange-600',
       bgLight: 'bg-orange-50',
@@ -42,6 +44,7 @@ export function MultitrackGuide() {
       id: 3,
       name: 'SEMPLIFICATA',
       time: '15-20 giorni',
+      modulo: 'Semplificato (Allegato 2-ter)',
       color: 'bg-yellow-600',
       borderColor: 'border-yellow-600',
       bgLight: 'bg-yellow-50',
@@ -59,6 +62,7 @@ export function MultitrackGuide() {
       id: 4,
       name: 'HTA COMPLETO',
       time: '30-45 giorni',
+      modulo: 'MOD.01 o MOD.02',
       color: 'bg-blue-600',
       borderColor: 'border-blue-600',
       bgLight: 'bg-blue-50',
@@ -217,6 +221,12 @@ export function MultitrackGuide() {
                 </div>
 
                 <div className="p-6">
+                  {/* Modulo */}
+                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <h4 className="font-semibold text-blue-900 mb-1 text-sm">📝 Modulo da compilare:</h4>
+                    <p className="text-sm text-blue-800 font-medium">{track.modulo}</p>
+                  </div>
+
                   {/* Criteri */}
                   <div className="mb-4">
                     <h4 className="font-semibold text-gray-900 mb-2">Criteri di accesso:</h4>
