@@ -241,9 +241,37 @@
             margin: 1.5em 0;
         }
 
+        .three-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            margin: 1.5em 0;
+        }
+
         .emoji {
             font-size: 2em;
             margin-right: 15px;
+        }
+
+        .compact-list {
+            columns: 2;
+            column-gap: 50px;
+        }
+
+        .compact-list li {
+            break-inside: avoid;
+        }
+
+        .box {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .box h3 {
+            margin-top: 0;
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -319,47 +347,48 @@
         <!-- Slide 4: Fast Track -->
         <div class="slide">
             <h2>✨ Modulo Fast Track (Allegato 2)</h2>
-            <p><strong>Digitalizzazione completa:</strong></p>
-            <ul>
-                <li><span class="checkmark">✅</span> 7 Casistiche (A-G): Sostituzione, urgenze, upgrade...</li>
-                <li><span class="checkmark">✅</span> Campo <strong>Direttore UO</strong> (obbligatorio)</li>
-                <li><span class="checkmark">✅</span> Sezione <strong>Tecnologia da Sostituire</strong>
-                    <ul>
-                        <li>N° Matricola, Anno installazione, Motivo dismissione</li>
+            <div class="two-column" style="margin-top: 2em;">
+                <div>
+                    <h3>Campi Principali</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> 7 Casistiche (A-G)</li>
+                        <li><span class="checkmark">✅</span> Direttore UO</li>
+                        <li><span class="checkmark">✅</span> N° Matricola</li>
+                        <li><span class="checkmark">✅</span> Anno installazione</li>
                     </ul>
-                </li>
-                <li><span class="checkmark">✅</span> <strong>Impatto Continuità Assistenziale</strong>
-                    <ul>
-                        <li>CRITICO / ALTO / MEDIO / BASSO</li>
+                </div>
+                <div>
+                    <h3>Validazioni Smart</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> <strong>Impatto Assistenziale</strong><br><small>CRITICO / ALTO / MEDIO / BASSO</small></li>
+                        <li><span class="checkmark">✅</span> <strong>Alert automatico</strong><br><small>Se CRITICO → Track 1</small></li>
+                        <li><span class="checkmark">✅</span> Motivo dismissione</li>
                     </ul>
-                </li>
-                <li><span class="checkmark">✅</span> Alert automatico se CRITICO → suggerisce Track 1</li>
-            </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Slide 5: Semplificato -->
         <div class="slide">
             <h2>✨ Modulo Semplificato (Allegato 3)</h2>
-            <p><strong>Digitalizzazione completa:</strong></p>
-            <ul>
-                <li><span class="checkmark">✅</span> 3 Casistiche: Donazioni, Ampliamenti, Upgrade</li>
-                <li><span class="checkmark">✅</span> Campo <strong>Dipartimento/Area</strong></li>
-                <li><span class="checkmark">✅</span> <strong>Tipologia Donatore</strong>
-                    <ul>
-                        <li>Associazione / Privato / Fondazione / Altro</li>
+            <div class="two-column" style="margin-top: 2em;">
+                <div>
+                    <h3>Campi Specifici</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> 3 Casistiche:<br><small>Donazioni / Ampliamenti / Upgrade</small></li>
+                        <li><span class="checkmark">✅</span> Dipartimento/Area</li>
+                        <li><span class="checkmark">✅</span> Tipologia Donatore<br><small>Associazione / Privato / Fondazione</small></li>
                     </ul>
-                </li>
-                <li><span class="checkmark">✅</span> Sezione <strong>ESTAR/Aggiudicazione</strong>
-                    <ul>
-                        <li>Già aggiudicata? + N° Determinazione</li>
+                </div>
+                <div>
+                    <h3>Conformità DGR</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> <strong>ESTAR</strong><br><small>Già aggiudicata? + N° Det</small></li>
+                        <li><span class="checkmark">✅</span> <strong>DGR 306/2024</strong><br><small>Alert se ≥€50K → Track 4</small></li>
+                        <li><span class="checkmark">✅</span> Materiali dedicati<br><small>Blocco automatico</small></li>
                     </ul>
-                </li>
-                <li><span class="checkmark">✅</span> <strong>Validazione DGR 306/2024</strong>
-                    <ul>
-                        <li>Alert se donazione ≥€50K → Track 4</li>
-                    </ul>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
 
         <!-- Slide 6: Vantaggi -->
@@ -411,40 +440,51 @@
         <!-- Slide 7: Conformità -->
         <div class="slide">
             <h2>🔍 Conformità Normativa</h2>
-            <p><strong>Validazioni automatiche integrate:</strong></p>
-            <div class="highlight">
-                <h3><span class="checkmark">✅</span> DGR 306/2024 (Donazioni)</h3>
-                <ul>
-                    <li>Alert se valore ≥€50.000</li>
-                    <li>Blocco se materiali dedicati</li>
-                </ul>
-            </div>
-            <div class="highlight">
-                <h3><span class="checkmark">✅</span> DGR 737/2022 (Tecnologie innovative)</h3>
-                <ul>
-                    <li>Identificazione automatica</li>
-                </ul>
-            </div>
-            <div class="highlight">
-                <h3><span class="checkmark">✅</span> Regolamento Aziendale terranova</h3>
-                <ul>
-                    <li>Campi obbligatori</li>
-                    <li>Workflow predefiniti</li>
-                </ul>
+            <p style="margin-bottom: 2em;"><strong>Validazioni automatiche integrate:</strong></p>
+            <div class="three-column">
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> DGR 306/2024</h3>
+                    <p><strong>Donazioni</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Alert ≥€50K</li>
+                        <li>Blocco materiali dedicati</li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> DGR 737/2022</h3>
+                    <p><strong>Tecnologie innovative</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Identificazione automatica</li>
+                        <li>Classe IIb/III</li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> Regolamento</h3>
+                    <p><strong>Terranova</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Campi obbligatori</li>
+                        <li>Workflow predefiniti</li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <!-- Slide 8: Dati Integrati -->
         <div class="slide">
             <h2>📈 Dati Integrati</h2>
-            <p><strong>Sistema già popolato con:</strong></p>
-            <ul style="font-size: 1.3em; line-height: 2;">
-                <li>📋 <strong>106 richieste pregresse</strong> consultabili</li>
-                <li>💰 <strong>88 ordinativi ESTAR</strong> come listino prezzi</li>
-                <li>🏥 <strong>Catalogo dispositivi</strong> con codici</li>
-                <li>🔍 <strong>Ricerca full-text</strong> su tutti i dati</li>
-                <li>📊 <strong>Dashboard analytics</strong> per Coordinatore CommAz</li>
-            </ul>
+            <p style="margin-bottom: 2em;"><strong>Sistema già popolato con:</strong></p>
+            <div class="two-column">
+                <ul style="font-size: 1.4em; line-height: 2.2; margin-left: 1.5em;">
+                    <li>📋 <strong>106 richieste</strong><br><small>Storico pregresso</small></li>
+                    <li>💰 <strong>88 ordini ESTAR</strong><br><small>Listino prezzi</small></li>
+                    <li>🏥 <strong>Catalogo</strong><br><small>Dispositivi con codici</small></li>
+                </ul>
+                <ul style="font-size: 1.4em; line-height: 2.2; margin-left: 1.5em;">
+                    <li>🔍 <strong>Ricerca full-text</strong><br><small>Su tutti i dati</small></li>
+                    <li>📊 <strong>Dashboard</strong><br><small>Analytics CommAz</small></li>
+                    <li>⚡ <strong>Real-time</strong><br><small>Aggiornamenti istantanei</small></li>
+                </ul>
+            </div>
         </div>
 
         <!-- Slide 9: Mini-HTA -->
@@ -528,33 +568,43 @@
         <!-- Slide 13: Punti di Forza -->
         <div class="slide">
             <h2>✅ Punti di Forza</h2>
-            <ol style="font-size: 1.2em; line-height: 2;">
-                <li><span class="checkmark">✅</span> <strong>Sistema già funzionante</strong> (no sviluppo da zero)</li>
-                <li><span class="checkmark">✅</span> <strong>100% allineato</strong> con Regolamento terranova</li>
-                <li><span class="checkmark">✅</span> <strong>Automazione compliance</strong> normativa</li>
-                <li><span class="checkmark">✅</span> <strong>Tracciabilità completa</strong> + dashboard</li>
-                <li><span class="checkmark">✅</span> <strong>Integrabile</strong> con mini-HTA (gratuito)</li>
-                <li><span class="checkmark">✅</span> <strong>Accessibile ovunque</strong> (web-based)</li>
-                <li><span class="checkmark">✅</span> <strong>Listino storico</strong> integrato (88 ordini)</li>
-            </ol>
+            <div class="two-column" style="margin-top: 2em;">
+                <ol style="font-size: 1.3em; line-height: 2.2; margin-left: 1.5em;">
+                    <li><span class="checkmark">✅</span> <strong>Sistema funzionante</strong><br><small>No sviluppo da zero</small></li>
+                    <li><span class="checkmark">✅</span> <strong>100% allineato</strong><br><small>Regolamento terranova</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Automazione</strong><br><small>Compliance DGR</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Tracciabilità</strong><br><small>Dashboard completa</small></li>
+                </ol>
+                <ol start="5" style="font-size: 1.3em; line-height: 2.2; margin-left: 1.5em;">
+                    <li><span class="checkmark">✅</span> <strong>Integrabile</strong><br><small>Mini-HTA gratuito</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Web-based</strong><br><small>Accessibile ovunque</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Dati storici</strong><br><small>88 ordini + 106 richieste</small></li>
+                </ol>
+            </div>
         </div>
 
         <!-- Slide 14: Contatti -->
         <div class="slide">
             <h2>📞 Contatti</h2>
-            <div class="highlight">
-                <h3>Sistema deployato su:</h3>
-                <p><span class="checkmark">🔗</span> Vercel (99.9% uptime)</p>
-            </div>
-            <div class="highlight">
-                <h3>CIRHTA - Mini-HTA UniPisa:</h3>
-                <p>📧 segret_cirhta@dam.unipi.it</p>
-                <p>🌐 http://cirhta.unipi.it/</p>
-            </div>
-            <div class="highlight">
-                <h3>Supporto tecnico:</h3>
-                <p>UOC Tecnologie Sanitarie ESTAR<br>
-                USL Toscana Nord Ovest</p>
+            <div class="three-column" style="margin-top: 3em;">
+                <div class="box" style="text-align: center;">
+                    <h3>🔗 Sistema</h3>
+                    <p><strong>Vercel</strong></p>
+                    <p style="font-size: 1.2em;">99.9% uptime</p>
+                    <p style="font-size: 1.1em;">Cloud deployment</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🎓 CIRHTA</h3>
+                    <p><strong>Mini-HTA UniPisa</strong></p>
+                    <p style="font-size: 1.1em;">📧 segret_cirhta@<br>dam.unipi.it</p>
+                    <p style="font-size: 1.1em;">🌐 cirhta.unipi.it</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🏥 Supporto</h3>
+                    <p><strong>UOC Tecnologie</strong></p>
+                    <p style="font-size: 1.1em;">Sanitarie ESTAR</p>
+                    <p style="font-size: 1.1em;">USL Toscana NO</p>
+                </div>
             </div>
         </div>
 
