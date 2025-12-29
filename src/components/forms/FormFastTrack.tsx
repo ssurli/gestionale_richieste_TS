@@ -380,7 +380,7 @@ export function FormFastTrack() {
                       <option value="">-- Seleziona motivo --</option>
                       <option value="fuori_uso">Fuori uso irreparabile</option>
                       <option value="obsolescenza">Obsolescenza tecnologica</option>
-                      <option value="fine_vita">Fine vita utile (>10 anni)</option>
+                      <option value="fine_vita">Fine vita utile (&gt;10 anni)</option>
                       <option value="altro">Altro</option>
                     </select>
                   </div>
