@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Gestionale Tecnologie Sanitarie - USL Toscana Nord Ovest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            padding: 60px 80px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide.lead {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 0.3em;
+            color: #2d3748;
+        }
+
+        .slide.lead h1 {
+            color: white;
+            font-size: 4em;
+        }
+
+        h2 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.3em;
+        }
+
+        .slide.lead h2 {
+            color: rgba(255,255,255,0.9);
+            border: none;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            margin: 1em 0 0.5em 0;
+            color: #667eea;
+        }
+
+        p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 1em;
+            color: #4a5568;
+        }
+
+        .slide.lead p {
+            color: rgba(255,255,255,0.95);
+            font-size: 1.5em;
+        }
+
+        ul, ol {
+            margin-left: 2em;
+            margin-bottom: 1em;
+        }
+
+        li {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 0.5em;
+            color: #4a5568;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            font-size: 1em;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .checkmark {
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #f6ad55;
+            font-weight: bold;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #667eea;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .highlight {
+            background: #fef5e7;
+            padding: 20px;
+            border-left: 4px solid #f39c12;
+            margin: 1em 0;
+            border-radius: 5px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+
+        .badge.warning {
+            background: #f6ad55;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        code {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 1em 0;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">17</span>
+    </div>
+
+    <div class="presentation">
+        <!-- Slide 1: Titolo -->
+        <div class="slide lead active">
+            <h1>Sistema Gestionale<br>Tecnologie Sanitarie</h1>
+            <h2>Demo Funzionante</h2>
+            <p style="margin-top: 2em;"><strong>USL Toscana Nord Ovest</strong></p>
+            <p>29 Dicembre 2025</p>
+        </div>
+
+        <!-- Slide 2: Obiettivo -->
+        <div class="slide">
+            <h2>🎯 Obiettivo</h2>
+            <p>Presentare il <strong>sistema digitale già funzionante</strong> che implementa il:</p>
+            <div class="highlight">
+                <h3>"Regolamento Aziendale per l'Appropriatezza delle Tecnologie Sanitarie"</h3>
+                <p style="text-align: center; margin-top: 1em;"><em>(rev. 26-12-2025)</em></p>
+            </div>
+            <p style="margin-top: 2em;">
+                <span class="checkmark">✅</span> <strong>Sistema ONLINE e OPERATIVO</strong><br>
+                <span class="checkmark">🔗</span> <strong>Demo live disponibile</strong>
+            </p>
+        </div>
+
+        <!-- Slide 3: Allineamento -->
+        <div class="slide">
+            <h2>📊 Allineamento 100% con Regolamento</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Track</th>
+                        <th>Tempo</th>
+                        <th>Modulo Digitale</th>
+                        <th>Stato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1 - Urgenza Critica</strong></td>
+                        <td>24-48h</td>
+                        <td>MOD.01/02</td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2 - Fast Track</strong></td>
+                        <td>5-7 gg</td>
+                        <td><strong>Allegato 2</strong></td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3 - Basso Impatto</strong></td>
+                        <td>15-20 gg</td>
+                        <td><strong>Allegato 3</strong></td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>4 - HTA Completo</strong></td>
+                        <td>30-45 gg</td>
+                        <td>MOD.01/02</td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 4: Fast Track -->
+        <div class="slide">
+            <h2>✨ Modulo Fast Track (Allegato 2)</h2>
+            <p><strong>Digitalizzazione completa:</strong></p>
+            <ul>
+                <li><span class="checkmark">✅</span> 7 Casistiche (A-G): Sostituzione, urgenze, upgrade...</li>
+                <li><span class="checkmark">✅</span> Campo <strong>Direttore UO</strong> (obbligatorio)</li>
+                <li><span class="checkmark">✅</span> Sezione <strong>Tecnologia da Sostituire</strong>
+                    <ul>
+                        <li>N° Matricola, Anno installazione, Motivo dismissione</li>
+                    </ul>
+                </li>
+                <li><span class="checkmark">✅</span> <strong>Impatto Continuità Assistenziale</strong>
+                    <ul>
+                        <li>CRITICO / ALTO / MEDIO / BASSO</li>
+                    </ul>
+                </li>
+                <li><span class="checkmark">✅</span> Alert automatico se CRITICO → suggerisce Track 1</li>
+            </ul>
+        </div>
+
+        <!-- Slide 5: Semplificato -->
+        <div class="slide">
+            <h2>✨ Modulo Semplificato (Allegato 3)</h2>
+            <p><strong>Digitalizzazione completa:</strong></p>
+            <ul>
+                <li><span class="checkmark">✅</span> 3 Casistiche: Donazioni, Ampliamenti, Upgrade</li>
+                <li><span class="checkmark">✅</span> Campo <strong>Dipartimento/Area</strong></li>
+                <li><span class="checkmark">✅</span> <strong>Tipologia Donatore</strong>
+                    <ul>
+                        <li>Associazione / Privato / Fondazione / Altro</li>
+                    </ul>
+                </li>
+                <li><span class="checkmark">✅</span> Sezione <strong>ESTAR/Aggiudicazione</strong>
+                    <ul>
+                        <li>Già aggiudicata? + N° Determinazione</li>
+                    </ul>
+                </li>
+                <li><span class="checkmark">✅</span> <strong>Validazione DGR 306/2024</strong>
+                    <ul>
+                        <li>Alert se donazione ≥€50K → Track 4</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Slide 6: Vantaggi -->
+        <div class="slide">
+            <h2>💡 Vantaggi vs Moduli Cartacei</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspetto</th>
+                        <th>Cartaceo</th>
+                        <th>Digitale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Compilazione</strong></td>
+                        <td>Ufficio</td>
+                        <td>Ovunque (web)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validazione</strong></td>
+                        <td>Manuale</td>
+                        <td>Automatica DGR</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tracking</strong></td>
+                        <td>Email/cartelle</td>
+                        <td>Dashboard real-time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prezzi ESTAR</strong></td>
+                        <td>Ricerca manuale</td>
+                        <td>88 ordini integrati</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Storico</strong></td>
+                        <td>Archivio fisico</td>
+                        <td>Database + Analytics</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Errori</strong></td>
+                        <td>Possibili</td>
+                        <td>Prevenuti da alert</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 7: Conformità -->
+        <div class="slide">
+            <h2>🔍 Conformità Normativa</h2>
+            <p><strong>Validazioni automatiche integrate:</strong></p>
+            <div class="highlight">
+                <h3><span class="checkmark">✅</span> DGR 306/2024 (Donazioni)</h3>
+                <ul>
+                    <li>Alert se valore ≥€50.000</li>
+                    <li>Blocco se materiali dedicati</li>
+                </ul>
+            </div>
+            <div class="highlight">
+                <h3><span class="checkmark">✅</span> DGR 737/2022 (Tecnologie innovative)</h3>
+                <ul>
+                    <li>Identificazione automatica</li>
+                </ul>
+            </div>
+            <div class="highlight">
+                <h3><span class="checkmark">✅</span> Regolamento Aziendale terranova</h3>
+                <ul>
+                    <li>Campi obbligatori</li>
+                    <li>Workflow predefiniti</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 8: Dati Integrati -->
+        <div class="slide">
+            <h2>📈 Dati Integrati</h2>
+            <p><strong>Sistema già popolato con:</strong></p>
+            <ul style="font-size: 1.3em; line-height: 2;">
+                <li>📋 <strong>106 richieste pregresse</strong> consultabili</li>
+                <li>💰 <strong>88 ordinativi ESTAR</strong> come listino prezzi</li>
+                <li>🏥 <strong>Catalogo dispositivi</strong> con codici</li>
+                <li>🔍 <strong>Ricerca full-text</strong> su tutti i dati</li>
+                <li>📊 <strong>Dashboard analytics</strong> per Coordinatore CommAz</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9: Mini-HTA -->
+        <div class="slide">
+            <h2>🚀 Mini-HTA Università di Pisa</h2>
+            <p><strong>Opportunità di integrazione gratuita:</strong></p>
+            <ul>
+                <li>🎓 <strong>Centro CIRHTA</strong> - Università di Pisa</li>
+                <li>💰 <strong>Costo</strong>: GRATUITO per SSR Toscana</li>
+                <li>📅 <strong>Presentazione</strong>: Giugno 2025</li>
+                <li>📧 <strong>Contatto</strong>: segret_cirhta@dam.unipi.it</li>
+            </ul>
+            <div class="highlight" style="margin-top: 2em;">
+                <h3>Piano integrazione Q2-Q3 2025:</h3>
+                <p style="text-align: center; font-size: 1.2em;">
+                    Nostro Sistema (frontend) + Mini-HTA (scoring Track 4)
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 10: Confronto -->
+        <div class="slide">
+            <h2>📊 Confronto: Proposta vs Sistema</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Proposta Terranova <em>(cartaceo)</em></h3>
+                    <ul>
+                        <li><span class="checkmark">✅</span> Regolamento strutturato</li>
+                        <li><span class="checkmark">✅</span> 4 Track definiti</li>
+                        <li><span class="warning">⚠️</span> Moduli Word/Excel</li>
+                        <li><span class="warning">⚠️</span> Validazione manuale</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Sistema Digitale <em>(operativo)</em></h3>
+                    <ul>
+                        <li><span class="checkmark">✅</span> Stessi 4 Track</li>
+                        <li><span class="checkmark">✅</span> Moduli web interattivi</li>
+                        <li><span class="checkmark">✅</span> Validazione automatica</li>
+                        <li><span class="checkmark">✅</span> Tracciabilità completa</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Demo -->
+        <div class="slide">
+            <h2>🎬 Demo Live - 5 Punti Chiave</h2>
+            <ol style="font-size: 1.3em; line-height: 2;">
+                <li><strong>Landing Page</strong> - Logo USL + Overview 4 Track</li>
+                <li><strong>Fast Track</strong> - Compilazione sostituzione ECG</li>
+                <li><strong>Semplificato</strong> - Donazione €30K con alert DGR</li>
+                <li><strong>Dashboard</strong> - Panoramica richieste</li>
+                <li><strong>Listino</strong> - 88 ordini ESTAR consultabili</li>
+            </ol>
+            <p style="margin-top: 2em; text-align: center; font-size: 1.2em;">
+                <span class="checkmark">🔗</span> <strong>URL Demo</strong>: <code style="font-size: 0.8em;">gestionale-richieste-ts-...-vercel.app</code>
+            </p>
+        </div>
+
+        <!-- Slide 12: Decisioni -->
+        <div class="slide">
+            <h2>💼 Decisioni Richieste</h2>
+            <h3>1. <span class="checkmark">✅</span> Approvazione Sistema</h3>
+            <ul>
+                <li>Uso ufficiale come implementazione del Regolamento</li>
+                <li>Equivalenza moduli digitali ↔ Allegati 2/3/4</li>
+            </ul>
+            <h3>2. 📅 Rollout</h3>
+            <ul>
+                <li><strong>Gennaio 2025</strong>: Fase pilota (2-3 UU.OO.)</li>
+                <li><strong>Marzo 2025</strong>: Go-live aziendale</li>
+            </ul>
+            <h3>3. 🎓 Mini-HTA UniPisa</h3>
+            <ul>
+                <li>Autorizzare contatto CIRHTA</li>
+                <li>Valutare integrazione (Q2 2025)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 13: Punti di Forza -->
+        <div class="slide">
+            <h2>✅ Punti di Forza</h2>
+            <ol style="font-size: 1.2em; line-height: 2;">
+                <li><span class="checkmark">✅</span> <strong>Sistema già funzionante</strong> (no sviluppo da zero)</li>
+                <li><span class="checkmark">✅</span> <strong>100% allineato</strong> con Regolamento terranova</li>
+                <li><span class="checkmark">✅</span> <strong>Automazione compliance</strong> normativa</li>
+                <li><span class="checkmark">✅</span> <strong>Tracciabilità completa</strong> + dashboard</li>
+                <li><span class="checkmark">✅</span> <strong>Integrabile</strong> con mini-HTA (gratuito)</li>
+                <li><span class="checkmark">✅</span> <strong>Accessibile ovunque</strong> (web-based)</li>
+                <li><span class="checkmark">✅</span> <strong>Listino storico</strong> integrato (88 ordini)</li>
+            </ol>
+        </div>
+
+        <!-- Slide 14: Contatti -->
+        <div class="slide">
+            <h2>📞 Contatti</h2>
+            <div class="highlight">
+                <h3>Sistema deployato su:</h3>
+                <p><span class="checkmark">🔗</span> Vercel (99.9% uptime)</p>
+            </div>
+            <div class="highlight">
+                <h3>CIRHTA - Mini-HTA UniPisa:</h3>
+                <p>📧 segret_cirhta@dam.unipi.it</p>
+                <p>🌐 http://cirhta.unipi.it/</p>
+            </div>
+            <div class="highlight">
+                <h3>Supporto tecnico:</h3>
+                <p>UOC Tecnologie Sanitarie ESTAR<br>
+                USL Toscana Nord Ovest</p>
+            </div>
+        </div>
+
+        <!-- Slide 15: Conclusioni -->
+        <div class="slide lead">
+            <h2>🏁 Conclusioni</h2>
+            <h1 style="font-size: 3em; margin-top: 1em;">Il sistema è PRONTO</h1>
+            <p style="font-size: 1.3em; margin-top: 1em;">Attendiamo l'approvazione per il deployment aziendale</p>
+            <div style="margin-top: 3em; text-align: left;">
+                <p><strong>Prossimi passi:</strong></p>
+                <ol style="font-size: 1.2em; line-height: 2;">
+                    <li>Approvazione Direzione (oggi)</li>
+                    <li>Fase pilota (Gennaio 2025)</li>
+                    <li>Go-live aziendale (Marzo 2025)</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 16: Grazie -->
+        <div class="slide lead">
+            <h1>Grazie per l'attenzione</h1>
+            <h2 style="margin-top: 2em; font-size: 2.5em;">Domande?</h2>
+        </div>
+
+        <!-- Slide 17: Fine -->
+        <div class="slide lead">
+            <h1 style="font-size: 5em;">✅</h1>
+            <h2>Presentazione completata</h2>
+            <p style="margin-top: 2em;">Usa i pulsanti per navigare o premi ESC per uscire</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn">← Precedente</button>
+        <button id="nextBtn">Successiva →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(totalSlides - 1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
