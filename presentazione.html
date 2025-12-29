@@ -27,14 +27,15 @@
 
         .slide {
             display: none;
-            width: 90%;
-            max-width: 1200px;
-            height: 85vh;
+            width: 95%;
+            max-width: 1600px;
+            height: 90vh;
             background: white;
             border-radius: 20px;
-            padding: 60px 80px;
+            padding: 50px 100px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideIn 0.5s ease-out;
+            overflow-y: auto;
         }
 
         .slide.active {
@@ -63,22 +64,23 @@
         }
 
         h1 {
-            font-size: 3.5em;
-            margin-bottom: 0.3em;
+            font-size: 4.5em;
+            margin-bottom: 0.4em;
             color: #2d3748;
+            line-height: 1.2;
         }
 
         .slide.lead h1 {
             color: white;
-            font-size: 4em;
+            font-size: 5em;
         }
 
         h2 {
-            font-size: 2em;
-            margin-bottom: 0.5em;
+            font-size: 2.8em;
+            margin-bottom: 0.6em;
             color: #4a5568;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 0.3em;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 0.4em;
         }
 
         .slide.lead h2 {
@@ -87,53 +89,54 @@
         }
 
         h3 {
-            font-size: 1.5em;
-            margin: 1em 0 0.5em 0;
+            font-size: 1.8em;
+            margin: 1.2em 0 0.6em 0;
             color: #667eea;
         }
 
         p {
-            font-size: 1.2em;
-            line-height: 1.6;
-            margin-bottom: 1em;
+            font-size: 1.5em;
+            line-height: 1.7;
+            margin-bottom: 1.2em;
             color: #4a5568;
         }
 
         .slide.lead p {
             color: rgba(255,255,255,0.95);
-            font-size: 1.5em;
+            font-size: 1.8em;
         }
 
         ul, ol {
-            margin-left: 2em;
-            margin-bottom: 1em;
+            margin-left: 2.5em;
+            margin-bottom: 1.5em;
         }
 
         li {
-            font-size: 1.1em;
-            line-height: 1.8;
-            margin-bottom: 0.5em;
+            font-size: 1.4em;
+            line-height: 2;
+            margin-bottom: 0.8em;
             color: #4a5568;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 1em 0;
-            font-size: 1em;
+            margin: 1.5em 0;
+            font-size: 1.3em;
         }
 
         th {
             background: #667eea;
             color: white;
-            padding: 15px;
+            padding: 20px 25px;
             text-align: left;
             font-weight: 600;
+            font-size: 1.1em;
         }
 
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 25px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
         tr:nth-child(even) {
@@ -185,32 +188,33 @@
 
         .slide-counter {
             position: fixed;
-            top: 20px;
-            right: 30px;
+            top: 30px;
+            right: 40px;
             background: white;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 15px 30px;
+            border-radius: 30px;
             font-weight: 600;
+            font-size: 1.3em;
             color: #667eea;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
         .highlight {
             background: #fef5e7;
-            padding: 20px;
-            border-left: 4px solid #f39c12;
-            margin: 1em 0;
-            border-radius: 5px;
+            padding: 30px;
+            border-left: 6px solid #f39c12;
+            margin: 1.5em 0;
+            border-radius: 8px;
         }
 
         .badge {
             display: inline-block;
             background: #48bb78;
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            margin-left: 10px;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-left: 15px;
         }
 
         .badge.warning {
@@ -224,21 +228,22 @@
         code {
             background: #2d3748;
             color: #48bb78;
-            padding: 2px 8px;
-            border-radius: 4px;
+            padding: 5px 12px;
+            border-radius: 6px;
             font-family: 'Courier New', monospace;
+            font-size: 0.9em;
         }
 
         .two-column {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin: 1em 0;
+            gap: 50px;
+            margin: 1.5em 0;
         }
 
         .emoji {
-            font-size: 1.5em;
-            margin-right: 10px;
+            font-size: 2em;
+            margin-right: 15px;
         }
     </style>
 </head>
