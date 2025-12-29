@@ -12,6 +12,8 @@ interface FormData {
 
   // Richiedente
   richiedente: string;
+  direttoreUO: string;
+  dipartimento: string;
   telefono: string;
   email: string;
   unitaOperativa: string;
@@ -21,13 +23,17 @@ interface FormData {
   descrizione: string;
   motivazione: string;
 
-  // Dati attrezzatura
+  // Dati attrezzatura (Allegato 3 terranova)
   marca: string;
   modello: string;
   quantita: string;
+  giaAggiudicataESTAR: 'si' | 'no' | '';
+  numeroDetESTAR: string;
+  fornitore: string;
 
   // Per donazioni
   donatore: string;
+  tipologiaDonatore: 'associazione' | 'privato' | 'fondazione' | 'altro' | '';
   donatoreIndirizzo: string;
   valoreDonazione: string;
   materialiDedicati: 'si' | 'no' | '';
@@ -59,6 +65,8 @@ export function FormSemplificato() {
   const [formData, setFormData] = useState<FormData>({
     categoria: '',
     richiedente: '',
+    direttoreUO: '',
+    dipartimento: '',
     telefono: '',
     email: '',
     unitaOperativa: '',
@@ -68,7 +76,11 @@ export function FormSemplificato() {
     marca: '',
     modello: '',
     quantita: '1',
+    giaAggiudicataESTAR: '',
+    numeroDetESTAR: '',
+    fornitore: '',
     donatore: '',
+    tipologiaDonatore: '',
     donatoreIndirizzo: '',
     valoreDonazione: '',
     materialiDedicati: '',
@@ -135,6 +147,8 @@ export function FormSemplificato() {
       setFormData({
         categoria: '',
         richiedente: '',
+        direttoreUO: '',
+        dipartimento: '',
         telefono: '',
         email: '',
         unitaOperativa: '',
@@ -144,7 +158,11 @@ export function FormSemplificato() {
         marca: '',
         modello: '',
         quantita: '1',
+        giaAggiudicataESTAR: '',
+        numeroDetESTAR: '',
+        fornitore: '',
         donatore: '',
+        tipologiaDonatore: '',
         donatoreIndirizzo: '',
         valoreDonazione: '',
         materialiDedicati: '',
@@ -261,7 +279,7 @@ export function FormSemplificato() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome e Cognome <span className="text-red-600">*</span>
+                  Nome e Cognome Richiedente <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -269,6 +287,31 @@ export function FormSemplificato() {
                   onChange={(e) => setFormData({ ...formData, richiedente: e.target.value })}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Direttore UO <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.direttoreUO}
+                  onChange={(e) => setFormData({ ...formData, direttoreUO: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Dipartimento/Area <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.dipartimento}
+                  onChange={(e) => setFormData({ ...formData, dipartimento: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                  placeholder="es: Dipartimento Diagnostica"
                 />
               </div>
               <div>
@@ -378,6 +421,53 @@ export function FormSemplificato() {
                   />
                 </div>
               </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <h3 className="font-semibold text-gray-900 mb-3">Informazioni ESTAR/Aggiudicazione</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Già aggiudicata ESTAR? <span className="text-red-600">*</span>
+                    </label>
+                    <select
+                      value={formData.giaAggiudicataESTAR}
+                      onChange={(e) => setFormData({ ...formData, giaAggiudicataESTAR: e.target.value as any })}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                    >
+                      <option value="">-- Seleziona --</option>
+                      <option value="si">Sì</option>
+                      <option value="no">No (specificare se già in uso)</option>
+                    </select>
+                  </div>
+                  {formData.giaAggiudicataESTAR === 'si' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Numero Determinazione ESTAR
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.numeroDetESTAR}
+                        onChange={(e) => setFormData({ ...formData, numeroDetESTAR: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                        placeholder="es: Det. 1446/2024"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Fornitore
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.fornitore}
+                      onChange={(e) => setFormData({ ...formData, fornitore: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                      placeholder="es: Ditta ABC Medical S.r.l."
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -403,6 +493,25 @@ export function FormSemplificato() {
                       placeholder="Nome completo donatore/associazione"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipologia Donatore <span className="text-red-600">*</span>
+                    </label>
+                    <select
+                      value={formData.tipologiaDonatore}
+                      onChange={(e) => setFormData({ ...formData, tipologiaDonatore: e.target.value as any })}
+                      required={formData.categoria === 'donazione'}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"
+                    >
+                      <option value="">-- Seleziona tipo --</option>
+                      <option value="associazione">Associazione</option>
+                      <option value="privato">Privato cittadino</option>
+                      <option value="fondazione">Fondazione</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Valore Donazione (€) <span className="text-red-600">*</span>

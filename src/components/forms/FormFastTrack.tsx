@@ -19,6 +19,7 @@ interface FormData {
 
   // Richiedente
   richiedente: string;
+  direttoreUO: string;
   telefono: string;
   email: string;
   unitaOperativa: string;
@@ -31,9 +32,16 @@ interface FormData {
   // Dati attrezzatura
   marca: string;
   modello: string;
+  codiceProdotto: string;
 
   // Per sostituzioni: vecchia attrezzatura
   numeroInventarioVecchio: string;
+  annoInstallazione: string;
+  motivoDismissione: 'fuori_uso' | 'obsolescenza' | 'fine_vita' | 'altro' | '';
+  motivoDismissioneAltro: string;
+
+  // Impatto continuità assistenziale (Allegato 2 terranova)
+  impattoAssistenziale: 'critico' | 'alto' | 'medio' | 'basso' | '';
 
   // Riferimenti ESTAR
   numeroConvenzioneESTAR: string;
@@ -55,6 +63,7 @@ export function FormFastTrack() {
   const [formData, setFormData] = useState<FormData>({
     categoria: '',
     richiedente: '',
+    direttoreUO: '',
     telefono: '',
     email: '',
     unitaOperativa: '',
@@ -63,7 +72,12 @@ export function FormFastTrack() {
     motivazione: '',
     marca: '',
     modello: '',
+    codiceProdotto: '',
     numeroInventarioVecchio: '',
+    annoInstallazione: '',
+    motivoDismissione: '',
+    motivoDismissioneAltro: '',
+    impattoAssistenziale: '',
     numeroConvenzioneESTAR: '',
     numeroDetESTAR: '',
     fornitoreAggiudicato: '',
@@ -86,6 +100,7 @@ export function FormFastTrack() {
       setFormData({
         categoria: '',
         richiedente: '',
+        direttoreUO: '',
         telefono: '',
         email: '',
         unitaOperativa: '',
@@ -94,7 +109,12 @@ export function FormFastTrack() {
         motivazione: '',
         marca: '',
         modello: '',
+        codiceProdotto: '',
         numeroInventarioVecchio: '',
+        annoInstallazione: '',
+        motivoDismissione: '',
+        motivoDismissioneAltro: '',
+        impattoAssistenziale: '',
         numeroConvenzioneESTAR: '',
         numeroDetESTAR: '',
         fornitoreAggiudicato: '',
@@ -181,7 +201,7 @@ export function FormFastTrack() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nome e Cognome <span className="text-red-600">*</span>
+                  Nome e Cognome Richiedente <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -190,6 +210,19 @@ export function FormFastTrack() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
                   placeholder="es: Mario Rossi"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Direttore UO <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.direttoreUO}
+                  onChange={(e) => setFormData({ ...formData, direttoreUO: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                  placeholder="es: Dr. Luigi Bianchi"
                 />
               </div>
               <div>
@@ -293,19 +326,78 @@ export function FormFastTrack() {
                   />
                 </div>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Codice Prodotto
+                </label>
+                <input
+                  type="text"
+                  value={formData.codiceProdotto}
+                  onChange={(e) => setFormData({ ...formData, codiceProdotto: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                  placeholder="es: MAC2000-ECG-12D"
+                />
+              </div>
 
               {(formData.categoria === 'sostituzione_1_1') && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Numero Inventario Vecchia Attrezzatura
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.numeroInventarioVecchio}
-                    onChange={(e) => setFormData({ ...formData, numeroInventarioVecchio: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
-                    placeholder="es: INV-2015-00123"
-                  />
+                <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg space-y-4">
+                  <h3 className="font-semibold text-orange-900">Tecnologia da Sostituire</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        N° Matricola/Inventario
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.numeroInventarioVecchio}
+                        onChange={(e) => setFormData({ ...formData, numeroInventarioVecchio: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                        placeholder="es: INV-2015-00123"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Anno Installazione
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.annoInstallazione}
+                        onChange={(e) => setFormData({ ...formData, annoInstallazione: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                        placeholder="es: 2015"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Motivo Dismissione
+                    </label>
+                    <select
+                      value={formData.motivoDismissione}
+                      onChange={(e) => setFormData({ ...formData, motivoDismissione: e.target.value as any })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                    >
+                      <option value="">-- Seleziona motivo --</option>
+                      <option value="fuori_uso">Fuori uso irreparabile</option>
+                      <option value="obsolescenza">Obsolescenza tecnologica</option>
+                      <option value="fine_vita">Fine vita utile (>10 anni)</option>
+                      <option value="altro">Altro</option>
+                    </select>
+                  </div>
+                  {formData.motivoDismissione === 'altro' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Specifica altro motivo
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.motivoDismissioneAltro}
+                        onChange={(e) => setFormData({ ...formData, motivoDismissioneAltro: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                        placeholder="Specificare il motivo"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -376,9 +468,33 @@ export function FormFastTrack() {
                   placeholder="es: ECG attuale fuori uso per guasto irreparabile. Necessaria sostituzione immediata per continuità assistenziale."
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Impatto su attività/pazienti <span className="text-red-600">*</span>
+                  Impatto Continuità Assistenziale (se non sostituita) <span className="text-red-600">*</span>
+                </label>
+                <select
+                  value={formData.impattoAssistenziale}
+                  onChange={(e) => setFormData({ ...formData, impattoAssistenziale: e.target.value as any })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="">-- Seleziona livello impatto --</option>
+                  <option value="critico">CRITICO - Servizio bloccato, nessuna alternativa disponibile</option>
+                  <option value="alto">ALTO - Servizio ridotto significativamente</option>
+                  <option value="medio">MEDIO - Disagio operativo, esistono workaround temporanei</option>
+                  <option value="basso">BASSO - Programmabile senza impatto immediato</option>
+                </select>
+                {formData.impattoAssistenziale === 'critico' && (
+                  <p className="mt-2 text-sm text-red-600 font-medium">
+                    ⚠️ ATTENZIONE: Impatto CRITICO potrebbe richiedere Track 1 - Urgenza Critica (24-48h)
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Descrizione impatto su attività/pazienti <span className="text-red-600">*</span>
                 </label>
                 <textarea
                   value={formData.impatto}

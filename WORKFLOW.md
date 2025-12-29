@@ -20,6 +20,21 @@
 
 Il **Gestionale Tecnologie Sanitarie** è un sistema completo per la gestione delle richieste di acquisto, sostituzione e aggiornamento di attrezzature sanitarie, conforme alla normativa vigente (DGR 306/2024, DGR 737/2022) e alla Procedura TS aziendale.
 
+### 📄 Riferimento Normativo
+
+Questo sistema implementa digitalmente il **"REGOLAMENTO AZIENDALE PER L'APPROPRIATEZZA DELLE TECNOLOGIE SANITARIE"** (rev. 26-12-2025) approvato dalla Direzione Generale dell'Azienda USL Toscana Nord Ovest.
+
+**Documenti di riferimento:**
+- Regolamento Aziendale rev. 26-12-2025
+- Allegato 1: Flow-chart Percorso Aziendale
+- Allegato 2: Modulo richiesta tecnologia urgenza non critica (Track 2 - Fast Track)
+- Allegato 3: Modulo richiesta tecnologia non urgente a basso impatto (Track 3 - Semplificata)
+- Allegato 4: Modulo richiesta tecnologia non urgente ad elevato impatto (Track 4 - HTA Completo)
+- DGR 306/2024 (Donazioni)
+- DGR 737/2022 (Tecnologie innovative)
+
+Il sistema digitalizza i moduli cartacei (Allegati 2, 3, 4) e automatizza il flusso decisionale previsto dal regolamento, garantendo compliance e tracciabilità completa.
+
 ### Caratteristiche Principali
 
 - ✅ **Sistema Multi-Track**: 4 livelli di urgenza (da 24h a 45 giorni)
