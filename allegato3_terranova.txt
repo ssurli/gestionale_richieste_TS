@@ -1,0 +1,231 @@
+
+
+
+INFORMAZIONI GENERALI
+
+|UO richiedente:         |_______________________________________                 |
+|Direttore UO:           |_______________________________________                 |
+|Dipartimento/Area:      |_______________________________________                 |
+|Tel/Email:              |_______________________________________                 |
+|Data richiesta:         |_______________________________________                 |
+
+
+1. TIPOLOGIA RICHIESTA (barrare una casella)
+
+( A - Donazione sotto condizioni (< E50.000, no materiali dedicati)
+( B - Ampliamento dotazione tecnologica (per aumento attività/liste
+d'attesa)
+( C - Upgrade funzionale programmabile (software/hardware significativo)
+( D - Tecnologia sotto soglia economica (<E 5.000, già aggiudicata)
+( E - Prova/visione tecnologia (durata 30-60 gg)
+
+
+
+2. DESCRIZIONE TECNOLOGIA
+
+|Denominazione:          |_______________________________________                 |
+|Tipologia:              |_______________________________________                 |
+|Già aggiudicata ESTAR?  |( Sì (Det. n° _________)                                |
+|                        |( No (specificare se già in uso)                        |
+|Fornitore:              |_______________________________________                 |
+|Valore stimato (IVA     |E _______________________________________               |
+|escl.):                 |                                                        |
+
+
+3. MOTIVAZIONE E IMPATTO ATTESO
+
+
+1 Motivazione della richiesta:
+
+_________________________________________________________________________
+
+_________________________________________________________________________
+
+2 Impatto organizzativo previsto:
+
+( Nessun impatto (stessa collocazione/utilizzo)
+( Impatto limitato (stesso ambiente, stesse risorse)
+( Impatto moderato (specificare): _______________________________________
+
+
+4. INFORMAZIONI DONAZIONE (solo se Tipologia A)
+
+|Donatore:               |_______________________________________                 |
+|Tipologia donatore:     |( Associazione                                          |
+|                        |( Privato cittadino                                     |
+|                        |( Fondazione                                            |
+|                        |( Altro: __________                                     |
+|Contatti donatore:      |_______________________________________                 |
+
+
+
+
+
+
+SEZIONE SERVICE
+
+Compilare se la richiesta riguarda un contratto service (tecnologia +
+manutenzione + consumabili)
+
+|Service già aggiudicato     |( Sì (Det. n° _________ del _________)              |
+|ESTAR?                      |( No (va in HTA completo)                           |
+|Fornitore:                  |___________________________________________         |
+|Durata contrattuale:        |______ anni    Dal __________ al __________         |
+|Canone annuo (IVA escl.):   |E _____________ /anno                               |
+|Valore totale contratto:    |E _____________ (canone x durata)                   |
+|Consumabili inclusi:        |( Dedicati (SOLO quel fornitore) > Verificare DGR   |
+|                            |306/2024                                            |
+|                            |( Generici (mercato libero) > OK                    |
+|                            |( Nessuno (solo tecnologia + manutenzione)          |
+|Penali uscita anticipata:   |( Sì: __________% valore residuo                    |
+|                            |( No                                                |
+|Tipo richiesta:             |( Rinnovo service esistente (stesse condizioni)     |
+|                            |( Estensione contratto in corso                     |
+|                            |( Nuovo service (prima attivazione)                 |
+
+
+SEZIONE CONSUMABILI
+
+Compilare se la richiesta riguarda incremento/nuova fornitura consumabili
+con impatto economico
+
+|Consumabili già a gara      |( Sì (Det. n° _________ del _________)              |
+|ESTAR?                      |( No (va in HTA completo)                           |
+|Tipologia:                  |___________________________________________         |
+|Fornitore:                  |___________________________________________         |
+|Consumo annuo stimato:      |E _____________ /anno                               |
+|Tipo consumabile:           |( Dedicati (SOLO compatibili con una tecnologia     |
+|                            |specifica)                                          |
+|                            |( Generici (compatibili con più                     |
+|                            |tecnologie/fornitori)                               |
+|Motivazione richiesta:      |( Incremento volumi attività (specificare %: _____%)|
+|                            |                                                    |
+|                            |( Nuova tecnologia attivata                         |
+|                            |( Fine scorte, necessario riordino urgente          |
+|                            |( Altro: _________________________                  |
+|Esistono alternative?       |( Sì, esistono fornitori alternativi                |
+|                            |( No, fornitore unico (vendor lock-in)              |
+
+
+
+
+
+
+5. DICHIARAZIONI (barrare se applicabili)
+
+
+( Valore donazione < E50.000 (o N/A se non donazione)
+(Tecnologia sotto soglia economica (<E15.000, già aggiudicata)
+( Prova/visione tecnologia (durata 30-60 gg)
+( NO materiali d'uso dedicati (vincolo DGR 306/2024)
+( Tecnologia già aggiudicata/conosciuta (o upgrade di esistente)
+( Impatto organizzativo limitato (stesso ambiente operativo)
+( Budget disponibile (o donazione gratuita)
+
+Firma Direttore UO: ______________________________   Data: ______________
+
+
+
+
+VALIDAZIONE DIRETTORE DIPARTIMENTO/AREA
+
+
+( Convalida la richiesta e la motivazione
+( Priorità proposta:
+( ALTA - Critica per obiettivi/liste attesa
+( MEDIA - Miglioramento qualità assistenza
+( BASSA - Opportunità ma non urgente
+
+Firma Direttore Dipartimento: ______________________________   Data:
+_____________
+
+
+
+
+
+
+
+
+
+NOTE PER VALUTAZIONE COORDINATORE CommAZ
+
+
+PASSA A HTA COMPLETO SE:
+( Service/consumabili NON già aggiudicati ESTAR
+( Consumabili dedicati + violazione DGR 306/2024
+( Valore annuo service > E30.000
+( Durata contrattuale > 5 anni
+( Penali uscita > 30% valore residuo
+( Vendor lock-in senza alternative di mercato
+( Prima attivazione service (non rinnovo)
+
+Firma Coordinatore CommAz: ____________________________   Data:
+______________
+
+
+
+
+
+
+
+PRE-SCREENING COORDINATORE CommAZ (riservato)
+
+
+1 Verifica criteri eligibilità:
+
+( Rispetta criteri > Procede con procedura semplificata
+( Non rispetta criteri > Passa a HTA completo
+
+Note: ____________________________________________________________________
+
+2 Valutazione tecnico-economica:
+
+_________________________________________________________________________
+_________________________________________________________________________
+
+
+
+Raccomandazione:
+( FAVOREVOLE alla convocazione CommAz ristretta
+( CONTRARIO
+( NECESSARI APPROFONDIMENTI: ( SI      ( NO
+
+Firma CoordComm: ______________________________   Data: ______________
+
+
+
+
+VALUTAZIONE COMMISSIONE AZIENDALE RISTRETTA
+
+Membri presenti: _________________________________________________________
+Data seduta: __________________    Durata: __________________
+
+1 Sintesi valutazione:
+
+_________________________________________________________________________
+_________________________________________________________________________
+_________________________________________________________________________
+
+Parere CommAz ristretta:
+( FAVOREVOLE
+( FAVOREVOLE CON PRESCRIZIONI
+( CONTRARIO
+( RINVIATO (motivare): ___________________________________________
+
+Prescrizioni/Note:
+___________________________________________________________
+
+
+
+
+AUTORIZZAZIONE DIREZIONE (riservato)
+
+
+( APPROVATO - Autorizzazione procedura
+( RINVIATO - Inserire in piano investimenti anno successivo
+( RESPINTO
+Motivazione: _____________________________________________________________
+
+Firma DS: _____________________   Firma DA: ____________________   Data:
+______
+                                    [pic]

@@ -1,0 +1,207 @@
+
+
+
+
+INFORMAZIONI GENERALI
+
+
+|UO richiedente:         |_______________________________________                 |
+|Direttore UO:           |_______________________________________                 |
+|Tel/Email:              |_______________________________________                 |
+|Data richiesta:         |_______________________________________                 |
+
+
+1. TIPOLOGIA RICHIESTA (barrare una casella)
+
+
+( A - Sostituzione 1:1 tecnologia fuori uso (già aggiudicata)
+( B - Urgenza operativa con workaround temporanei
+( C - Upgrade obbligato da fornitore (fine supporto)
+( D - Farmaco non fungibile
+( E - Dispositivo medico non fungibile
+( D - Tecnologia sotto soglia economica (<E15.000, già aggiudicata)
+( E - Prova/visione tecnologia (durata 30-60 gg)
+
+
+2. TECNOLOGIA DA SOSTITUIRE (se applicabile)
+
+|Descrizione:            |_______________________________________                 |
+|N° Matricola:           |______________  Anno install.: ______________           |
+|Motivo dismissione:     |( Fuori uso irreparabile                                |
+|                        |( Obsolescenza tecnologica                              |
+|                        |( Fine vita utile (>10 anni)                            |
+|                        |( Altro: ___________________                            |
+
+
+3. IMPATTO CONTINUITÀ ASSISTENZIALE (se non sostituita)
+
+
+( CRITICO - Servizio bloccato, nessuna alternativa disponibile
+( ALTO - Servizio ridotto significativamente
+( MEDIO - Disagio operativo, esistono workaround temporanei
+( BASSO - Programmabile senza impatto immediato
+
+
+
+
+4. TECNOLOGIA SOSTITUTIVA / RICHIESTA
+
+|Descrizione:            |_______________________________________                 |
+|Già aggiudicata ESTAR?  |( Sì                                                    |
+|                        |( No (va in HTA completo)                               |
+|Det. ESTAR:             |n° _____________ del ______________                     |
+|Fornitore:              |_______________________________________                 |
+|Codice prodotto:        |_______________________________________                 |
+|Costo stimato (IVA      |E _______________________________________               |
+|escl.):                 |                                                        |
+
+
+
+
+
+
+SEZIONE SERVICE
+
+Compilare se la richiesta riguarda un contratto service (tecnologia +
+manutenzione + consumabili)
+
+|Service già aggiudicato     |( Sì (Det. n° _________ del _________)              |
+|ESTAR?                      |( No (va in HTA completo)                           |
+|Fornitore:                  |___________________________________________         |
+|Durata contrattuale:        |______ anni    Dal __________ al __________         |
+|Canone annuo (IVA escl.):   |E _____________ /anno                               |
+|Valore totale contratto:    |E _____________ (canone x durata)                   |
+|Consumabili inclusi:        |( Dedicati (SOLO quel fornitore) > Verificare DGR   |
+|                            |306/2024                                            |
+|                            |( Generici (mercato libero) > OK                    |
+|                            |( Nessuno (solo tecnologia + manutenzione)          |
+|Penali uscita anticipata:   |( Sì: __________% valore residuo                    |
+|                            |( No                                                |
+|Tipo richiesta:             |( Rinnovo service esistente (stesse condizioni)     |
+|                            |( Estensione contratto in corso                     |
+|                            |( Nuovo service (prima attivazione)                 |
+
+
+
+SEZIONE CONSUMABILI
+
+Compilare se la richiesta riguarda incremento/nuova fornitura consumabili
+con impatto economico
+
+|Consumabili già a gara      |( Sì (Det. n° _________ del _________)              |
+|ESTAR?                      |( No (va in HTA completo)                           |
+|Tipologia:                  |___________________________________________         |
+|Fornitore:                  |___________________________________________         |
+|Consumo annuo stimato:      |E _____________ /anno                               |
+|Tipo consumabile:           |( Dedicati (SOLO compatibili con una tecnologia     |
+|                            |specifica)                                          |
+|                            |( Generici (compatibili con più                     |
+|                            |tecnologie/fornitori)                               |
+|Motivazione richiesta:      |( Incremento volumi attività (specificare %: _____%)|
+|                            |                                                    |
+|                            |( Nuova tecnologia attivata                         |
+|                            |( Fine scorte, necessario riordino urgente          |
+|                            |( Altro: _________________________                  |
+|Esistono alternative?       |( Sì, esistono fornitori alternativi                |
+|                            |( No, fornitore unico (vendor lock-in)              |
+
+
+
+5. DICHIARAZIONI
+
+
+( Sostituzione 1:1 (stesse prestazioni)
+( NO modifiche organizzative/logistiche
+( Stessa collocazione fisica
+( Budget disponibile nel piano investimenti corrente
+
+Firma Direttore UO: ______________________________   Data: ______________
+
+
+
+
+VALIDAZIONE DIRETTORE DIPARTIMENTO/AREA
+
+
+( Convalida la richiesta e l'urgenza dichiarata
+( Priorità proposta:
+( A = immediata (entro 1 settimana)
+( B = entro 3 mesi
+( C = programmabile
+
+Firma Direttore Dipartimento/Area: ______________________________   Data:
+______________
+
+
+
+
+
+
+
+
+NOTE PER VALUTAZIONE COORDINATORE CommAZ
+
+
+PASSA A HTA COMPLETO SE:
+( Service/consumabili NON già aggiudicati ESTAR
+( Consumabili dedicati + violazione DGR 306/2024
+( Valore annuo service > E30.000
+( Durata contrattuale > 5 anni
+( Penali uscita > 30% valore residuo
+( Vendor lock-in senza alternative di mercato
+( Prima attivazione service (non rinnovo)
+
+Firma Coordinatore CommAz: ____________________________   Data:
+______________
+
+
+
+
+
+
+
+PARERE ISTRUTTORIO COORDINATORE CommAZ (riservato)
+
+
+1 Verifica criteri eligibilità:
+
+( Rispetta tutti i criteri > Procede con percorso Fast Track
+( Non rispetta criteri > Passa a HTA completo
+
+Motivazione: _____________________________________________________________
+
+2 Verifica tecnica:
+
+( Tecnologia aggiudicata verificata (Det. ESTAR n° ________________)
+( Prezzo congruo: E ___________ (range ESTAR: E _______ - E _______)
+( Budget:
+
+( Disponibile
+( Necessita integrazione capitolo
+
+Priorità assegnata (A/B/C): ________   Motivazione:
+_________________________
+
+Parere:
+( FAVOREVOLE
+( CONTRARIO
+( RINVIA A REVISIONE BUDGET
+
+Firma CoordComm: ______________________________   Data: ______________
+
+
+
+
+AUTORIZZAZIONE DIREZIONE (riservato)
+
+
+( APPROVATO - Autorizzazione spesa e acquisto
+( RINVIATO - Inserire in piano investimenti anno successivo
+( RESPINTO
+Motivazione: _____________________________________________________________
+
+Firma DS: _____________________   Firma DA: ___________________   Data:
+________
+
+
+                                    [pic]

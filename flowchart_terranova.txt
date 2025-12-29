@@ -1,0 +1,125 @@
+
+
+
+Sistema di Classificazione Richieste Tecnologie
+
+- URGENZA CRITICA (nel minor tempo possibile)
+Casistiche:
+    . Safety  critica:  guasto  con  rischio  immediato  per  pazienti  (es.
+      ventilatore TI, monitor parametri vitali)
+    . Blocco servizio essenziale:  tecnologia  unica  per  servizio  critico
+      senza backup/alternative (es. unico ecografo PS, mammografo screening)
+    . Obbligo normativo immediato: compliance urgente (es.  alert  sicurezza
+      CE, richiamo dispositivi, violazione cybersecurity)
+    . Farmaco o dispositivo medico non fungibile
+
+Criteri autorizzazione emergenza:
+    . Rischio safety documentato O servizio bloccato O obbligo normativo
+    . Non esistono alternative operative immediate
+    . Soluzione temporanea non percorribile
+
+
+[pic]
+URGENZA NON CRITICA - FAST TRACK (di norma 5-7 gg)
+Casistiche:
+A) Sostituzioni fuori uso
+    . Sostituzione 1:1, già aggiudicata, no impatto organizzativo
+B) Urgenze operative con workaround limitato
+    . Guasto con impatto significativo ma esistono soluzioni temporanee
+    . Es: laser chirurgico rotto ma interventi rimandabili 2 settimane
+C) Upgrade obbligati da fornitore
+    . Fine supporto/parti di ricambio tecnologia attuale
+    . Fornitore impone upgrade per continuità assistenza
+    . Già aggiudicato, stesse funzionalità
+D) Farmaci o dispositivi medici non fungibili
+
+[pic]
+TECNOLOGIA NON URGENTE A BASSO IMPATTO E COMPLESSITA' - PROCEDURA
+SEMPLIFICATA (di norma 15-20 gg)
+1) tecnologia di uso consolidato e aggiudicata 2) non comporta modifiche
+organizzative e/o strutturali 3) non comporta spesa aggiuntiva rispetto al
+piano aziendale di acquisizione delle tecnologie già approvato per l'anno
+in corso.
+Casistiche:
+A) Donazioni sotto condizioni
+    . Valore < E50.000
+    . Tecnologia già aggiudicata/conosciuta
+    . NO materiali d'uso dedicati (vincolo DGR 306/2024)
+    . NO comodati mascherati
+    . Donatore identificato e trasparente
+B) Ampliamento dotazione tecnologica
+    . Aumento numero tecnologie già in uso
+    . Motivazione: aumento attività/liste d'attesa
+    . Tecnologia già aggiudicata
+    . Impatto organizzativo limitato (stessa UO)
+C) Upgrade funzionali programmabili
+    . Aggiornamenti software/hardware significativi
+    . Migliorano prestazioni ma non bloccanti
+    . Già budget programmato
+D) Tecnologie sotto soglia economica
+    . Valore < E5.000 (da definire...)
+    . Già aggiudicate
+    . No impatto organizzativo significativo
+E) Prove/visioni autorizzate
+    . Valutazione tecnologia in corso di gara ESTAR
+    . Durata limitata (30-60 gg)
+    . No costi acquisizione, solo test operativi
+
+
+TECNOLOGIA NON URGENTE AD ELEVATO IMPATTO E COMPLESSITA' - HTA COMPLETO (30-
+45 gg)
+Casistiche:
+    . Nuove tecnologie non aggiudicate
+    . Tecnologie ad alto impatto organizzativo/logistico
+    . Donazioni > E50.000 o con materiali dedicati
+    . Comodati d'uso con implicazioni contrattuali complesse
+    . Tecnologie innovative (classe IIb/III, impiantabili attivi, innovativi
+      DGR 737/2022)
+    . Budget aggiuntivo significativo (oltre soglia da definire)
+
+Matrice Decisionale Operativa
+|IPOTESI DI SITUAZIONI        |TRACK                         |TEMPO|MODULO     |
+|Ventilatore TI rotto,        |1 - Urgenza critica           |24-48|Telefonico |
+|paziente a rischio           |                              |h    |+ email    |
+|Ecografo PS fuori uso, unico |1 - Urgenza critica           |24-48|Telefonico |
+|disponibile                  |                              |h    |+ email    |
+|TAC fuori uso, esiste altra  |2 - Urgenza non critica       |5-7  |Allegato 2 |
+|TAC funzionante              |                              |gg   |           |
+|Sostituzione laser già       |2 - Urgenza non critica       |5-7  |Allegato 2 |
+|aggiudicato                  |                              |gg   |           |
+|Piccolo strumento E5.000 già |2 - Urgenza non critica       |5-7  |Allegato 2 |
+|aggiudicato                  |                              |gg   |           |
+|Prova ecografo portatile     |2 - Urgenza non critica       |5-7  |Allegato 2 |
+|(gara in corso)              |                              |gg   |           |
+|Donazione defibrillatore da  |3 - Non urgente a basso       |15-20|Allegato 3 |
+|associazione E30K            |impatto e complessità         |gg   |           |
+|Secondo ecografo per aumento |3 - Non urgente a basso       |15-20|Allegato 3 |
+|liste attesa                 |impatto e complessità         |gg   |           |
+|Upgrade software TAC (già    |3 - Non urgente a basso       |15-20|Allegato 3 |
+|programmato)                 |impatto e complessità         |gg   |           |
+|Nuova RM 3T non ancora       |4 - Non urgente ad elevato    |30-45|Allegato 4 |
+|aggiudicata                  |impatto e complessità         |gg   |           |
+|Donazione PET-CT da E2M con  |4 - Non urgente ad elevato    |30-45|Allegato 4 |
+|service                      |impatto e complessità         |gg   |           |
+|Robot chirurgico innovativo  |4 - Non urgente ad elevato    |30-45|Allegato 4 |
+|                             |impatto e complessità         |gg   |           |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                 [pic][pic]
