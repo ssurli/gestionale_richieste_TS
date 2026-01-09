@@ -1,0 +1,589 @@
+
+
+                                      1
+
+
+    REGOLAMENTO AZIENDALE PER L'APPROPRIATEZZA DELLE TECNOLOGIE SANITARIE
+
+
+Scopo del presente documento è quello di regolamentare in Azienda USL
+Toscana Nordovest la richiesta/introduzione di nuove tecnologie, la
+dismissione/sostituzione delle tecnologie desuete, il monitoraggio degli
+scostamenti/variabilità nell'utilizzo garantendo appropriatezza clinica e
+organizzativa e sostenibilità dell'innovazione.
+
+
+
+
+
+
+|Redatto                   |Verificato                    |Approvato               |
+|UO/Struttura organizzativa|VERIFICA TECNICA/SOSTANZIALE  |                        |
+|                          |                              |Direttore Generale      |
+|Qualifica Nome e Cognome  |Dipartimento Staff della      |Maria Letizia Casani    |
+|Firma                     |Direzione                     |                        |
+|                          |Direttore                     |                        |
+|                          |Alessandro Sergi              |                        |
+|                          |                              |Direttore Sanitario     |
+|                          |Dipartimento del Farmaco      |Giacomo Corsini         |
+|                          |Direttore                     |                        |
+|                          |Francesca Azzena              |                        |
+|                          |                              |                        |
+|                          |Dipartimento Tecnico e        |Direttore Amministrativo|
+|                          |Patrimonio                    |                        |
+|                          |Nicola Ceragioli              |Gabriele Morotti        |
+|                          |                              |                        |
+|                          |Area Supporto ai Servizi      |                        |
+|                          |sanitari e al cittadino       |                        |
+|                          |Direttore                     |                        |
+|                          |Alessandro Iala               |                        |
+|                          |                              |                        |
+|                          |Direttore UOC Tecnologie      |                        |
+|                          |Sanitarie ESTAR Azienda USL   |                        |
+|                          |Toscana Nordovest             |                        |
+|                          |Mirco Magnani                 |                        |
+|                          |                              |                        |
+|                          |VERIFICA FORMALE              |                        |
+|                          |UOS Gestione Documentale e    |                        |
+|                          |Sviluppo Accreditamento       |                        |
+|                          |Sonia Iapichino               |                        |
+|                          |                              |                        |
+|Referente del documento                                                          |
+|UO/Struttura organizzativa, Qualifica, Nome e Cognome, Firma                     |
+
+
+
+
+                               ELENCO ALLEGATI
+
+. Allegato 1 - Flow-chart Percorso aziendale
+. Allegato 2 - Modulo richiesta tecnologia urgente non critica
+. Allegato 3 - Modulo richiesta tecnologia non urgente a basso impatto
+. Allegato 4 - Modulo richiesta tecnologia non urgente ad elevato impatto  e
+ complessità
+. Allegato 5 - Remind - Checklist valutazione tecnologie
+. Allegato 6 - Scheda valutatore
+. Allegato 7 - Verbale della Commissione Aziendale Tecnologie
+
+
+       ELENCO ALLEGATI DI ORIGINE ESTERNA (da identificare con lettere
+                               dell'alfabeto)
+                    e/o allegati di altri doc. pubblicati
+All.A
+All.B
+
+
+ . Parole chiave: TECNOLOGIE, APPROPRIATEZZA, VALUTAZIONE
+
+ .
+
+                                  SOMMARIO
+
+1. Scopo/obiettivi     2
+2. Campo di applicazione    2
+3. Abbreviazioni/definizioni (ordine logico o alfabetico)    2
+4. Contenuti/Descrizioni delle attività/Modalità operative   2
+5. Matrice delle Responsabilità / Diagramma di flusso / check list
+controllo documenti    3
+6. Documenti sostituiti o aggiornati   4
+7. Documenti di riferimento interni    4
+8. Documenti di riferimento Esterni    4
+9. Distribuzione 4
+10.Gruppo di redazione/verifica   4
+
+
+
+
+   1. Scopo/obiettivi
+
+Scopo del presente regolamento è: 1) definire un processo  standardizzato  e
+sistematico per la valutazione  delle  tecnologie  sanitarie  introdotte  in
+Azienda USL Toscana Nordovest basato sulla metodologia  HTA;  2)  monitorare
+l'appropriatezza dell'impiego di tecnologie al fine di:
+    . garantire qualità e sicurezza dei pazienti;
+    . favorire l'innovazione sostenibile;
+    . ottimizzare l'allocazione delle risorse economiche;
+    . supportare le decisioni aziendali basate su evidenze scientifiche.
+ .
+
+   2. Campo di applicazione
+
+ . Il Regolamento si applica a tutte le strutture che facciano richiesta di
+   acquisizione di tecnologie sanitarie nuove (ivi comprese le donazioni, i
+   comodati d'uso gratuito e le prove/visioni, le acquisizioni in  service)
+   e/o di ampliamento/sostituzione/dismissione di quelle in uso e ad ESTAR.
+
+
+
+   3. Abbreviazioni/definizioni (ordine logico o alfabetico)
+
+ . Centro Operativo HTA regionale: organismo multidisciplinare di  supporto
+   alla  Commissione  regionale  di   valutazione   delle   tecnologie   ed
+   investimenti sanitari.
+ .   CommAz:   Commissione   Aziendale   Tecnologie,   organismo    interno
+   multidisciplinare  incaricato  di  valutare   le   proposte   di   nuove
+   tecnologie,   il   Piano   aziendale   annuale   di   investimenti   per
+   l'acquisizione   di   nuove   tecnologie,   le   segnalazioni   inerenti
+   scostamenti/variabilità nell'impiego delle tecnologie e nei  consumi  ad
+   esse correlati.
+ . CoordComm: Coordinatore Commissione  Aziendale  Tecnologie,  gestisce  e
+   istruisce le richieste, le prioritizza e  predispone  la  documentazione
+   utile per la valutazione, convoca le sedute della CommAz.
+ . DA: Direzione Aziendale.
+DirDip/Area: Direttore di Dipartimento o di Area
+Dir Area Lab: Direttore Area Laboratori
+DirDip Farmaco: Direttore Dipartimento del Farmaco
+DirUOC Supporto Amm.vo Dip Farmaco: Direttore  UOC  Supporto  Amministrativo
+Dipartimento del Farmaco
+ .  Health   Technology   Assessment   (HTA):   processo   di   valutazione
+   multidisciplinare  e  multidimensionale  svolto  su  indicazione   della
+   Direzione strategica che sintetizza e  rende  fruibili  le  informazioni
+   relative ai bisogni di salute da soddisfare,  gli  aspetti  tecnici,  il
+   problema clinico, il contesto organizzativo, economico, sociale,  etico,
+   legale  e  medico-legale,  gli  aspetti  relativi  alla  sicurezza,  con
+   approccio  sistematico,  trasparente,  imparziale   e   solido   e   con
+   l'obiettivo di contribuire  all'individuazione  di  politiche  sanitarie
+   sicure, efficaci, centrate sui pazienti e mirate a conseguire il miglior
+   valore in termini di costo-efficacia e costo-utilità.
+ . L'HTA Core Model® di EUnetHTA (European Network  for  Health  Technology
+   Assessment)    è     un quadro     metodologico     standardizzato     e
+   multidisciplinare per la produzione e la  condivisione  di  informazioni
+   relative alla valutazione delle  tecnologie  sanitarie  (HTA)  in  tutta
+   Europa. Il suo obiettivo principale è evitare la duplicazione del lavoro
+   e facilitare la collaborazione tra le agenzie HTA nazionali, fornendo un
+   linguaggio e una struttura comuni.
+ . Farmaco infungibile - Un farmaco  è  definito  infungibile  quando,  per
+   specifiche condizioni cliniche, non  è  possibile  la  sostituzione  con
+   altri  medicinali   a   parità   di   indicazione   terapeutica,   senza
+   compromettere efficacia o sicurezza del trattamento.
+ . Dispositivo medico infungibile - Un  dispositivo  medico  è  infungibile
+   quando, per caratteristiche tecniche, funzionali  o  cliniche,  non  può
+   essere sostituito con altri dispositivi equivalenti senza  compromettere
+   la sicurezza del paziente o l'esito clinico.
+ .
+
+   4. Contenuti/Descrizioni delle attività/Modalità operative
+
+4.1 Introduzione
+ . L'Health Technology Assessment è una metodologia multidisciplinare della
+   quale il decisore politico si avvale per
+ . definire strategie di innovazione tecnologica in  sanità  o,  viceversa,
+   dismettere  tecnologie  obsolete.  Per  quanto  concerne  il  campo   di
+   applicazione della metodologia HTA, il concetto di tecnologia  sanitaria
+   è ampio e comprende le attrezzature sanitarie, i dispositivi  medici,  i
+   farmaci, i sistemi diagnostici, le procedure mediche  e  chirurgiche,  i
+   percorsi  assistenziali  e  gli  assetti  strutturali,  organizzativi  e
+   manageriali  nei  quali  viene  erogata   l'assistenza   sanitaria.   Le
+   tecnologie sanitarie comprendono quindi tutte le  applicazioni  pratiche
+   della  conoscenza  che  vengono  utilizzate  per  promuovere  la  salute
+   attraverso la prevenzione ed i percorsi di cura.
+ . In un contesto come quello  attuale,  nel  quale  il  Sistema  Sanitario
+   pubblico è tenuto ad erogare cure sicure e appropriate secondo  principi
+   di equità,  universalità e sostenibilità, la metodologia HTA rappresenta
+   uno strumento di supporto fondamentale per dirimere  problemi  complessi
+   mediante un approccio che prende in considerazione tutti gli aspetti che
+   impattano sull'organizzazione e sul cittadino, contenuti nel core  model
+   Eunetha: 1) analisi del bisogno di salute, 2) efficacia clinica  3)  uso
+   corrente della tecnologia e aspetti organizzativi, 4) epidemiologia e 5)
+   aspetti socio-demografici, 6) aspetti etici, 7) normativi e  legali,  8)
+   sicurezza, 9) valutazione degli aspetti economici.
+ .
+4.2 Premessa
+La  metodologia  HTA  è,  per  sua  stessa   natura,   multidisciplinare   e
+multiprofessionale pertanto è attività complessa che si colloca,  di  norma,
+nel contesto di  un  organismo  regionale,  il  Centro  Operativo  HTA,  che
+fornisce parere consultivo  alle  Aziende  entro  i  limiti  previsti  dalla
+normativa regionale (ambiti dell'innovatività,  dei  dispositivi  medici  di
+classe IIb, III e  impiantabili  attivi,  purchè  non  aggiudicati  e/o  non
+ancora introdotti  nel  SSR).  La  stessa  metodologia  multidisciplinare  è
+fondamentale, in ambito aziendale, per offrire  supporto  alla  Direzione  e
+alle  strutture  nel  governo  dell'innovazione,  al   fine   di   garantire
+appropriatezza e corretta allocazione delle risorse  in  quegli  ambiti  nei
+quali  il  livello  regionale  non  interviene.   La   costituzione   e   la
+regolamentazione  delle  attività  della  Commissione  Aziendale  Tecnologie
+mirano a rendere snello, trasparente, tracciabile e tempestivo  il  percorso
+di  valutazione   delle   tecnologie   sanitarie   attraverso   un   modello
+organizzativo sostenibile e sinergico  rispetto  agli  organismi  regionali,
+che vengono coinvolti secondo le previsioni della normativa di  riferimento.
+Al contempo, l'appropriatezza nell'impiego delle tecnologie  e  nella  spesa
+ad  esse  correlata  deve  essere  non  solo  monitorata  nel   tempo,   dal
+Dipartimento del Farmaco e dal Controllo di Gestione,  ma  anche  verificata
+dal punto  di  vista  clinico  e  organizzativo  in  collaborazione  con  le
+strutture coinvolte.
+
+4.2.1 Composizione della Commissione Aziendale nuove tecnologie
+La Commissione Aziendale Tecnologie riferisce al  Direttore  Sanitario,  che
+la presiede, ed è composta da (I COMPONENTI NONCHE' IL  COORDINATORE  DEVONO
+ESSERE INDIVIDUATI DALLA DIREZIONE  E  DAI  DIRETTORI  DI  DIPARTIMENTO/AREA
+COINVOLTI,  PER  CUI  L'ELENCO  SOTTOSTANTE  RAPPRESENTA   I   SOGGETTI   DA
+CONSULTARE, NON  L'ELENCO  EFFETTIVO  DEI  PARTECIPANTI.  SONO  INDICATI  IN
+AZZURRO  I  13  COMPONENTI  SUGGERITI  COME   NUCLEO   FONDAMENTALE,   altre
+competenze possono essere coinvolte a seconda dei bisogni, ad esempio  RSPP,
+Affari Legali, ingegneria clinica ):
+    . Direttore dello Staff della Direzione
+    . Direttore Area per l'innovazione organizzativa
+    . Direttore UOC Miglioramento dei Processi
+    . Direttore UOC Modelli innovativi per la continuità delle cure
+    . Direttore Area Supporto ai servizi sanitari e al cittadino
+    . Direttore UOC Supporto Amministrativo al Dipartimento del Farmaco
+    . Direttore del Dipartimento del Farmaco
+    . Direttore UOC Governo Appropriatezza Farmaceutica
+    . Direttore Dipartimento economico
+    . Direttore Dipartimento Tecnico e Patrimonio
+    . Direttore Dipartimento Servizi Generali
+    . Direttore Dipartimento delle Diagnostiche
+    . Referente HTA Aziendale
+    . Responsabile Protezione Dati
+    . Responsabili ingegneria  clinica  e  Tecnologie  Sanitarie  di  ESTAR.
+      Occorre  condividere  un  percorso  di  coinvolgimento  di   eventuali
+      ulteriori competenze non presenti in Azienda.
+    . Direttore UOC Tecnologie
+    . Responsabile Area Programmazione e controllo
+    . Direttore  UOC  Programmazione  e  coordinamento  della  produzione  e
+      gestione operativa
+    . Direttore UOC Programmazione aziendale e Politiche Sanitarie
+    . Direttore UOC Governo della domanda ambulatoriale e diagnostica
+    . Direttore Area Governo clinico, Qualità e Sicurezza.
+    .  Clinico  Referente  per  la  tecnologia  richiesta   e   oggetto   di
+      valutazione.
+La  Commissione  Aziendale  Tecnologie  viene  nominata  con  Delibera   del
+Direttore Generale e resta in carica per tre anni, allo  scadere  dei  quali
+la composizione viene  rivista  e  confermata  oppure  modificata  anche  in
+considerazione del turn-over del personale e delle  competenze  disponibili.
+Il Coordinatore della Commissione (CoordComm) è il Referente  Aziendale  per
+le Tecnologie Sanitarie individuato tra  i  Direttori  delle  UOC  afferenti
+alla CommAz in base alle competenze possedute in tema di  valutazione  delle
+tecnologie ed alle specifiche  funzioni  assegnate  alla  struttura/Area  di
+appartenenza.
+Per garantire  la  continuità  delle  attività  valutative  ogni  componente
+titolare  indica  un  sostituto  dotato  di  adeguate  competenze,  ruolo  e
+funzioni.
+La Commissione è supportata,  per  gli  aspetti  amministrativi,  dalla  UOC
+Progetti  finalizzati,  cooperazione  internazionale  e   supporto   tecnico
+amministrativo allo Staff aziendale.
+
+4.2.2 Compiti della Commissione Aziendale Tecnologie
+La Commissione aziendale Tecnologie: 1) contribuisce, attraverso le  proprie
+valutazioni, all'elaborazione del Piano aziendale  annuale  di  investimenti
+per l'acquisizione di  nuove  tecnologie  sanitarie/service;  2)  valuta  le
+richieste di acquisizione di tecnologie sanitarie non comprese nel Piano  di
+investimenti e nel relativo bilancio (spesa aggiuntiva) nonché  le  proposte
+di donazioni, comodati d'uso gratuito, prove/visioni.  Per  quanto  concerne
+le proposte inerenti l'acquisizione di tecnologie non  contenute  nel  Piano
+di investimenti, occorre che queste siano comunque coerenti con gli atti  di
+programmazione già adottati; per  le  donazioni  si  farà  riferimento,  per
+quanto non previsto nel presente Regolamento, al REG AZ 5 SAT rev 0.
+Si ricorda peraltro  quanto  disposto  dalla  DGRT  n.  306  del  18-03-2024
+"divieto di acquisizione in donazione  di  apparecchiature  funzionanti  con
+materiale d'uso dedicato. Tale restrizione si  applica  anche  ai  comodati,
+salvo che gli stessi siano  ricompresi  nella  procedura  concorrenziale  di
+acquisizione  dei  materiali  dedicati,  mediante  confronto  tra  soluzioni
+complete tra loro fungibili, sulla base del costo a procedura  o  del  costo
+totale di acquisto". Per quanto  concerne  gli  aspetti  legali/contrattuali
+inerenti l'introduzione di  tecnologie  in  comodato  d'uso  gratuito  o  in
+prova/visione, la CommAz provvederà ad acquisire parere degli Affari  Legali
+e  delle  strutture  dell'Area  Programmazione   contrattuale   e   attività
+economali per la predisposizione di eventuali atti/coperture assicurative  a
+tutela dell'Azienda e dei professionisti.    IN QUESTI CASI  ALCUNE  AZIENDE
+COME AD ES FTGM  CHIEDONO  PARERE,  I  TEMPI  DEVONO  ESSERE  ADEGUATI,  NON
+POSSONO ESSERE TROPPO STRINGENTI
+I lavori della Commissione Aziendale Tecnologie si  svolgono  ordinariamente
+in background e mediante riunioni in presenza e/o da remoto,  convocate  dal
+Coordinatore  di  norma  ogni  15  giorni,  al  fine  di  rendere  snello  e
+sostenibile il percorso valutativo e l'acquisizione dei vari contributi.
+
+4.2.3 - Sistema di prioritizzazione e selezione dei percorsi differenziati
+Le richieste di acquisizione di tecnologie  seguono  percorsi  differenziati
+in base a criteri oggettivi di urgenza, impatto e  complessità  (vedi  anche
+flow-chart allegato 1 "Percorso aziendale").
+I possibili percorsi sono 4:
+1) URGENZA CRITICA (da evadere  nel  minor  tempo  possibile)  Riservato  a:
+rischio "safety" immediato, blocco servizio  essenziale  senza  alternative,
+obbligo normativo urgente, farmaco  o  dispositivo  medico  infungibile.  In
+queste situazioni il richiedente contatta direttamente il CoordComm e il  DS
+ai fini di una tempestiva autorizzazione da  parte  della  DA.  In  caso  di
+necessità,  è  possibile   consultare   il   DirDip   Farmaco/Area   Lab/UOC
+Tecnologie, il DirUOCSuppAmmvo Dip Farmaco o altro componente  della  CommAz
+con  modalità  snelle  e  tracciabili,  salvaguardando  la  tempestività   e
+l'operatività.
+2) URGENZA NON CRITICA  -  FAST  TRACK  (di  norma  5-7  giorni  lavorativi)
+Applicabile a: - Sostituzioni 1:1 fuori  uso  (già  aggiudicate)  -  Urgenze
+operative con workaround temporanei  -  Upgrade  obbligati  da  fornitore  -
+Farmaco o dispositivo medico infungibile.
+In queste situazioni la UOC richiedente: 1) compila  il  modulo  allegato  2
+che  il  Direttore  di  Dipartimento  valida  e  inoltra  al  CoordComm;  il
+CoordComm, in  collaborazione  con  DirDip.  Farmaco/Dir  Area  Lab/Dir  UOC
+Tecnologie, DirUOC Supp Ammvo Dip  Farmaco  (e,  se  necessario,  con  altro
+componente della CommAz), verifica i  criteri  di  eligibilità,  produce  un
+parere istruttorio e lo  trasmette  a  DS  e  DA  per  approvazione.  Questo
+percorso  si  conclude  di  norma  entro  max  7  giorni  lavorativi   dalla
+richiesta; se i criteri di eligibilità non sono  soddisfatti,  la  richiesta
+transita automaticamente al  percorso  di  valutazione  HTA  completo  (par.
+4.2.4). I TEMPI SONO "DI NORMA" PERCHE' OCCORRE ESSERE UN MINIMO ELASTICI.
+3) RICHIESTA NON URGENTE A BASSO IMPATTO E COMPLESSITA':  1)  tecnologia  di
+uso consolidato e aggiudicata 2) non comporta  modifiche  organizzative  e/o
+strutturali 3) non comporta spesa aggiuntiva rispetto al piano aziendale  di
+acquisizione  delle  tecnologie  già  approvato   per   l'anno   in   corso.
+Applicabile a: -  Tecnologie  sotto  soglia  E  5.000  (già  aggiudicate)  -
+Prove/visioni autorizzate (durata limitata)  -  Donazioni  <  E50.000  senza
+materiali dedicati - Ampliamento dotazione esistente  (motivato  da  aumento
+attività) - Upgrade  funzionali  programmabili.  Si  applica  una  procedura
+semplificata che si conclude di norma entro 15-20 giorni lavorativi).
+4) RICHIESTA NON URGENTE AD ELEVATO IMPATTO E  COMPLESSITA':  1)  tecnologia
+non ancora aggiudicata 2) tecnologia per la quale  occorre  accedere  ad  un
+capitolo di spesa aggiuntiva 3) tecnologia ad elevato impatto  organizzativo
+e  logistico.  Applicabile,  in  particolare  a:  -  Nuove  tecnologie   non
+aggiudicate - Alto  impatto  organizzativo  -  Donazioni  >  E50.000  o  con
+materiali dedicati - Comodati complessi  -  Innovativi  (DGR  737/2022).  In
+queste situazioni viene intrapresa  una  valutazione  HTA  completa  che  si
+conclude di norma entro 30-60 giorni lavorativi.
+I percorsi 3 e 4 inerenti le  richieste  non  urgenti  vengono  trattati  in
+dettaglio nel paragrafo 4.2.4.
+Il CoordComm valuta in ingresso quale percorso applicare. In caso di  dubbio
+o disaccordo con il richiedente, prevale la  classificazione  più  prudente.
+Ogni richiesta viene tracciata in registro unico con:
+- Data ingresso, percorso assegnato, tempi effettivi, esito.
+
+4.2.4 Richiesta/segnalazione tecnologie non urgenti, avvio  dell'istruttoria
+e convocazione della Commissione aziendale Tecnologie
+ . Il/i Direttore di UOC, la ICO, il Coordinatore, propongono al  Direttore
+   di  Dipartimento/Area  l'acquisizione   di   nuove   tecnologie   oppure
+   l'incremento di tecnologie non urgenti in uso rispetto  alla  originaria
+   definizione dei fabbisogni o alla precedente adesione, predisponendo  le
+   richieste allegati 3 e 4 (vedi sotto), segnalando altresì, se del  caso,
+   la necessità di dismetterne altre divenute ormai desuete.  Il  Direttore
+   di Dipartimento/Area approva le richieste allegati 3 e 4 e le inoltra al
+   Direttore Sanitario e al CoordComm indicando un referente clinico  della
+   richiesta.
+ . La richiesta da parte di ESTAR dei fabbisogni per una gara  relativa  ad
+   una nuova tecnologia,  non  presente  in  Azienda,  viene  trasmessa,  a
+   seconda del tipo di  tecnologia,  al  Dir  UOC  Tecnologie  o  alla  UOC
+   Supporto Amministrativo che a  sua  volta  la  invia  al  Direttore  del
+   Dipartimento del Farmaco oppure al Direttore  dell'Area  Laboratori  (se
+   dispositivi diagnostici in vitro). Le suddette  strutture  eseguono  una
+   preanalisi della richiesta e la inviano al CoordComm.
+ . a)  Se  trattasi  di  tecnologie  a  basso  impatto  e  complessità:  il
+   richiedente compila il modulo allegato 3 e lo trasmette al CoordComm; il
+   CoordComm nonché Referente aziendale per  le  Tecnologie  acquisisce  la
+   documentazione utile dalle strutture di riferimento in base al  tipo  di
+   tecnologia (Dipartimento del Farmaco,  UOC  Tecnologie...),  formula  un
+   parere in collaborazione con il/i componenti della  CommAz  direttamente
+   coinvolti in base al tipo di tecnologia  (Commissione  ristretta)  e  lo
+   trasmette al Direttore Sanitario per l'approvazione  definitiva  a  cura
+   della Direzione Aziendale.
+. b) Se  trattasi  di  tecnologia  ad  elevato  impatto  e  complessità:  il
+ richiedente compila il modulo allegato 4 e la trasmette al  CoordComm;  il
+ CoordComm, una volta completata l'istruttoria, la  trasmette  alla  CommAz
+ unitamente  alla  convocazione  entro  15  giorni  dalla   richiesta.   Il
+ Coordinatore ha facoltà di coinvolgere altri professionisti, anche esterni
+ all'Azienda (ingegneri  clinici,  informatici  esperti  in  cybersecurity)
+ qualora si rendano necessarie ulteriori, specifiche  valutazioni,  sia  di
+ propria iniziativa che su suggerimento della Commissione.
+ . Il CoordComm:
+ . a) riceve la documentazione  pervenuta  dal  Direttore  di  Dipartimento
+   clinico (allegati 3,  4)  o  dal  Direttore  UOC  Tecnologie/  Direttore
+   Dipartimento  del  Farmaco/Direttore  Area  laboratori  (preanalisi   su
+   richiesta fabbisogni da parte di ESTAR), avvia e completa  l'istruttoria
+   in collaborazione con la struttura/macrostruttura di riferimento in base
+   alla tecnologia (Direttore del Dipartimento del Farmaco, Direttore  Area
+   Supporto ai servizi sanitari e al cittadino, Direttore UOC Tecnologie).
+ . La preanalisi effettuata su richiesta fabbisogni da  parte  di  ESTAR  o
+   all'avvio  dell'istruttoria  da  parte  del  CoordComm,  consiste  nella
+   verifica preliminare dei seguenti punti:
+    . Il prodotto è presente in gara? > Sì/No
+    . Il prodotto è già in uso presso la nostra azienda? > Sì/No
+    . Il prodotto è stato escluso da un lotto di gara? > Sì/No
+      Se sì, indicare le motivazioni dell'esclusione.
+    . Se si tratta di un'apparecchiatura, richiede consumabili dedicati? >
+      Sì/No
+    . Valutazione costi nascenti e costi cessanti
+ . b) acquisisce tutta  la  documentazione  utile  (IFU,  schede  tecniche,
+   manuali d'uso, AIC, marcatura CE,  proposte  contrattuali)  comprese  le
+   schede valutatori allegato 6 (se valutazione HTA  completa  in  caso  di
+   richiesta tecnologia ad elevato impatto e  complessità)  specifiche  per
+   singola tecnologia, la determina di aggiudicazione del bene richiesto se
+   disponibile. L'allegato 5 è un remind contenente i principali  requisiti
+   oggetto di verifica a cura dei valutatori,  distinti  per  tipologia  di
+   tecnologia.
+
+4.2.5 Valutazione a cura della Commissione aziendale Tecnologie
+Nel caso in cui dalla valutazione  preliminare  dell'istruttoria  emerga  la
+necessità  di  ulteriori   approfondimenti,   il   CoordComm   coopera,   su
+autorizzazione del Direttore Sanitario, con il Referente aziendale  HTA  per
+la compilazione della richiesta di parere al Centro Operativo HTA  regionale
+nei casi previsti dalla normativa (es dispositivi medici  di  classe  IIb  e
+III, impiantabili attivi,  non  ancora  forniti  alle  Aziende  del  Sistema
+Regionale Toscano, dispositivi innovativi ai sensi della DGRT n. 1244 del 7-
+11-2022).
+Se il parere del Centro Operativo regionale non è previsto da normativa,  la
+Commissione esegue la valutazione della tecnologia sanitaria acquisendo,  se
+utili,  eventuali,  ulteriori,  specifici  contributi,  fornendo  tutte   le
+indicazioni per l'implementazione della stessa (es istituzione registro  per
+la tracciabilità degli impiantabili, avvio  fase  pilota  mediante  raccolta
+dati di osservazione casistica...) e la scadenza per  il  monitoraggio.  Nel
+caso in cui la Commissione lo ritenga utile può convocare  in  audizione  il
+clinico/Direttore di Dipartimento/Area  proponente.  Nei  casi  previsti  al
+punto d) del paragrafo 4.2.4 la CommAz  verbalizza  il  proprio  parere  nel
+modello allegato 7; in prospettiva, quando sarà  disponibile  un  gestionale
+con funzioni automatizzate, ai fini della  decisione  verrà  utilizzata   la
+metodologia MCDA.
+La valutazione viene trasmessa dal CoordComm al Direttore  Sanitario  per  i
+successivi passaggi autorizzativi e le decisioni di competenza  (inserimento
+nel Piano investimenti, avvio  gara  ESTAR  se  tecnologia  non  aggiudicata
+oppure autorizzazione spesa aggiuntiva).
+Il parere della CommAz  ha  carattere  consultivo,  non  vincolante  per  la
+Direzione Aziendale.
+Le   sedute   della   CommAz   sono   regolarmente   verbalizzate    e    le
+valutazioni/verifiche eseguite  sono  tracciabili,  mediante  documentazione
+analogica (allegato 7), e, in prospettiva, digitale grazie  all'adozione  di
+apposito gestionale.
+
+4.2.6 Monitoraggio dell'implementazione
+Il Direttore di  Dipartimento/Area,  che  ha  richiesto  la  tecnologia,  in
+collaborazione  con  il  referente  clinico,  rendiconta   a   scadenza   il
+monitoraggio dell'implementazione  ed  i  risultati  di  eventuali  progetti
+pilota al CoordComm.
+Nel caso in cui vi siano criticità non previste in  fase  di  programmazione
+il CoordComm: 1) organizza con il/i clinico/i  coinvolti  un  audit  per  la
+verifica del piano di implementazione, in collaborazione  con  la  CommAz  e
+con la  Direzione  Sanitaria  e  di  Staff,  2)  raccoglie  le  segnalazioni
+inerenti malfunzionamenti/disguidi e incidenti alla sicurezza  del  paziente
+in cooperazione con i consueti canali di  segnalazione  aziendali  (farmaco-
+vigilanza, dispositivo-vigilanza, sicurezza del paziente).
+
+4.2.7 Formazione
+L'adozione del presente Regolamento è accompagnata da idonee  iniziative  di
+informazione  e   formazione   rivolte   ai   Direttori   di   struttura   e
+macrostruttura.
+
+
+
+   5. Matrice delle Responsabilità /  Diagramma  di  flusso  /  check  list
+   controllo documenti
+
+Funzioni                            
+
+Fasi/AttivitàDirezione Aziendale/Sanitaria
+/Staff
+ESTARDirDip Farmaco/
+Dir Area Lab/Dir UOC TecnologieDirUOC Supp Ammvo Dip FarmacoDirUOC/DirDip/AreaReferente clinicoCoordCommCommAzUOC Formazione4.2.3 
+Richiesta tecnologie/fabbisogni urgenti - prioritizzazione e selezione dei percorsi differenziatiRRR4.2.3 
+GESTIONE URGENZA CRITICARR*R*RRR*4.2.3 
+GESTIONE URGENZA NON CRITICA
+RRRCRR*4.2.4
+Richiesta/segnalazione tecnologie/fabbisogni non criticiRRR4.2.4
+Preanalisi, avvio dell'istruttoria CRRCCR4.2.4
+Completamento dell'istruttoria - Valutazione tecnologie a basso impattoRRRRR4.2.4
+Completamento dell'istruttoria e convocazione della CommAz per valutazione tecnologie ad elevato impatto
+CCCCRC4.2.5 Condivisione parere conclusivo e trasmissione al DS
+RR4.2.5 Decisione
+RCC4.2.6 Monitoraggio dell'implementazioneRR
+C
+4.2.6 Monitoraggio dell'implementazione - analisi criticità
+CRRR
+4.2.7 Formazione 
+
+R
+
+RR: Responsabile; C: Collabora; I: Informato
+
+R* possibile richiesta di informazioni/parere
+
+Diagramma di flusso - vedi flow-chart percorso aziendale allegato 1
+Check list (opzionale)
+
+
+6. Documenti sostituiti o aggiornati 
+---------------------------------------------------
+7. Documenti di riferimento interni 
+Pro Az 181 sat rev 0 del 8-03-2021 - percorso di individuazione fabbisogno e approvvigionamento beni sanitari
+Pro Az 103 sat rev 1 del 29-12-2021  - programmazione contrattuale beni e servizi sanitari e non sanitari
+
+
+8. Documenti di riferimento Esterni
+Normativa europea
+Regolamento (UE) 2017/745 (MDR)
+relativo ai dispositivi medici, pienamente applicabile dal 26 maggio 2021, che disciplina requisiti di sicurezza e prestazione, marcatura CE, UDI, vigilanza e sorveglianza post-commercializzazione.
+Regolamento (UE) 2017/746 (IVDR)
+relativo ai dispositivi medico-diagnostici in vitro, applicabile dal 26 maggio 2022 con regime transitorio progressivo.
+Regolamento (UE) 2021/2282 (HTAR - Health Technology Assessment Regulation)
+relativo alla valutazione congiunta delle tecnologie sanitarie a livello europeo, in vigore dall'11 gennaio 2022 e applicabile dal 12 gennaio 2025, che introduce processi armonizzati di assessment e integra i sistemi HTA nazionali.
+Normativa nazionale
+Quadro legislativo generale
+Legge 23 dicembre 2014, n. 190 (Legge di stabilità 2015), art. 1, comma 587
+Istituisce il Programma Nazionale di Health Technology Assessment (PNHTA) dei dispositivi medici e la relativa Cabina di Regia presso il Ministero della Salute.
+Accordo della Conferenza Stato-Regioni del 21 settembre 2017 (Repertorio atti n. 157/CSR)
+Approvazione del Documento strategico per l'Health Technology Assessment dei dispositivi medici, che definisce struttura, governance e obiettivi del sistema HTA nazionale.
+Programma Nazionale HTA Dispositivi Medici - PNHTA 2023-2025
+Decreto del Ministro della Salute del 10 marzo 2023
+Trasmissione della proposta tecnica AGENAS per il nuovo Programma Nazionale HTA.
+Intesa della Conferenza Stato-Regioni del 10 maggio 2023 (Repertorio atti n. 101/CSR)
+Approvazione della Proposta Tecnica del Programma Nazionale HTA Dispositivi Medici 2023-2025.
+Decreto del Ministro della Salute pubblicato in Gazzetta Ufficiale Serie Generale n. 207 del 5 settembre 2023
+Adozione formale del Programma Nazionale HTA Dispositivi Medici 2023-2025, che stabilisce fasi, prioritarizzazione, criteri di valutazione, ruoli regionali e aziendali, integrazione con Reg. (UE) 2021/2282.
+Linee di indirizzo AGENAS 2024-2025
+relative allo sviluppo delle competenze HTA, alla formazione operatori, agli indirizzi per i sistemi di telemedicina e telemonitoraggio, e all'accreditamento dei Centri Collaborativi PNHTA-DM (2024-2025).
+Normativa nazionale su dispositivi medici, innovazione e UDI
+Decreto Ministero della Salute 31 marzo 2022
+Istituzione della nuova rete nazionale per la vigilanza sui dispositivi medici.
+Decreto Ministero della Salute 11 maggio 2023
+"Disposizioni relative alla registrazione e alla conservazione dell'Identificativo Unico del Dispositivo (UDI) da parte delle istituzioni sanitarie e degli operatori sanitari", pubblicato in G.U. Series Generale n. 160 dell'11 luglio 2023, con entrata in vigore effettiva dal 15 gennaio 2024.
+
+Normativa della Regione Toscana
+Quadro istituzionale HTA
+Legge Regionale Toscana 24 febbraio 2005, n. 40 - Disciplina del Servizio Sanitario Regionale
+In particolare gli articoli 10 e 119-bis istituiscono la Commissione regionale per la valutazione delle tecnologie e degli investimenti sanitari e il relativo modello HTA regionale.
+Delibera Giunta Regionale (DGR) n. 302 dell'11 aprile 2016
+"Linee di indirizzo per le attività di valutazione e per le modalità di funzionamento della Commissione per la valutazione delle tecnologie e degli investimenti sanitari".
+Definisce il sistema HTA regionale e i processi strutturati di valutazione.
+DGR n. 1286 del 20 novembre 2017
+Approvazione del regolamento del Centro Operativo HTA e delle procedure di valutazione e audizione, incluso l'Allegato B che dettaglia la procedura di valutazione delle tecnologie nelle Aziende sanitarie.
+Innovatività dei dispositivi medici
+DGR n. 737 del 27 giugno 2022
+"Criteri per la definizione di innovatività per dispositivi medici di classe IIb, III e impiantabili attivi".
+Definisce un sistema di punteggio per classificare i dispositivi innovativi, prevede requisiti di documentazione e stabilisce che lo status di innovatività sia parte integrante delle valutazioni HTA regionali.
+Appropriatezza, governo della spesa e percorsi HTA (2024-2025)
+DGR n. 306 del 18 marzo 2024
+Adozione del "Piano di interventi per il governo dell'appropriatezza d'uso e per il contenimento della spesa dei dispositivi medici nella Regione Toscana".
+Richiama e coordina:
+DGR 302/2016
+DGR 1286/2017
+DGR 737/2022
+DM 31 marzo 2022 (vigilanza)
+PNHTA 2023-2025
+Decreti regionali 17610/2022 (Centro Operativo HTA) e 2282/2023 (Tavolo tecnico sui DM).
+Introduce un piano strutturato di governo dei consumi e dell'appropriatezza.
+DGR n. 585 del 2025
+Aggiorna e integra l'Allegato DM della DGR 1286/2017, armonizzando i processi regionali HTA con il PNHTA 2023-2025 e con il sistema dei Rapid HTA.
+DGR n. 1425 del 2025
+Riordino della governance regionale: istituzione della Commissione per la valutazione degli investimenti sanitari, che dal 2025 subentra alla precedente Commissione per la valutazione delle tecnologie e degli investimenti sanitari per tutte le procedure HTA relative ai dispositivi medici.
+Strumenti operativi regionali
+Rapid HTA
+Rapporti di valutazione rapida su dispositivi medici, approvati con decreto e pubblicati in attuazione delle DGR 585/2025 e 1425/2025.
+Bollettini regionali sui dispositivi medici
+Documenti periodici con aggiornamenti su innovatività (ai sensi della DGR 737/2022), valutazioni HTA e analisi dei consumi.
+Normativa regionale su innovazione digitale (software, IA)
+Legge Regionale Toscana n. 57/2024
+"Disciplina dell'innovazione digitale nel territorio regionale e tutela dei diritti di cittadinanza digitale".
+Rilevante per:
+requisiti di qualità e sicurezza dei sistemi digitali;
+interoperabilità e standard;
+utilizzo di sistemi di intelligenza artificiale in ambito sanitario;
+governance e responsabilità delle Aziende nel processo di acquisizione e valutazione delle tecnologie.
+
+Linee guida e documenti metodologici
+Manuale "Innovazione in Sanità - Guida per operatori" - ARS Toscana
+Documento tecnico-metodologico per l'adozione di metodologie HTA a livello aziendale e regionale.
+Pagina AGENAS "Il nuovo modello di governance dei dispositivi medici nel SSN - Il Programma Nazionale HTA 2023-2025": ribadisce che il PNHTA 2023-2025 è allineato con il Reg. (UE) 2021/2282, articola fasi di: segnalazione, prioritizzazione, valutazione (assessment), appraisal, implementazione, formazione, monitoraggio esiti HTA. 
+Pagina AGENAS "Programma Nazionale HTA Dispositivi Medici 2023-2025 - Scheda di segnalazione delle tecnologie sanitarie (aggiornamento 2025)": introduce la scheda nazionale per la segnalazione delle tecnologie, utilizzabile anche per tipologie di DM ad alto impatto su percorsi diagnostico-terapeutici. 
+Linee guida AGENAS 2025 sui sistemi medicali per il telemonitoraggio
+Forniscono criteri e indirizzi per l'evoluzione dei sistemi di telemonitoraggio, l'integrazione nelle architetture aziendali e la scelta dei dispositivi medico-digitali, con forte legame con HTA e PNHTA. 
+Atto di indirizzo del Ministro della Salute per l'anno 2024
+Include obiettivi specifici sul rafforzamento della governance dei dispositivi medici, sull'innovazione tecnologica e sul potenziamento dell'uso degli strumenti HTA. 
+
+9. Distribuzione 
+Il presente documento viene pubblicato nel Repository Aziendale presente su IGEA - sezione qualità e accreditamento e diffuso periodicamente tramite info aziendale a tutti i dipendenti titolari di email. Localmente i Direttori, il gruppo di lavoro, i FQS e RQS, a pubblicazione avvenuta si assicureranno che i professionisti interessati dall'applicazione ricevano l'informazione, anche mediante mail list, lista di distribuzione, riunioni verbalizzate con firma dei partecipanti.                                    
+
+10.Gruppo di redazione/verifica
+Referente del documento: qualifica nome cognome, email e telefono lavoro
+Altri redattori o verificatori struttura di afferenza, qualifica nome cognome

@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Gestionale Tecnologie Sanitarie - USL Toscana Nord Ovest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 95%;
+            max-width: 1600px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            padding: 50px 100px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide.lead {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        h1 {
+            font-size: 4.5em;
+            margin-bottom: 0.4em;
+            color: #2d3748;
+            line-height: 1.2;
+        }
+
+        .slide.lead h1 {
+            color: white;
+            font-size: 5em;
+        }
+
+        h2 {
+            font-size: 2.8em;
+            margin-bottom: 0.6em;
+            color: #4a5568;
+            border-bottom: 4px solid #667eea;
+            padding-bottom: 0.4em;
+        }
+
+        .slide.lead h2 {
+            color: rgba(255,255,255,0.9);
+            border: none;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            margin: 1.2em 0 0.6em 0;
+            color: #667eea;
+        }
+
+        p {
+            font-size: 1.5em;
+            line-height: 1.7;
+            margin-bottom: 1.2em;
+            color: #4a5568;
+        }
+
+        .slide.lead p {
+            color: rgba(255,255,255,0.95);
+            font-size: 1.8em;
+        }
+
+        ul, ol {
+            margin-left: 2.5em;
+            margin-bottom: 1.5em;
+        }
+
+        li {
+            font-size: 1.4em;
+            line-height: 2;
+            margin-bottom: 0.8em;
+            color: #4a5568;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5em 0;
+            font-size: 1.3em;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 20px 25px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 18px 25px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        tr:nth-child(even) {
+            background: #f7fafc;
+        }
+
+        .checkmark {
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #f6ad55;
+            font-weight: bold;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        button {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            background: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1.3em;
+            color: #667eea;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .highlight {
+            background: #fef5e7;
+            padding: 30px;
+            border-left: 6px solid #f39c12;
+            margin: 1.5em 0;
+            border-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-left: 15px;
+        }
+
+        .badge.warning {
+            background: #f6ad55;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        code {
+            background: #2d3748;
+            color: #48bb78;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            margin: 1.5em 0;
+        }
+
+        .three-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 40px;
+            margin: 1.5em 0;
+        }
+
+        .emoji {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .compact-list {
+            columns: 2;
+            column-gap: 50px;
+        }
+
+        .compact-list li {
+            break-inside: avoid;
+        }
+
+        .box {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .box h3 {
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="currentSlide">1</span> / <span id="totalSlides">17</span>
+    </div>
+
+    <div class="presentation">
+        <!-- Slide 1: Titolo -->
+        <div class="slide lead active">
+            <h1>Sistema Gestionale<br>Tecnologie Sanitarie</h1>
+            <h2>Demo Funzionante</h2>
+            <p style="margin-top: 2em;"><strong>USL Toscana Nord Ovest</strong></p>
+            <p>29 Dicembre 2025</p>
+        </div>
+
+        <!-- Slide 2: Obiettivo -->
+        <div class="slide">
+            <h2>🎯 Cosa presentiamo oggi</h2>
+            <div style="margin-top: 4em; text-align: center;">
+                <h1 style="font-size: 3.5em; color: #667eea; margin-bottom: 1em;">Sistema Digitale<br>GIÀ FUNZIONANTE</h1>
+                <p style="font-size: 2em; color: #4a5568;">Implementa il<br><strong>Regolamento Aziendale Terranova</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Allineamento -->
+        <div class="slide">
+            <h2>📊 Allineamento 100% con Regolamento</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Track</th>
+                        <th>Tempo</th>
+                        <th>Modulo Digitale</th>
+                        <th>Stato</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1 - Urgenza Critica</strong></td>
+                        <td>24-48h</td>
+                        <td>MOD.01/02</td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>2 - Fast Track</strong></td>
+                        <td>5-7 gg</td>
+                        <td><strong>Allegato 2</strong></td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>3 - Basso Impatto</strong></td>
+                        <td>15-20 gg</td>
+                        <td><strong>Allegato 3</strong></td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>4 - HTA Completo</strong></td>
+                        <td>30-45 gg</td>
+                        <td>MOD.01/02</td>
+                        <td><span class="checkmark">✅</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 4: Fast Track -->
+        <div class="slide">
+            <h2>✨ Modulo Fast Track (Allegato 2)</h2>
+            <div class="two-column" style="margin-top: 2em;">
+                <div>
+                    <h3>Campi Principali</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> 7 Casistiche (A-G)</li>
+                        <li><span class="checkmark">✅</span> Direttore UO</li>
+                        <li><span class="checkmark">✅</span> N° Matricola</li>
+                        <li><span class="checkmark">✅</span> Anno installazione</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Validazioni Smart</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> <strong>Impatto Assistenziale</strong><br><small>CRITICO / ALTO / MEDIO / BASSO</small></li>
+                        <li><span class="checkmark">✅</span> <strong>Alert automatico</strong><br><small>Se CRITICO → Track 1</small></li>
+                        <li><span class="checkmark">✅</span> Motivo dismissione</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Semplificato -->
+        <div class="slide">
+            <h2>✨ Modulo Semplificato (Allegato 3)</h2>
+            <div class="two-column" style="margin-top: 2em;">
+                <div>
+                    <h3>Campi Specifici</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> 3 Casistiche:<br><small>Donazioni / Ampliamenti / Upgrade</small></li>
+                        <li><span class="checkmark">✅</span> Dipartimento/Area</li>
+                        <li><span class="checkmark">✅</span> Tipologia Donatore<br><small>Associazione / Privato / Fondazione</small></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Conformità DGR</h3>
+                    <ul style="margin-left: 1.5em;">
+                        <li><span class="checkmark">✅</span> <strong>ESTAR</strong><br><small>Già aggiudicata? + N° Det</small></li>
+                        <li><span class="checkmark">✅</span> <strong>DGR 306/2024</strong><br><small>Alert se ≥€50K → Track 4</small></li>
+                        <li><span class="checkmark">✅</span> Materiali dedicati<br><small>Blocco automatico</small></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Vantaggi -->
+        <div class="slide">
+            <h2>💡 Vantaggi vs Moduli Cartacei</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspetto</th>
+                        <th>Cartaceo</th>
+                        <th>Digitale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Compilazione</strong></td>
+                        <td>Ufficio</td>
+                        <td>Ovunque (web)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Validazione</strong></td>
+                        <td>Manuale</td>
+                        <td>Automatica DGR</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tracking</strong></td>
+                        <td>Email/cartelle</td>
+                        <td>Dashboard real-time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Prezzi ESTAR</strong></td>
+                        <td>Ricerca manuale</td>
+                        <td>88 ordini integrati</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Storico</strong></td>
+                        <td>Archivio fisico</td>
+                        <td>Database + Analytics</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Errori</strong></td>
+                        <td>Possibili</td>
+                        <td>Prevenuti da alert</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 7: Conformità -->
+        <div class="slide">
+            <h2>🔍 Conformità Normativa</h2>
+            <p style="margin-bottom: 2em;"><strong>Validazioni automatiche integrate:</strong></p>
+            <div class="three-column">
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> DGR 306/2024</h3>
+                    <p><strong>Donazioni</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Alert ≥€50K</li>
+                        <li>Blocco materiali dedicati</li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> DGR 737/2022</h3>
+                    <p><strong>Tecnologie innovative</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Identificazione automatica</li>
+                        <li>Classe IIb/III</li>
+                    </ul>
+                </div>
+                <div class="box">
+                    <h3><span class="checkmark">✅</span> Regolamento</h3>
+                    <p><strong>Terranova</strong></p>
+                    <ul style="margin-left: 1.2em; font-size: 1.2em;">
+                        <li>Campi obbligatori</li>
+                        <li>Workflow predefiniti</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Dati Integrati -->
+        <div class="slide">
+            <h2>📈 Dati Integrati</h2>
+            <p style="margin-bottom: 2em;"><strong>Sistema già popolato con:</strong></p>
+            <div class="two-column">
+                <ul style="font-size: 1.4em; line-height: 2.2; margin-left: 1.5em;">
+                    <li>📋 <strong>106 richieste</strong><br><small>Storico pregresso</small></li>
+                    <li>💰 <strong>88 ordini ESTAR</strong><br><small>Listino prezzi</small></li>
+                    <li>🏥 <strong>Catalogo</strong><br><small>Dispositivi con codici</small></li>
+                </ul>
+                <ul style="font-size: 1.4em; line-height: 2.2; margin-left: 1.5em;">
+                    <li>🔍 <strong>Ricerca full-text</strong><br><small>Su tutti i dati</small></li>
+                    <li>📊 <strong>Dashboard</strong><br><small>Analytics CommAz</small></li>
+                    <li>⚡ <strong>Real-time</strong><br><small>Aggiornamenti istantanei</small></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 9: Mini-HTA -->
+        <div class="slide">
+            <h2>🚀 Mini-HTA Università di Pisa</h2>
+            <div style="margin-top: 3em; text-align: center;">
+                <h1 style="font-size: 3em; color: #667eea; margin-bottom: 0.5em;">🎓 CIRHTA UniPisa</h1>
+                <p style="font-size: 2em; margin-bottom: 2em;"><strong>Software GRATUITO</strong> per SSR Toscana</p>
+            </div>
+            <div class="two-column" style="margin-top: 2em;">
+                <div class="box" style="text-align: center;">
+                    <h3>📅 Timeline</h3>
+                    <p style="font-size: 1.3em;">Presentazione<br><strong>Giugno 2025</strong></p>
+                    <p style="font-size: 1.1em; margin-top: 1em;">📧 segret_cirhta@dam.unipi.it</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🔗 Integrazione</h3>
+                    <p style="font-size: 1.3em;">Nostro Sistema<br><strong>+</strong><br>Mini-HTA (Track 4)</p>
+                    <p style="font-size: 1.1em; margin-top: 1em;">Q2-Q3 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Confronto -->
+        <div class="slide">
+            <h2>📊 Confronto: Proposta vs Sistema</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Proposta Terranova <em>(cartaceo)</em></h3>
+                    <ul>
+                        <li><span class="checkmark">✅</span> Regolamento strutturato</li>
+                        <li><span class="checkmark">✅</span> 4 Track definiti</li>
+                        <li><span class="warning">⚠️</span> Moduli Word/Excel</li>
+                        <li><span class="warning">⚠️</span> Validazione manuale</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Sistema Digitale <em>(operativo)</em></h3>
+                    <ul>
+                        <li><span class="checkmark">✅</span> Stessi 4 Track</li>
+                        <li><span class="checkmark">✅</span> Moduli web interattivi</li>
+                        <li><span class="checkmark">✅</span> Validazione automatica</li>
+                        <li><span class="checkmark">✅</span> Tracciabilità completa</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Demo -->
+        <div class="slide">
+            <h2>🎬 Demo Live</h2>
+            <div style="margin-top: 3em; text-align: center;">
+                <h1 style="font-size: 3em; color: #667eea; margin-bottom: 1em;">5 Funzionalità Chiave</h1>
+            </div>
+            <div class="two-column" style="margin-top: 2em;">
+                <div>
+                    <p style="font-size: 1.6em; line-height: 2.5;"><strong>1.</strong> Landing Page<br><strong>2.</strong> Fast Track<br><strong>3.</strong> Semplificato</p>
+                </div>
+                <div>
+                    <p style="font-size: 1.6em; line-height: 2.5;"><strong>4.</strong> Dashboard<br><strong>5.</strong> Listino ESTAR</p>
+                </div>
+            </div>
+            <p style="margin-top: 3em; text-align: center; font-size: 1.8em;">
+                <span class="checkmark">🔗</span> <strong>Demo disponibile ONLINE</strong>
+            </p>
+        </div>
+
+        <!-- Slide 12: Decisioni -->
+        <div class="slide">
+            <h2>💼 Decisioni Richieste</h2>
+            <div class="three-column" style="margin-top: 3em;">
+                <div class="box" style="text-align: center;">
+                    <h3><span class="checkmark">✅</span> Approvazione</h3>
+                    <p style="font-size: 1.3em; margin-top: 1.5em;"><strong>Uso ufficiale</strong></p>
+                    <p style="font-size: 1.1em; margin-top: 1em;">Equivalenza<br>moduli digitali ↔<br>Allegati 2/3/4</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>📅 Rollout</h3>
+                    <p style="font-size: 1.3em; margin-top: 1.5em;"><strong>Gennaio 2025</strong><br>Fase pilota</p>
+                    <p style="font-size: 1.3em; margin-top: 1em;"><strong>Marzo 2025</strong><br>Go-live</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🎓 Mini-HTA</h3>
+                    <p style="font-size: 1.3em; margin-top: 1.5em;"><strong>Contatto CIRHTA</strong></p>
+                    <p style="font-size: 1.1em; margin-top: 1em;">Integrazione<br>Q2 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Punti di Forza -->
+        <div class="slide">
+            <h2>✅ Punti di Forza</h2>
+            <div class="two-column" style="margin-top: 2em;">
+                <ol style="font-size: 1.3em; line-height: 2.2; margin-left: 1.5em;">
+                    <li><span class="checkmark">✅</span> <strong>Sistema funzionante</strong><br><small>No sviluppo da zero</small></li>
+                    <li><span class="checkmark">✅</span> <strong>100% allineato</strong><br><small>Regolamento terranova</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Automazione</strong><br><small>Compliance DGR</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Tracciabilità</strong><br><small>Dashboard completa</small></li>
+                </ol>
+                <ol start="5" style="font-size: 1.3em; line-height: 2.2; margin-left: 1.5em;">
+                    <li><span class="checkmark">✅</span> <strong>Integrabile</strong><br><small>Mini-HTA gratuito</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Web-based</strong><br><small>Accessibile ovunque</small></li>
+                    <li><span class="checkmark">✅</span> <strong>Dati storici</strong><br><small>88 ordini + 106 richieste</small></li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 14: Contatti -->
+        <div class="slide">
+            <h2>📞 Contatti</h2>
+            <div class="three-column" style="margin-top: 3em;">
+                <div class="box" style="text-align: center;">
+                    <h3>🔗 Sistema</h3>
+                    <p><strong>Vercel</strong></p>
+                    <p style="font-size: 1.2em;">99.9% uptime</p>
+                    <p style="font-size: 1.1em;">Cloud deployment</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🎓 CIRHTA</h3>
+                    <p><strong>Mini-HTA UniPisa</strong></p>
+                    <p style="font-size: 1.1em;">📧 segret_cirhta@<br>dam.unipi.it</p>
+                    <p style="font-size: 1.1em;">🌐 cirhta.unipi.it</p>
+                </div>
+                <div class="box" style="text-align: center;">
+                    <h3>🏥 Supporto</h3>
+                    <p><strong>UOC Tecnologie</strong></p>
+                    <p style="font-size: 1.1em;">Sanitarie ESTAR</p>
+                    <p style="font-size: 1.1em;">USL Toscana NO</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 15: Conclusioni -->
+        <div class="slide lead">
+            <h2>🏁 Conclusioni</h2>
+            <h1 style="font-size: 4.5em; margin-top: 0.8em;">Il sistema è PRONTO</h1>
+            <p style="font-size: 2em; margin-top: 2em; margin-bottom: 3em;">Attendiamo l'approvazione</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px; max-width: 80%; margin: 0 auto;">
+                <div style="background: rgba(255,255,255,0.15); padding: 30px; border-radius: 15px;">
+                    <p style="font-size: 2.5em; margin-bottom: 0.5em;">1</p>
+                    <p style="font-size: 1.3em;"><strong>Oggi</strong><br>Approvazione</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 30px; border-radius: 15px;">
+                    <p style="font-size: 2.5em; margin-bottom: 0.5em;">2</p>
+                    <p style="font-size: 1.3em;"><strong>Gennaio</strong><br>Fase pilota</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.15); padding: 30px; border-radius: 15px;">
+                    <p style="font-size: 2.5em; margin-bottom: 0.5em;">3</p>
+                    <p style="font-size: 1.3em;"><strong>Marzo</strong><br>Go-live</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 16: Grazie -->
+        <div class="slide lead">
+            <h1>Grazie per l'attenzione</h1>
+            <h2 style="margin-top: 2em; font-size: 2.5em;">Domande?</h2>
+        </div>
+
+        <!-- Slide 17: Fine -->
+        <div class="slide lead">
+            <h1 style="font-size: 5em;">✅</h1>
+            <h2>Presentazione completata</h2>
+            <p style="margin-top: 2em;">Usa i pulsanti per navigare o premi ESC per uscire</p>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn">← Precedente</button>
+        <button id="nextBtn">Successiva →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentSlideSpan = document.getElementById('currentSlide');
+        const totalSlidesSpan = document.getElementById('totalSlides');
+
+        totalSlidesSpan.textContent = totalSlides;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            currentSlideSpan.textContent = currentSlide + 1;
+
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.disabled = currentSlide === totalSlides - 1;
+        }
+
+        prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+        nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') showSlide(currentSlide - 1);
+            if (e.key === 'ArrowRight' || e.key === ' ') showSlide(currentSlide + 1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(totalSlides - 1);
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
