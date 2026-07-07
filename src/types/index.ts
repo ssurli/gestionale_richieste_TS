@@ -261,6 +261,13 @@ export interface TechnologyRequest {
   tipoApparecchiatura: EquipmentType;
   priorita?: Priority;  // Solo per Fast Track
 
+  // Urgenza critica (Track 1): flag strutturati dichiarati dal richiedente
+  // e verificati dal Coordinatore CommAz in triage. Il testo libero della
+  // motivazione NON determina il track (rimosso il keyword-matching).
+  urgenzaSafetyCritica?: boolean;      // rischio immediato pazienti
+  urgenzaBloccoServizio?: boolean;     // blocco servizio essenziale senza alternative
+  urgenzaObbligoNormativo?: boolean;   // obbligo normativo urgente / alert sicurezza
+
   // Descrizione apparecchiatura
   nomeApparecchiatura: string;
   descrizioneDettagliata: string;
@@ -274,6 +281,9 @@ export interface TechnologyRequest {
 
   // Sostituzione (se applicabile)
   isSostituzione: boolean;
+  // Criterio Fast Track A: la sostituzione 1:1 è eligibile solo se la
+  // tecnologia è già aggiudicata ESTAR (dichiarato, verificato in triage)
+  sostituzioneGiaAggiudicata?: boolean;
   apparecchiaturaSOStituita?: string;
   motivoSostituzione?: 'NON_RIPARABILE' | 'OBSOLETO' | 'UPGRADE_OBBLIGATO' | 'ALTRO';
   dettaglioMotivoSostituzione?: string;

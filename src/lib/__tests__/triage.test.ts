@@ -1,15 +1,14 @@
 /**
  * Test del triage Multi-Track (src/lib/triage.ts)
  *
- * I test marcati `test.fails` fotografano il COMPORTAMENTO DESIDERATO su bug
- * noti (finding F4, F5, F7 dell'analisi in docs/analisi-multiagente/):
- * oggi falliscono per costruzione e la PR-05 li farà passare, rimuovendo
- * il modificatore `.fails`.
+ * Include i test di regressione sui bug corretti con la PR-05
+ * (finding F4, F5, F7 dell'analisi in docs/analisi-multiagente/).
  */
 
 import { describe, test, expect } from 'vitest';
 import {
   eseguiTriage,
+  overrideTrackManuale,
   verificaServicePerTrack,
   verificaConsumabiliPerTrack,
   calcolaGiorniResidui,
@@ -91,12 +90,50 @@ describe('eseguiTriage - regole di assegnazione', () => {
     expect(eseguiTriage(r).trackAssegnato).toBe(TrackType.FAST_TRACK);
   });
 
-  test('sostituzione 1:1 → FAST_TRACK', () => {
+  test('sostituzione 1:1 GIÀ AGGIUDICATA → FAST_TRACK', () => {
     const r = richiestaBase({
       isSostituzione: true,
       tipoAcquisto: AcquisitionType.SOSTITUZIONE,
+      sostituzioneGiaAggiudicata: true,
     });
     expect(eseguiTriage(r).trackAssegnato).toBe(TrackType.FAST_TRACK);
+  });
+
+  test('sostituzione NON ancora aggiudicata → niente Fast Track', () => {
+    const r = richiestaBase({
+      isSostituzione: true,
+      tipoAcquisto: AcquisitionType.SOSTITUZIONE,
+      sostituzioneGiaAggiudicata: false,
+    });
+    expect(eseguiTriage(r).trackAssegnato).not.toBe(TrackType.FAST_TRACK);
+  });
+
+  test('flag safety critica → URGENZA_CRITICA', () => {
+    const r = richiestaBase({ urgenzaSafetyCritica: true });
+    expect(eseguiTriage(r).trackAssegnato).toBe(TrackType.URGENZA_CRITICA);
+  });
+
+  test('flag obbligo normativo → URGENZA_CRITICA', () => {
+    const r = richiestaBase({ urgenzaObbligoNormativo: true });
+    expect(eseguiTriage(r).trackAssegnato).toBe(TrackType.URGENZA_CRITICA);
+  });
+
+  test('donazione con materiali dedicati → HTA_COMPLETO con warning DGR 306/2024 (non perso)', () => {
+    const r = richiestaBase({
+      isDonazione: true,
+      donazione: {
+        donatoreIdentificato: true,
+        valoreDonazione: 20000,
+        materialiUsoDecicati: true,
+        conformeDGR306: false,
+        tecnologiaGiaAggiudicata: true,
+        tecnologiaConosciuta: true,
+        eligibileProceduraSemplificata: false,
+      },
+    });
+    const res = eseguiTriage(r);
+    expect(res.trackAssegnato).toBe(TrackType.HTA_COMPLETO);
+    expect(res.warning?.join(' ')).toContain('DGR 306/2024');
   });
 
   test('budget ≥ €100.000 → HTA_COMPLETO', () => {
@@ -256,23 +293,21 @@ describe('SLA per track', () => {
 });
 
 // ---------------------------------------------------------------------------
-// BUG NOTI (comportamento desiderato) — da far passare con la PR-05
+// Regressioni sui bug corretti con la PR-05 (F4, F5, F7)
 // ---------------------------------------------------------------------------
-describe('bug noti da correggere (PR-05)', () => {
-  // F7: calcolaGiorniResidui clampa a >= 0 (Math.max), quindi isInRitardo
-  // (che confronta < 0) non può mai essere true.
-  test.fails('F7: richiesta FAST_TRACK assegnata 30 giorni fa → in ritardo', () => {
+describe('regressioni bug corretti (PR-05)', () => {
+  // F7: il clamp Math.max(0,...) rendeva isInRitardo sempre falso
+  test('F7: richiesta FAST_TRACK assegnata 30 giorni fa → in ritardo (residui negativi)', () => {
     const r = {
       trackAssegnato: TrackType.FAST_TRACK,
       dataAssegnazioneTrack: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
     } as TechnologyRequest;
+    expect(calcolaGiorniResidui(r)).toBe(-23);
     expect(isInRitardo(r)).toBe(true);
   });
 
-  // F5: il criterio Fast Track "sotto €15.000" viene valutato prima delle
-  // regole donazioni: una donazione da €10.000 salta la Procedura
-  // Semplificata (e le verifiche DGR 306/2024).
-  test.fails('F5: donazione €10.000 conforme → SEMPLIFICATA, non FAST_TRACK', () => {
+  // F5: il criterio Fast Track "sotto €15.000" scavalcava le regole donazioni
+  test('F5: donazione €10.000 conforme → SEMPLIFICATA, non FAST_TRACK', () => {
     const r = richiestaBase({
       isDonazione: true,
       tipoAcquisto: AcquisitionType.DONAZIONE,
@@ -290,20 +325,40 @@ describe('bug noti da correggere (PR-05)', () => {
     expect(eseguiTriage(r).trackAssegnato).toBe(TrackType.SEMPLIFICATA);
   });
 
-  // F4: il triage dell'urgenza critica usa keyword nel testo libero: una
-  // negazione ("NON è un'emergenza") o una parola generica ("compliance")
-  // forza il Track 1 (24-48h).
-  test.fails('F4: negazione nel testo libero NON deve attivare URGENZA_CRITICA', () => {
+  // F4: il keyword-matching sul testo libero è stato sostituito da flag strutturati
+  test('F4: negazione nel testo libero NON attiva URGENZA_CRITICA', () => {
     const r = richiestaBase({
       motivazioneRichiesta: 'Acquisto programmato, non è un\'emergenza',
     });
     expect(eseguiTriage(r).trackAssegnato).not.toBe(TrackType.URGENZA_CRITICA);
   });
 
-  test.fails('F4: la parola "compliance" da sola NON deve attivare URGENZA_CRITICA', () => {
+  test('F4: la parola "compliance" da sola NON attiva URGENZA_CRITICA', () => {
     const r = richiestaBase({
       motivazioneRichiesta: 'Migliora la compliance dei pazienti alla terapia',
     });
     expect(eseguiTriage(r).trackAssegnato).not.toBe(TrackType.URGENZA_CRITICA);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Override manuale del track (Coordinatore CommAz)
+// ---------------------------------------------------------------------------
+describe('overrideTrackManuale', () => {
+  const triageAuto = eseguiTriage(richiestaBase());
+
+  test('override con motivazione valida: track cambiato, esito automatico tracciato', () => {
+    const res = overrideTrackManuale(
+      triageAuto,
+      TrackType.HTA_COMPLETO,
+      'Impatto organizzativo sottostimato dal triage automatico'
+    );
+    expect(res.trackAssegnato).toBe(TrackType.HTA_COMPLETO);
+    expect(res.flagAutomatico).toBe(false);
+    expect(res.criterioApplicato).toContain(String(triageAuto.trackAssegnato));
+  });
+
+  test('override senza motivazione adeguata → eccezione', () => {
+    expect(() => overrideTrackManuale(triageAuto, TrackType.FAST_TRACK, '  ok  ')).toThrow();
   });
 });

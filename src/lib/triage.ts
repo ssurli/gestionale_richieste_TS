@@ -24,8 +24,6 @@ export interface TriageResult {
  * Esegue il triage della richiesta e assegna il track appropriato
  */
 export function eseguiTriage(richiesta: Partial<TechnologyRequest>): TriageResult {
-  const warnings: string[] = [];
-
   // TRACK 1: URGENZA CRITICA (24-48h)
   const urgenzaCritica = verificaUrgenzaCritica(richiesta);
   if (urgenzaCritica) {
@@ -60,6 +58,13 @@ export function eseguiTriage(richiesta: Partial<TechnologyRequest>): TriageResul
         flagAutomatico: true
       };
     }
+  }
+
+  // DONAZIONI: regole dedicate DGR 306/2024, valutate PRIMA dei criteri
+  // generici. Una donazione non deve mai cadere nel Fast Track "sotto
+  // soglia": seguirebbe un percorso che salta le verifiche sulle donazioni.
+  if (richiesta.isDonazione && richiesta.donazione) {
+    return triageDonazione(richiesta.donazione);
   }
 
   // TRACK 4: HTA COMPLETO - Verifica criteri esclusivi
@@ -106,48 +111,31 @@ export function eseguiTriage(richiesta: Partial<TechnologyRequest>): TriageResul
 }
 
 /**
- * TRACK 1: Verifica criteri urgenza critica
+ * TRACK 1: Verifica criteri urgenza critica.
+ *
+ * Usa SOLO i flag strutturati dichiarati dal richiedente (e verificati dal
+ * Coordinatore CommAz in triage). Il precedente keyword-matching sul testo
+ * libero è stato rimosso: parole come "emergenza" o "compliance" nella
+ * motivazione (anche in frasi negative) forzavano il Track 1 a 24-48h.
  */
 function verificaUrgenzaCritica(
   richiesta: Partial<TechnologyRequest>
 ): { motivazione: string; criterio: string } | null {
-  // Nota: questo richiede campi specifici che l'utente deve indicare
-  // Per ora simuliamo con la descrizione e motivazione
-
-  const motivazione = richiesta.motivazioneRichiesta?.toLowerCase() || '';
-  const descrizione = richiesta.descrizioneDettagliata?.toLowerCase() || '';
-
-  const safetyCritica =
-    motivazione.includes('safety') ||
-    motivazione.includes('rischio pazient') ||
-    motivazione.includes('emergenza') ||
-    descrizione.includes('pericolo');
-
-  if (safetyCritica) {
+  if (richiesta.urgenzaSafetyCritica) {
     return {
       motivazione: 'Safety critica con rischio immediato per pazienti',
       criterio: 'Urgenza Critica - Safety'
     };
   }
 
-  const bloccoServizio =
-    motivazione.includes('blocco servizio') ||
-    motivazione.includes('unica apparecchiatura') ||
-    motivazione.includes('senza alternative');
-
-  if (bloccoServizio && richiesta.isSostituzione && richiesta.motivoSostituzione === 'NON_RIPARABILE') {
+  if (richiesta.urgenzaBloccoServizio) {
     return {
       motivazione: 'Blocco servizio essenziale senza alternative',
       criterio: 'Urgenza Critica - Blocco Servizio'
     };
   }
 
-  const obbligoNormativo =
-    motivazione.includes('obbligo normativo') ||
-    motivazione.includes('compliance') ||
-    descrizione.includes('alert sicurezza');
-
-  if (obbligoNormativo) {
+  if (richiesta.urgenzaObbligoNormativo) {
     return {
       motivazione: 'Obbligo normativo urgente',
       criterio: 'Urgenza Critica - Obbligo Normativo'
@@ -158,17 +146,66 @@ function verificaUrgenzaCritica(
 }
 
 /**
+ * DONAZIONI: triage dedicato (DGR 306/2024).
+ * I warning normativi vengono SEMPRE restituiti al chiamante (prima
+ * andavano persi: il warning veniva accodato e poi la funzione tornava null).
+ * Il blocco formale delle donazioni vietate resta in validations.ts
+ * (validaDGR306_2024 / validaCoerenzaRichiesta): qui si instrada il percorso.
+ */
+function triageDonazione(donazione: Donation): TriageResult {
+  if (donazione.materialiUsoDecicati) {
+    return {
+      trackAssegnato: TrackType.HTA_COMPLETO,
+      motivazione:
+        'Donazione con materiali d\'uso dedicati: VIETATA da DGR 306/2024, da respingere salvo rimozione del vincolo',
+      criterioApplicato: 'HTA Completo - Vincolo DGR 306/2024',
+      flagAutomatico: true,
+      warning: [
+        '⚠️ VIOLAZIONE DGR 306/2024: vietate donazioni con materiale d\'uso dedicato'
+      ]
+    };
+  }
+
+  if (donazione.valoreDonazione >= 50000) {
+    return {
+      trackAssegnato: TrackType.HTA_COMPLETO,
+      motivazione: `Donazione valore elevato (€${donazione.valoreDonazione} >= €50.000)`,
+      criterioApplicato: 'HTA Completo - Donazione alto valore',
+      flagAutomatico: true
+    };
+  }
+
+  if (!donazione.tecnologiaGiaAggiudicata && !donazione.tecnologiaConosciuta) {
+    return {
+      trackAssegnato: TrackType.HTA_COMPLETO,
+      motivazione: 'Donazione di tecnologia non conosciuta né aggiudicata: richiede valutazione completa',
+      criterioApplicato: 'HTA Completo - Donazione tecnologia sconosciuta',
+      flagAutomatico: true
+    };
+  }
+
+  return {
+    trackAssegnato: TrackType.SEMPLIFICATA,
+    motivazione: `Donazione valore €${donazione.valoreDonazione} < €50.000, tecnologia conosciuta, conforme DGR 306/2024`,
+    criterioApplicato: 'Procedura Semplificata - Donazione',
+    flagAutomatico: true
+  };
+}
+
+/**
  * TRACK 2: Verifica criteri Fast Track
  */
 function verificaFastTrack(
   richiesta: Partial<TechnologyRequest>
 ): { motivazione: string; criterio: string } | null {
-  // A - Sostituzioni 1:1 già aggiudicate
+  // A - Sostituzioni 1:1 già aggiudicate. Il criterio richiede la conferma
+  // esplicita che la tecnologia sia già aggiudicata ESTAR: senza, una
+  // sostituzione che necessita di nuova gara passerebbe in 5-7gg senza istruttoria
   if (richiesta.isSostituzione &&
       richiesta.tipoAcquisto === AcquisitionType.SOSTITUZIONE &&
-      richiesta.budget?.valoreStimatoEuro) {
+      richiesta.sostituzioneGiaAggiudicata) {
     return {
-      motivazione: 'Sostituzione 1:1 apparecchiatura fuori uso',
+      motivazione: 'Sostituzione 1:1 apparecchiatura fuori uso, tecnologia già aggiudicata',
       criterio: 'Fast Track - Sostituzione già aggiudicata'
     };
   }
@@ -231,30 +268,8 @@ function verificaProceduraSemplificata(
 ): { motivazione: string; criterio: string; warnings?: string[] } | null {
   const warnings: string[] = [];
 
-  // A - Donazioni con condizioni specifiche
-  if (richiesta.isDonazione && richiesta.donazione) {
-    const donazione = richiesta.donazione;
-
-    // Verifica conformità DGR 306/2024
-    if (donazione.materialiUsoDecicati) {
-      warnings.push('⚠️ ATTENZIONE: Donazione con materiali d\'uso dedicati - Vietato da DGR 306/2024');
-      return null;  // Non eligibile per Procedura Semplificata
-    }
-
-    if (donazione.valoreDonazione >= 50000) {
-      return null;  // Passa a HTA Completo
-    }
-
-    if (!donazione.tecnologiaGiaAggiudicata && !donazione.tecnologiaConosciuta) {
-      return null;  // Tecnologia sconosciuta richiede HTA Completo
-    }
-
-    return {
-      motivazione: `Donazione valore €${donazione.valoreDonazione} < €50.000, tecnologia conosciuta, conforme DGR 306/2024`,
-      criterio: 'Procedura Semplificata - Donazione',
-      warnings
-    };
-  }
+  // NB: le donazioni NON passano da qui: hanno un triage dedicato
+  // (triageDonazione) eseguito prima dei criteri generici.
 
   // B - Ampliamento dotazione
   if (richiesta.tipoAcquisto === AcquisitionType.PROGRAMMATO &&
@@ -302,24 +317,8 @@ function verificaHTACompleto(
     };
   }
 
-  // Donazioni >€50K
-  if (richiesta.isDonazione &&
-      richiesta.donazione &&
-      richiesta.donazione.valoreDonazione >= 50000) {
-    return {
-      motivazione: `Donazione valore elevato (€${richiesta.donazione.valoreDonazione} >= €50.000)`,
-      criterio: 'HTA Completo - Donazione alto valore'
-    };
-  }
-
-  // Donazioni con materiali dedicati (viola DGR 306/2024)
-  if (richiesta.isDonazione &&
-      richiesta.donazione?.materialiUsoDecicati) {
-    return {
-      motivazione: 'Donazione con materiali d\'uso dedicati - richiede valutazione approfondita per DGR 306/2024',
-      criterio: 'HTA Completo - Vincolo DGR 306/2024'
-    };
-  }
+  // NB: le donazioni (incluse quelle >= €50K o con materiali dedicati)
+  // sono gestite a monte da triageDonazione.
 
   // Comodati con complessità contrattuale
   if (richiesta.tipoAcquisto === AcquisitionType.COMODATO) {
@@ -450,7 +449,11 @@ export function verificaConsumabiliPerTrack(consumabili: Consumables): {
 }
 
 /**
- * Calcola i giorni residui per completare il track
+ * Calcola i giorni residui per completare il track.
+ * Un valore NEGATIVO indica i giorni di ritardo: il precedente clamp a >= 0
+ * (Math.max) rendeva isInRitardo sempre falso e lo scadenzario inoperante.
+ * NB: giorni di calendario (giorni lavorativi: ASSUNZIONE DA VERIFICARE
+ * con il regolamento aziendale).
  */
 export function calcolaGiorniResidui(
   richiesta: TechnologyRequest
@@ -466,7 +469,7 @@ export function calcolaGiorniResidui(
   );
 
   const tempoMassimo = getTempoMassimoTrack(richiesta.trackAssegnato);
-  return Math.max(0, tempoMassimo - giorniPassati);
+  return tempoMassimo - giorniPassati;
 }
 
 /**
@@ -487,4 +490,32 @@ export function getTempoMassimoTrack(track: TrackType): number {
  */
 export function isInRitardo(richiesta: TechnologyRequest): boolean {
   return calcolaGiorniResidui(richiesta) < 0;
+}
+
+/**
+ * Override manuale del track da parte del Coordinatore CommAz.
+ * L'esito del triage automatico resta tracciato nel criterio applicato e
+ * la motivazione è OBBLIGATORIA (da persistere in
+ * motivazioneAssegnazioneTrack, assieme a coordinatoreCommAzId e
+ * dataTriageCoordCommAz, per l'audit).
+ */
+export function overrideTrackManuale(
+  triageAutomatico: TriageResult,
+  nuovoTrack: TrackType,
+  motivazione: string
+): TriageResult {
+  const testo = motivazione.trim();
+  if (testo.length < 10) {
+    throw new Error(
+      'L\'override manuale del track richiede una motivazione di almeno 10 caratteri'
+    );
+  }
+
+  return {
+    trackAssegnato: nuovoTrack,
+    motivazione: testo,
+    criterioApplicato: `Override manuale del Coordinatore (triage automatico: ${triageAutomatico.trackAssegnato} — ${triageAutomatico.criterioApplicato})`,
+    flagAutomatico: false,
+    warning: triageAutomatico.warning
+  };
 }
