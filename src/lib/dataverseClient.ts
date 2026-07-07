@@ -3,9 +3,6 @@
  * Gestisce tutte le chiamate API a Dataverse per persistenza dati
  */
 
-import { InteractionRequiredAuthError } from '@azure/msal-browser';
-import { tokenRequest } from './msalConfig';
-import { ensureMsalInitialized } from './msalInstance';
 import type { TechnologyRequest, User, TrackType, RequestStatus } from '../types';
 
 const DATAVERSE_URL = process.env.NEXT_PUBLIC_DATAVERSE_URL || '';
@@ -51,11 +48,29 @@ export class DataverseError extends Error {
 
 export class DataverseClient {
   /**
+   * @param tokenProvider sorgente alternativa del bearer token. Nel browser
+   * si omette (flusso MSAL condiviso); lato server (Route Handler BFF) si
+   * inietta il token dell'utente inoltrato dalla richiesta HTTP.
+   */
+  constructor(private tokenProvider?: () => Promise<string>) {}
+
+  /**
    * Ottiene access token per Dataverse.
-   * Usa l'istanza MSAL condivisa con AuthContext (msalInstance.ts): un'istanza
-   * separata non vedrebbe gli account autenticati dal MsalProvider.
+   * Browser: istanza MSAL condivisa con AuthContext (msalInstance.ts) — gli
+   * import MSAL sono dinamici così il modulo resta importabile lato server.
    */
   private async getAccessToken(): Promise<string> {
+    if (this.tokenProvider) {
+      return this.tokenProvider();
+    }
+
+    const [{ ensureMsalInitialized }, { InteractionRequiredAuthError }, { tokenRequest }] =
+      await Promise.all([
+        import('./msalInstance'),
+        import('@azure/msal-browser'),
+        import('./msalConfig'),
+      ]);
+
     const msal = await ensureMsalInitialized();
     const accounts = msal.getAllAccounts();
 
@@ -83,6 +98,13 @@ export class DataverseClient {
       }
       throw error;
     }
+  }
+
+  /**
+   * Espone il token per chiamate verso il BFF (Authorization: Bearer ...).
+   */
+  async acquireToken(): Promise<string> {
+    return this.getAccessToken();
   }
 
   /**
@@ -339,19 +361,11 @@ export class DataverseClient {
   /**
    * Recupera utente corrente dal token
    */
-  async getCurrentUser(): Promise<User | null> {
-    const msal = await ensureMsalInitialized();
-    const accounts = msal.getAllAccounts();
-
-    if (accounts.length === 0) {
-      return null;
-    }
-
-    const account = accounts[0];
-    const email = account.username;
-
-    // Cerca utente in Dataverse per email (escapata: un apice nell'email
-    // non deve poter alterare il filtro OData)
+  /**
+   * Cerca un utente in Dataverse per email (escapata: un apice nell'email
+   * non deve poter alterare il filtro OData). Nessuna auto-creazione.
+   */
+  async getUserByEmail(email: string): Promise<User | null> {
     const filter = `ts_email eq '${odataEscape(email)}'`;
     const response = await this.request(
       'GET',
@@ -363,13 +377,33 @@ export class DataverseClient {
     }
 
     const data = await response.json();
-
     if (data.value.length === 0) {
-      // Utente non esiste in Dataverse, crealo
-      return this.createUserFromAccount(account);
+      return null;
     }
 
     return this.mapDataverseToUser(data.value[0]);
+  }
+
+  /**
+   * Recupera l'utente corrente dall'account MSAL (solo browser).
+   */
+  async getCurrentUser(): Promise<User | null> {
+    const { ensureMsalInitialized } = await import('./msalInstance');
+    const msal = await ensureMsalInitialized();
+    const accounts = msal.getAllAccounts();
+
+    if (accounts.length === 0) {
+      return null;
+    }
+
+    const account = accounts[0];
+    const existing = await this.getUserByEmail(account.username);
+    if (existing) {
+      return existing;
+    }
+
+    // Utente non esiste in Dataverse, crealo
+    return this.createUserFromAccount(account);
   }
 
   /**
