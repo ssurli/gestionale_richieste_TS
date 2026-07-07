@@ -351,6 +351,16 @@ export interface TechnologyRequest {
   dataInvioESTAR?: Date;
   numeroRichiestaESTAR?: string;
 
+  // Tracciabilità procedimento di acquisto (D.Lgs. 36/2023)
+  // Compilati nelle fasi post-approvazione / acquisizione ESTAR.
+  rup?: string;                 // Responsabile Unico del Progetto
+  dec?: string;                 // Direttore dell'Esecuzione del Contratto
+  cig?: string;                 // Codice Identificativo Gara (ANAC)
+  cup?: string;                 // Codice Unico di Progetto
+  cui?: string;                 // Codice Unico Intervento (programmazione)
+  numeroAttoApprovazione?: string;  // Riferimento atto/delibera di approvazione
+  dataAttoApprovazione?: Date;
+
   // Allegati e documentazione
   allegati: Attachment[];
 

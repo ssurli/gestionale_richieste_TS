@@ -249,6 +249,14 @@ export class DataverseClient {
       ts_richiede_adeguamenti: data.richiedeAdeguamentiStrutturali,
       ts_descrizione_adeguamenti: data.descrizioneAdeguamenti,
       ts_studio_fattibilita: data.studioFattibilitaRichiesto,
+      // Procurement (D.Lgs. 36/2023)
+      ts_rup: data.rup,
+      ts_dec: data.dec,
+      ts_cig: data.cig,
+      ts_cup: data.cup,
+      ts_cui: data.cui,
+      ts_numero_atto_approvazione: data.numeroAttoApprovazione,
+      ts_data_atto_approvazione: data.dataAttoApprovazione?.toISOString(),
     };
 
     // Lookup al richiedente
@@ -338,6 +346,15 @@ export class DataverseClient {
     if (updates.descrizioneDettagliata !== undefined) body.ts_descrizione = updates.descrizioneDettagliata;
     if (updates.budget?.valoreStimatoEuro !== undefined) body.ts_budget_stimato = updates.budget.valoreStimatoEuro;
     if (updates.motivazioneRichiesta !== undefined) body.ts_motivazione_richiesta = updates.motivazioneRichiesta;
+
+    // Procurement (D.Lgs. 36/2023): compilati nelle fasi post-approvazione
+    if (updates.rup !== undefined) body.ts_rup = updates.rup;
+    if (updates.dec !== undefined) body.ts_dec = updates.dec;
+    if (updates.cig !== undefined) body.ts_cig = updates.cig;
+    if (updates.cup !== undefined) body.ts_cup = updates.cup;
+    if (updates.cui !== undefined) body.ts_cui = updates.cui;
+    if (updates.numeroAttoApprovazione !== undefined) body.ts_numero_atto_approvazione = updates.numeroAttoApprovazione;
+    if (updates.dataAttoApprovazione !== undefined) body.ts_data_atto_approvazione = updates.dataAttoApprovazione.toISOString();
 
     // Aggiungi sempre data ultima modifica
     body.ts_data_ultima_modifica = new Date().toISOString();
@@ -543,6 +560,15 @@ export class DataverseClient {
       urgenzaBloccoServizio: item.ts_urgenza_blocco_servizio || false,
       urgenzaObbligoNormativo: item.ts_urgenza_obbligo_normativo || false,
       sostituzioneGiaAggiudicata: item.ts_sostituzione_gia_aggiudicata || false,
+      rup: item.ts_rup,
+      dec: item.ts_dec,
+      cig: item.ts_cig,
+      cup: item.ts_cup,
+      cui: item.ts_cui,
+      numeroAttoApprovazione: item.ts_numero_atto_approvazione,
+      dataAttoApprovazione: item.ts_data_atto_approvazione
+        ? new Date(item.ts_data_atto_approvazione)
+        : undefined,
       // Campi obbligatori del modello non ancora espansi dalla query:
       // inizializzati vuoti per non far fallire i consumatori (workflow,
       // dashboard); lo storico si carica dalla tabella ts_workflow_histories

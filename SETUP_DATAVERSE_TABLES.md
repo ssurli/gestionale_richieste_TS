@@ -283,6 +283,23 @@ ALTRO
 > colonna → Data type: Autonumber, es. formato `{SEQNUM:4}-{YEAR}`): una
 > numerazione generata client-side sarebbe soggetta a duplicati e manipolabile.
 
+#### Procurement — tracciabilità procedimento (D.Lgs. 36/2023)
+
+Compilati nelle fasi post-approvazione / acquisizione ESTAR.
+
+| Display Name | Name | Data Type | Required |
+|--------------|------|-----------|----------|
+| RUP | ts_rup | Single line of text | ❌ No |
+| DEC | ts_dec | Single line of text | ❌ No |
+| CIG | ts_cig | Single line of text (10 char) | ❌ No |
+| CUP | ts_cup | Single line of text (15 char) | ❌ No |
+| CUI | ts_cui | Single line of text | ❌ No |
+| Numero Atto Approvazione | ts_numero_atto_approvazione | Single line of text | ❌ No |
+| Data Atto Approvazione | ts_data_atto_approvazione | Date and Time | ❌ No |
+
+> Il **CIG** è anche il metadato chiave per l'archiviazione documentale in
+> SharePoint (Ondata 3): indicizzarlo se usato per la ricerca dei fascicoli.
+
 ---
 
 ## 📝 Tabella 3: ts_workflow_history

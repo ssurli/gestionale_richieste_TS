@@ -10,6 +10,7 @@ import {
   validaConsumabili,
   validaBudget,
   validaCoerenzaRichiesta,
+  validaProcurement,
 } from '@/lib/validations';
 import { Donation, ServiceContract, Consumables, BudgetCoverage } from '@/types';
 
@@ -173,6 +174,36 @@ describe('validaBudget', () => {
   test('anno di riferimento passato → errore', () => {
     const res = validaBudget(budgetBase({ annoRiferimento: new Date().getFullYear() - 1 }));
     expect(res.isValid).toBe(false);
+  });
+});
+
+describe('validaProcurement (D.Lgs. 36/2023)', () => {
+  test('CIG valido (10 alfanumerici) → ok', () => {
+    expect(validaProcurement({ cig: '1234567890', rup: 'Rossi' }).isValid).toBe(true);
+    expect(validaProcurement({ cig: 'A1B2C3D4E5', rup: 'Rossi' }).isValid).toBe(true);
+  });
+
+  test('CIG con lunghezza errata → errore', () => {
+    expect(validaProcurement({ cig: '123' }).isValid).toBe(false);
+    expect(validaProcurement({ cig: '1234567890A' }).isValid).toBe(false);
+  });
+
+  test('CUP valido (15 alfanumerici) → ok', () => {
+    expect(validaProcurement({ cup: 'B12H34567890123' }).isValid).toBe(true);
+  });
+
+  test('CUP con lunghezza errata → errore', () => {
+    expect(validaProcurement({ cup: 'ABC' }).isValid).toBe(false);
+  });
+
+  test('CIG senza RUP → warning (non bloccante)', () => {
+    const r = validaProcurement({ cig: '1234567890' });
+    expect(r.isValid).toBe(true);
+    expect(r.warnings.length).toBeGreaterThan(0);
+  });
+
+  test('nessun dato → valido (compilazione post-approvazione)', () => {
+    expect(validaProcurement({}).isValid).toBe(true);
   });
 });
 
