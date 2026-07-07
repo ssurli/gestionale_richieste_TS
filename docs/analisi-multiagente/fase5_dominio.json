@@ -1,0 +1,215 @@
+{
+  "meta": {
+    "fase": "Fase 5 - Analisi di dominio/UX (HTA aziendale Multi-Track)",
+    "repo": "/home/user/gestionale_richieste_TS",
+    "azienda": "AUSL Toscana Nord Ovest",
+    "data_analisi": "2026-07-07",
+    "nota_metodo": "Analisi in sola lettura. 'confermato' = verificato leggendo il codice; 'da verificare' = richiede ambiente/dati reali (es. Dataverse) o conferma di dominio con il gruppo di lavoro."
+  },
+  "gap_modello": [
+    {
+      "tema": "TRIAGE - Ordine dei controlli: Fast Track 'sotto 15K' cattura richieste da Procedura Semplificata",
+      "file": "src/lib/triage.ts",
+      "riga": "77-97 (ordine eseguiTriage) e 193-199 (criterio D)",
+      "descrizione": "In eseguiTriage() verificaFastTrack (riga 77) viene eseguita PRIMA di verificaProceduraSemplificata (riga 88). Il criterio D di Fast Track (riga 193: budget.valoreStimatoEuro < 15000) e' incondizionato: qualsiasi richiesta con valore < 15.000 euro finisce in TRACK_2, incluse donazioni < 50K con tecnologia conosciuta (che il regolamento destina a TRACK_3, criterio A righe 235-257), ampliamenti dotazione (criterio B righe 260-267) e upgrade da piano investimenti (criterio C righe 269-277). Il criterio D non verifica nemmeno tipoAcquisto: anche un COMODATO da 10K passerebbe da qui se non intercettato prima da verificaHTACompleto (riga 325).",
+      "stato": "confermato",
+      "impatto": "ALTO: richieste che richiedono valutazione CommAz ristretta (TRACK_3, 15-20gg con passaggio IN_VALUTAZIONE_COMMAZ, workflow.ts:97-101) saltano la valutazione tecnico-economica collegiale e vengono approvate col percorso breve DS/DA (workflow.ts:69-79). Rischio non conformita' procedurale e DGR.",
+      "fix_proposta": "Incrementale, senza rewrite: (1) nel criterio D aggiungere guardie: escludere isDonazione, tipoAcquisto PROGRAMMATO con motivazione 'ampliamento', e i casi gia' eleggibili a Semplificata; oppure (2) spostare la chiamata a verificaProceduraSemplificata PRIMA di verificaFastTrack per i soli casi 'strutturali' (donazione/ampliamento/upgrade programmato), lasciando Fast Track prioritario solo per i criteri A-C/F-G. Variante minima (una riga): if (richiesta.isDonazione) skip criterio D.",
+      "come_testare": "Unit test su eseguiTriage: {isDonazione:true, donazione:{valoreDonazione:10000, tecnologiaConosciuta:true, materialiUsoDecicati:false}, budget:{valoreStimatoEuro:10000}} deve dare TRACK_3, oggi da' TRACK_2. Idem {tipoAcquisto:'PROGRAMMATO', motivazioneRichiesta:'ampliamento dotazione', budget:{valoreStimatoEuro:12000}}. Rollback: revert del commit; la funzione e' pura, nessuna migrazione dati."
+    },
+    {
+      "tema": "TRIAGE - Sostituzione 1:1 in Fast Track senza verifica 'gia' aggiudicata'",
+      "file": "src/lib/triage.ts",
+      "riga": "166-174",
+      "descrizione": "Il criterio A recita 'Sostituzioni 1:1 gia' aggiudicate' (anche in TRACK_CONFIGS, src/types/index.ts:477) ma il codice controlla solo isSostituzione && tipoAcquisto===SOSTITUZIONE && budget.valoreStimatoEuro presente. Non esiste alcun campo tipo 'tecnologiaGiaAggiudicataESTAR' sulla sostituzione (il campo tecnologiaGiaAggiudicata esiste solo su Donation, types/index.ts:221). Una sostituzione con tecnologia NON in convenzione ESTAR e valore 90.000 euro entra comunque in Fast Track (il check budget>=100K di verificaHTACompleto, triage.ts:341-347, viene eseguito prima ma la soglia lascia scoperti i valori 15K-100K).",
+      "stato": "confermato",
+      "impatto": "ALTO: sostituzioni con nuova gara necessaria vengono processate in 5-7gg senza istruttoria; il criterio dichiarato nel regolamento non e' implementato.",
+      "fix_proposta": "Aggiungere al modello TechnologyRequest (types/index.ts, sezione Sostituzione righe 276-279) un campo opzionale sostituzioneGiaAggiudicataESTAR?: boolean (+ numeroConvenzione?), esporlo nel blocco 'Dettagli Sostituzione' di RequestForm.tsx (righe 222-267) e condizionare il criterio A: se il flag e' false/assente, non assegnare Fast Track (cade su Semplificata o HTA). Campo opzionale = retrocompatibile.",
+      "come_testare": "Unit test: sostituzione con flag true -> TRACK_2; con flag false e valore 40K -> non TRACK_2. Test UI: compilare form sostituzione e verificare comparsa checkbox. Rollback: rimuovere la condizione; il campo opzionale non rompe i dati esistenti."
+    },
+    {
+      "tema": "TRIAGE - Urgenza critica basata su keyword-matching su testo libero",
+      "file": "src/lib/triage.ts",
+      "riga": "111-158",
+      "descrizione": "verificaUrgenzaCritica cerca substring ('safety', 'emergenza', 'pericolo', 'compliance', 'blocco servizio'...) in motivazioneRichiesta/descrizioneDettagliata. Il commento stesso (righe 114-115) ammette che e' una simulazione. Falsi positivi: 'non e' un'emergenza' o 'reparto di emergenza-urgenza' o 'in compliance con...' attivano TRACK_1 (24-48h). Falsi negativi: sinonimi non coperti ('guasto bloccante', 'rischio clinico'). Il criterio 'compliance' (riga 147) e' particolarmente ampio. TRACK_1 e' il primo check (riga 30) quindi vince su tutto.",
+      "stato": "confermato",
+      "impatto": "ALTO: assegnazioni TRACK_1 arbitrarie/manipolabili; il percorso urgenza salta validazione dipartimento e CommAz (workflow.ts:27-52). Il report trimestrale segnala gia' come anomalia >20% di TRACK_1 (reports.ts:189-195), ma il problema nasce a monte.",
+      "fix_proposta": "Sostituire l'inferenza testuale con campi strutturati dichiarativi: flagSafetyCritica, flagBloccoServizioEssenziale, flagObbligoNormativoUrgente (checkbox nel form con obbligo di motivazione testuale e allegato, es. alert ministeriale). Mantenere il keyword-matching solo come suggerimento non vincolante ('sembra un'urgenza: confermi?'). In ogni caso TRACK_1 dovrebbe richiedere conferma del Coordinatore CommAz (vedi gap override).",
+      "come_testare": "Unit test con testi trappola: 'non si tratta di emergenza' non deve dare TRACK_1 dopo il fix. Test UX: form con checkbox urgenza + motivazione obbligatoria. Rollback: i nuovi campi sono opzionali; ripristinare la funzione precedente e' un revert locale a triage.ts."
+    },
+    {
+      "tema": "TRIAGE - Warning donazione con materiali dedicati perso (codice morto)",
+      "file": "src/lib/triage.ts",
+      "riga": "239-242 (e 27, 316-322)",
+      "descrizione": "In verificaProceduraSemplificata, per donazione con materialiUsoDecicati viene fatto warnings.push('...Vietato da DGR 306/2024') e subito 'return null': il warning muore con la funzione (mai restituito). Nel flusso reale il caso e' intercettato prima da verificaHTACompleto (triage.ts:316-322) che assegna TRACK_4 ma SENZA warning nel TriageResult (righe 67-74 non popolano il campo warning). Inoltre l'array warnings dichiarato a riga 27 in eseguiTriage non viene mai usato. Il divieto DGR e' comunque segnalato dal form via validaDGR306_2024 (src/lib/validations.ts:17-23, errore bloccante) - quindi la copertura c'e' ma e' duplicata e incoerente tra i due moduli.",
+      "stato": "confermato",
+      "impatto": "MEDIO: incoerenza tra triage e validazioni; se in futuro la validazione bloccante venisse allentata (donazione da valutare, non da rifiutare), il triage non comunicherebbe il vincolo DGR al valutatore.",
+      "fix_proposta": "(1) Propagare il warning: nei rami HTA di eseguiTriage (righe 67-74) aggiungere warning quando criterio = 'HTA Completo - Vincolo DGR 306/2024'; (2) rimuovere il push+return null morto in verificaProceduraSemplificata o trasformarlo in early-return con struttura {esito:null, warnings}; (3) mostrare TriageResult.warning nel pannello esito di RequestForm.tsx (righe 485-502, oggi mostra solo track e motivazione).",
+      "come_testare": "Unit test: donazione con materialiUsoDecicati=true -> TriageResult.warning contiene riferimento DGR 306/2024. Test UI: warning visibile nel riquadro verde/giallo del form. Rollback: revert; nessun impatto dati."
+    },
+    {
+      "tema": "TRIAGE - Criterio Fast Track B troppo permissivo",
+      "file": "src/lib/triage.ts",
+      "riga": "177-182",
+      "descrizione": "Il criterio B assegna Fast Track se motivoSostituzione e' valorizzato (qualsiasi valore, anche 'OBSOLETO' o 'ALTRO') && esistonoAlternative===true. 'esistonoAlternative' nel modello (types/index.ts:272) significa 'esistono alternative alla richiesta', non 'esiste un workaround temporaneo per l'urgenza operativa'. Semantica del campo diversa dal criterio dichiarato ('Urgenze operative con workaround').",
+      "stato": "confermato",
+      "impatto": "MEDIO: sostituzioni non urgenti scivolano in TRACK_2. Nota: essendo dopo il criterio A (che gia' cattura quasi tutte le sostituzioni), l'effetto pratico e' limitato ai casi con isSostituzione=false ma motivoSostituzione valorizzato (incoerenza dati possibile perche' il form non vincola i due campi).",
+      "fix_proposta": "Introdurre campo dedicato workaroundTemporaneoDisponibile?: boolean con descrizione, e usare quello nel criterio B; oppure restringere a motivoSostituzione==='NON_RIPARABILE' && esistonoAlternative.",
+      "come_testare": "Unit test: {motivoSostituzione:'OBSOLETO', esistonoAlternative:true, isSostituzione:false} non deve dare TRACK_2 dopo il fix. Rollback: revert della condizione."
+    },
+    {
+      "tema": "TRIAGE - Manca l'override manuale motivato del track",
+      "file": "src/types/index.ts + src/components/forms/RequestForm.tsx + src/lib/dataverseClient.ts",
+      "riga": "types/index.ts:307; RequestForm.tsx:485-502; dataverseClient.ts:78-102",
+      "descrizione": "Il modello prevede i campi per il triage del Coordinatore CommAz (motivazioneAssegnazioneTrack a types/index.ts:307, noteTriageCoordCommAz:306, dataTriageCoordCommAz:303) ma: (a) nessun componente UI li usa (grep su src: motivazioneAssegnazioneTrack compare solo nella definizione del tipo); (b) RequestForm mostra il TriageResult come esito definitivo senza possibilita' di modifica; (c) dataverseClient.createRequest/updateRequest non persistono ne' motivazioneAssegnazioneTrack ne' dataAssegnazioneTrack (createRequest righe 78-102 manda ts_track ma non ts_data_assegnazione_track, che pero' viene letto in mapDataverseToRequest riga 385); (d) TriageResult.flagAutomatico esiste (triage.ts:19) ma non viene salvato. Non esiste quindi il passaggio procedurale 'il Coordinatore conferma o riassegna il track con motivazione', previsto dal workflow (stato IN_TRIAGE -> ASSEGNATO_TRACK, workflow.ts:35-39).",
+      "stato": "confermato",
+      "impatto": "ALTO: il triage automatico (con i bug sopra) diventa di fatto insindacabile; assenza di audit trail sull'assegnazione track (chi, quando, perche').",
+      "fix_proposta": "Incrementale: (1) UI: nel pannello esito triage di RequestForm (o in una vista dedicata al Coordinatore) aggiungere select 'Track proposto/Track assegnato' + textarea motivazione obbligatoria se diverso dal proposto; (2) persistenza: aggiungere a createRequest/updateRequest i campi ts_data_assegnazione_track, ts_motivazione_assegnazione_track, ts_flag_triage_automatico; (3) tracciare l'override in storico via addWorkflowHistory (dataverseClient.ts:329-361) con azione 'OVERRIDE_TRACK'.",
+      "come_testare": "E2E: creare richiesta, triage propone TRACK_2, coordinatore forza TRACK_4 con motivazione -> verificare record Dataverse e voce ts_workflow_histories. Rollback: i nuovi campi Dataverse sono additivi; disattivare la UI ripristina il comportamento attuale."
+    },
+    {
+      "tema": "SLA - isInRitardo non puo' mai essere true (Math.max azzera i negativi)",
+      "file": "src/lib/triage.ts",
+      "riga": "455-470 (calcolaGiorniResidui) e 488-490 (isInRitardo)",
+      "descrizione": "calcolaGiorniResidui ritorna Math.max(0, tempoMassimo - giorniPassati) (riga 469): il valore minimo e' 0. isInRitardo ritorna calcolaGiorniResidui(r) < 0 (riga 489): condizione impossibile, sempre false. Conseguenze a cascata in Dashboard.tsx: alertTempiScadenza (righe 63-68) e' sempre vuoto, il pannello 'Richieste in Ritardo' (righe 177-207) non appare mai, e comunque a riga 197 Math.abs(calcolaGiorniResidui(req)) mostrerebbe '0 giorni di ritardo'. Anche la stat card 'Alert Scadenze' (righe 124-129) vale sempre 0.",
+      "stato": "confermato (bug logico verificabile staticamente)",
+      "impatto": "CRITICO per il dominio: lo scadenzario SLA - la ragion d'essere del Multi-Track - e' inoperante. Nessuna richiesta risultera' mai in ritardo.",
+      "fix_proposta": "Fix minimo (2 righe): rimuovere Math.max e ritornare il valore col segno: 'return tempoMassimo - giorniPassati;' cosi' isInRitardo(<0) funziona; nei punti UI che mostrano i giorni residui usare Math.max(0, x) localmente se serve. Fix completo consigliato: aggiungere getSlaStatus(richiesta): 'IN_TEMPO' | 'IN_SCADENZA' | 'IN_RITARDO' con soglia in-scadenza parametrica per track (es. residuo <= 25% del tempoMassimoGiorni: TRACK_1 <=0.5gg, TRACK_2 <=2gg, TRACK_3 <=5gg, TRACK_4 <=11gg) ed escludere gli stati terminali (APPROVATA/RESPINTA/COMPLETATA) dal conteggio - oggi calcolaGiorniResidui conta anche richieste chiuse.",
+      "come_testare": "Unit test: richiesta TRACK_2 con dataAssegnazioneTrack = oggi-10gg -> calcolaGiorniResidui = -3, isInRitardo = true, getSlaStatus = 'IN_RITARDO'; oggi-6gg -> 'IN_SCADENZA'. Test UI: con dato mock il pannello rosso della Dashboard deve comparire. Rollback: revert; funzioni pure senza stato."
+    },
+    {
+      "tema": "SLA - giorniTrascorsi/giorniResiduiTrack persistiti ma mai aggiornati",
+      "file": "src/types/index.ts + src/lib/dataverseClient.ts",
+      "riga": "types/index.ts:243-244; dataverseClient.ts:386-387, 75-126, 189-217",
+      "descrizione": "TechnologyRequest.giorniTrascorsi e giorniResiduiTrack sono campi del modello, letti da Dataverse (ts_giorni_trascorsi, ts_giorni_residui_track a dataverseClient.ts:386-387) e mostrati in Dashboard (colonna 'Giorni', Dashboard.tsx:254). Ma nessun codice li scrive: createRequest (righe 78-102) e updateRequest (righe 192-202) non li includono; non esiste alcun job/flow schedulato nel repo che li ricalcoli. Valgono quindi sempre 0/undefined (default a riga 386). E' un dato derivato trattato come dato persistito: anche se un Power Automate li aggiornasse ogni notte, sarebbero stantii durante il giorno.",
+      "stato": "confermato (assenza di writer nel repo; eventuale flow Power Automate esterno: da verificare nell'ambiente Power Platform)",
+      "impatto": "ALTO: la colonna 'Giorni' in dashboard mostra 0 per tutte le richieste; qualsiasi report basato sul campo persistito e' falsato.",
+      "fix_proposta": "Non persistere il derivato: calcolare i giorni a runtime da dataAssegnazioneTrack (gia' letto a riga 385) usando calcolaGiorniResidui/una nuova calcolaGiorniTrascorsi, e deprecare i due campi (mantenerli nel tipo per compatibilita', segnandoli @deprecated). In Dashboard.tsx:254 sostituire req.giorniTrascorsi col valore calcolato. Nota di dominio: i tempi SLA della procedura sono verosimilmente giorni lavorativi (le descrizioni workflow parlano di '2 gg', '3 gg' per fasi d'ufficio, workflow.ts:60-72) mentre tutti i calcoli usano giorni di calendario (diff/86400000: triage.ts:464-466, workflow.ts:335-338, Dashboard.tsx:42-45): introdurre una utility diffGiorniLavorativi(a,b) (lun-ven, + festivi IT opzionali) e usarla ovunque, con flag di configurazione per track (TRACK_1 in ore/calendario, TRACK_2-4 lavorativi). Da verificare col regolamento aziendale (REGOLAMENTO AZIENDALE rev 26-12-2025.doc) quale convenzione e' prescritta.",
+      "come_testare": "Unit test su diffGiorniLavorativi (venerdi'->lunedi' = 1). Snapshot dashboard con mock: colonna Giorni non piu' 0. Rollback: la utility e' additiva; ripristinare req.giorniTrascorsi e' un revert di una riga."
+    },
+    {
+      "tema": "SLA - TRACK_1 (24-48h) misurato in giorni interi con floor",
+      "file": "src/lib/triage.ts",
+      "riga": "464-469 e 475-483",
+      "descrizione": "getTempoMassimoTrack ritorna 2 giorni per URGENZA_CRITICA e il calcolo usa Math.floor su differenza in giorni: una richiesta TRACK_1 aperta da 47 ore risulta giorniPassati=1, residuo=1, mai 'in scadenza'. La granularita' giornaliera e' inadatta a un SLA di 24-48h (e al sub-SLA 'verifica entro 4h' descritto in workflow.ts:38).",
+      "stato": "confermato",
+      "impatto": "MEDIO: monitoraggio inefficace proprio sul track piu' critico.",
+      "fix_proposta": "Per TRACK_1 calcolare il residuo in ore (tempoMassimoOre=48) e mostrare 'ore residue' in dashboard; per gli altri track restare sui giorni.",
+      "come_testare": "Unit test con dataAssegnazioneTrack = ora-36h -> residuo 12h, stato IN_SCADENZA. Rollback: revert."
+    },
+    {
+      "tema": "DASHBOARD - Alimentata con array vuoto: requests mai caricate",
+      "file": "src/app/page.tsx",
+      "riga": "26 e 157",
+      "descrizione": "const [requests, setRequests] = useState<TechnologyRequest[]>([]) (riga 26): setRequests non e' mai invocato (grep: 1 sola occorrenza, la dichiarazione). La Dashboard (riga 157) riceve sempre []. dataverseClient.getRequests esiste (dataverseClient.ts:131-161) ma nessun componente lo chiama (unico uso del client: AuthContext.getCurrentUser). Anche i form (RequestForm.tsx:86-88, FormMOD01, ecc.) terminano con console.log senza salvare ne' aggiungere allo stato. La dashboard 'Multi-Track' mostra quindi sempre 0 ovunque; l'unica vista con dati reali e' RequestManager, alimentata dal file statico piano_acquisti_data.json (page.tsx:16,158).",
+      "stato": "confermato",
+      "impatto": "CRITICO: l'intero ciclo richiesta->triage->workflow->dashboard non e' collegato; il sistema e' una demo con dati statici per le sole viste listino/piano acquisti.",
+      "fix_proposta": "Passo 1 (demo funzionante): al submit dei form, costruire il TechnologyRequest col TriageResult e fare setRequests([...requests, nuova]) sollevando lo stato via prop/context. Passo 2 (persistenza): useEffect in page.tsx che chiama dataverseClient.getRequests() quando autenticati, con fallback allo stato locale. Entrambi additivi.",
+      "come_testare": "E2E manuale: compilare FormMOD01, tornare su Dashboard, contatori >0 e richiesta in 'Richieste Recenti'. Rollback: revert; nessun dato migrato."
+    },
+    {
+      "tema": "DASHBOARD - Etichette budget errate/fuorvianti",
+      "file": "src/components/dashboard/Dashboard.tsx",
+      "riga": "70-87 e 133-149",
+      "descrizione": "La card 'Budget Totale Richiesto' (riga 137) mostra stats.budgetUtilizzato che in realta' e' il budget delle sole richieste APPROVATE (righe 74-76, 85); 'Budget Disponibile' (riga 143) e' richiesto-approvato, cioe' il valore delle richieste NON ancora approvate, non un budget disponibile (non esiste nel modello un tetto di budget aziendale/di piano investimenti con cui confrontarsi; BudgetCoverage.importoDisponibile a types/index.ts:198 e' per singola richiesta e non viene aggregato). budgetTotaleRichiesto calcolato a righe 70-72 non viene mai mostrato.",
+      "stato": "confermato",
+      "impatto": "MEDIO-ALTO: numeri di budget in direzione sbagliati; per un HTA aziendale il confronto richiesto/approvato/plafond e' informazione decisionale primaria.",
+      "fix_proposta": "Rinominare le card in 'Budget Approvato' e 'Budget Richiesto in Valutazione'; aggiungere (fase 2) un'entita' di configurazione 'plafond annuo per fonte di finanziamento' per calcolare il vero scostamento (vedi KPI scostamento budget).",
+      "come_testare": "Mock con 2 richieste (1 approvata 50K, 1 in corso 30K): card devono mostrare 50K / 30K. Rollback: revert etichette."
+    },
+    {
+      "tema": "CATALOGO/LISTINO - Tabella ts_ordini_estar documentata ma non implementata nel client; tre schemi dati incoerenti",
+      "file": "SETUP_DATAVERSE_TABLES.md + src/lib/dataverseClient.ts + catalogo_estar.json + price_list_data.json",
+      "riga": "SETUP_DATAVERSE_TABLES.md:306-330; dataverseClient.ts:69,240,323 (uniche entita' usate: ts_richiestes, ts_utentis, ts_workflow_histories); NEXT_STEPS.md:90",
+      "descrizione": "La doc definisce la tabella Dataverse ts_ordini_estar (colonne ts_numero_determina, ts_oggetto, ts_categoria, ts_importo, ts_data_scadenza, ts_fornitore, ts_link_estar) e NEXT_STEPS.md:90 la elenca come checkbox NON spuntata ('[ ] 4. ts_ordini_estar - 88 ordini'). Il dataverseClient non contiene alcun metodo per ts_ordini_estar (confermato: grep senza risultati in src/). I dati listino vivono in due JSON statici con schemi diversi tra loro e diversi dalla tabella documentata: catalogo_estar.json (24 voci: categoria/codice/descrizione/costo_unitario/iva_percentuale/applicabile_a - usato da PriceSuggestion via FormMOD01.tsx:7,247 e FormMOD02.tsx:7) e price_list_data.json (88 ordinativi con chiavi italiane 'Totale Ordinativo' come stringa in formato misto - usato da PriceList via page.tsx:15,164). Incoerenze puntuali: (a) i campi delle 88 righe di price_list_data non mappano 1:1 sulle 7 colonne di ts_ordini_estar (manca fornitore/categoria come campo: PriceList li estrae con regex euristiche dal nome convenzione, PriceList.tsx:67-90); (b) catalogo_estar ha 2 voci con costo_unitario 0 (DIAG008 Emogasanalizzatore, DIAG009 POC) che PriceSuggestion proporrebbe come 0 euro cliccabile (PriceSuggestion.tsx:83-87 non filtra i prezzi nulli); (c) parseItalianPrice (PriceList.tsx:93-111) deve indovinare il formato numerico ('46.675.59') - fragile; (d) PriceList avvisa correttamente che i totali non sono prezzi unitari (righe 177-191) ma PriceSuggestion presenta i suoi come 'prezzi di riferimento' senza data/fonte/validita'.",
+      "stato": "confermato nel codice; esistenza effettiva della tabella nell'ambiente Dataverse: da verificare (dal repo risulta non creata)",
+      "impatto": "MEDIO-ALTO: il suggerimento prezzi che alimenta budget.valoreStimatoEuro - da cui dipendono le soglie di triage 15K/50K/100K - si basa su un catalogo statico non versionato, non aggiornabile senza deploy, con voci a 0 euro.",
+      "fix_proposta": "Incrementale: (1) subito, filtrare costo_unitario<=0 in PriceSuggestion (1 riga nel filter a PriceSuggestion.tsx:32-38) e aggiungere data_aggiornamento al JSON mostrata nel disclaimer; (2) normalizzare price_list_data.json a monte (script one-shot che converte 'Totale Ordinativo' in numero e estrae fornitore/categoria) invece delle regex a runtime; (3) quando/se si crea ts_ordini_estar, allineare prima lo schema doc ai campi reali del JSON (aggiungere stato, registro_sistema, data_decorrenza, totale_ordinativo) e aggiungere getOrdiniEstar() al client con fallback al JSON.",
+      "come_testare": "(1) digitare 'emogas' in FormMOD01: nessun suggerimento a 0 euro; (2) unit test parseItalianPrice vs versione normalizzata: stessi totali aggregati in PriceList; (3) mock del client: la UI listino identica con fonte Dataverse o JSON. Rollback: il fallback JSON resta il comportamento attuale."
+    },
+    {
+      "tema": "WORKFLOW - Stati dichiarati ma irraggiungibili e transizioni incomplete",
+      "file": "src/lib/workflow.ts",
+      "riga": "25-149",
+      "descrizione": "Le WORKFLOW_TRANSITIONS non prevedono percorsi verso IN_ACQUISIZIONE_ESTAR e COMPLETATA (definiti in types/index.ts:37-38): dopo APPROVATA il flusso si ferma, quindi 'Completate Ultimo Mese' in Dashboard (righe 31-37) restera' 0 anche a regime. Mancano anche transizioni da RINVIATA (rientro dopo integrazioni) e per TRACK_2/3 la validazione DS e' fusa nel passaggio IN_PRESCREENING->IN_APPROVAZIONE_DA (righe 69-73) senza lo stato IN_APPROVAZIONE_DS. rejectRequest/returnRequest (righe 263-314) bypassano canExecuteTransition: qualsiasi ruolo puo' respingere/rinviare.",
+      "stato": "confermato",
+      "impatto": "MEDIO: ciclo di vita monco (mai 'completata'), KPI di throughput non calcolabili; controllo ruoli assente su respingi/rinvia.",
+      "fix_proposta": "Aggiungere per ogni track le transizioni APPROVATA->IN_ACQUISIZIONE_ESTAR (ruoli ESTAR_TS/USL_TS) e ->COMPLETATA; aggiungere RINVIATA->SOTTOMESSA (richiedente). In rejectRequest/returnRequest aggiungere un check ruolo minimo (stessi requiredRole della transizione corrente).",
+      "come_testare": "Unit test getNextStatuses su richiesta APPROVATA: deve proporre IN_ACQUISIZIONE_ESTAR; test che RESPONSABILE_UO non possa respingere in IN_APPROVAZIONE_DA. Rollback: revert delle voci aggiunte all'array."
+    },
+    {
+      "tema": "REPORT - calculateWorkflowStats misura 'eta' della richiesta', non tempo di completamento",
+      "file": "src/lib/workflow.ts",
+      "riga": "319-382 (in particolare 333-350) e 387-404",
+      "descrizione": "avgDaysPerTrack usa (oggi - dataAssegnazioneTrack) per TUTTE le richieste, anche chiuse (righe 335-338): per una richiesta approvata 6 mesi fa conta 180 giorni, gonfiando la media col passare del tempo. calculateDaysInStatus (387-404) assume che storico sia ordinato e che ogni statoNuovo compaia una volta (un rientro da RINVIATA sovrascrive il conteggio precedente, riga 399). reports.ts invece calcola correttamente il tempo di approvazione usando dataApprovazioneDA (reports.ts:49-58), ma con fallback dataUltimaModifica che include modifiche successive.",
+      "stato": "confermato",
+      "impatto": "MEDIO: 'Tempo Medio Approvazione' in Dashboard (righe 39-51, stesso difetto: usa oggi invece della data di approvazione) e i colli di bottiglia del report trimestrale sono sistematicamente sovrastimati.",
+      "fix_proposta": "In calculateWorkflowStats usare come fine periodo la data dell'ultimo evento terminale dallo storico (o dataApprovazioneDA) per richieste chiuse, 'oggi' solo per quelle in corso (separando i due KPI: lead time chiuso vs aging aperto). In calculateDaysInStatus accumulare (+=) invece di sovrascrivere.",
+      "come_testare": "Unit test: richiesta approvata in 5gg, creata 100gg fa -> avg 5, non 100. Rollback: revert, funzioni pure."
+    }
+  ],
+  "migliorie_ux": [
+    {
+      "titolo": "Scadenzario SLA con semaforo per track (vista 'Coda per Track')",
+      "descrizione": "Nuova sezione Dashboard che sostituisce la semplice 'Distribuzione per Track' (Dashboard.tsx:151-174) con una coda azionabile: per ogni track, le richieste aperte ordinate per giorni residui, con stato semaforico IN_TEMPO / IN_SCADENZA (residuo <= 25% SLA) / IN_RITARDO (residuo < 0). Richiede prima il fix di calcolaGiorniResidui/isInRitardo (triage.ts:455-490). Click su riga -> dettaglio richiesta. Badge conteggio ritardi sul tab del track.",
+      "wireframe_testuale": "+----------------------------------------------------------------------+\n| SCADENZARIO SLA                    [Tutti] [T1] [T2] [T3] [T4]       |\n+----------------------------------------------------------------------+\n| TRACK 1 - Urgenza Critica (48h)                     2 aperte  (1 !)  |\n|  ! 2026-014  Defibrillatore PS Livorno   IN_TRIAGE    -6h  IN RITARDO|\n|  ~ 2026-017  Ventilatore TI Pisa         ASSEGNATO   +12h  IN SCADENZ|\n+----------------------------------------------------------------------+\n| TRACK 2 - Fast Track (7gg)                          5 aperte  (2 !)  |\n|  ! 2026-002  Ecografo portatile Cardio   PRESCREEN   -3gg  IN RITARDO|\n|  ! 2026-005  Monitor multiparametrico    VAL.DIP     -1gg  IN RITARDO|\n|  ~ 2026-009  Spirometro Pneumo           PRESCREEN   +1gg  IN SCADENZ|\n|  . 2026-011  Holter cardiaco             SOTTOMESSA  +5gg  IN TEMPO  |\n+----------------------------------------------------------------------+\n| TRACK 3 - Semplificata (20gg)                       3 aperte  (0 !)  |\n|  . 2026-008  Donazione eco MSK           VAL.COMMAZ  +9gg  IN TEMPO  |\n+----------------------------------------------------------------------+\nLegenda: ! in ritardo   ~ in scadenza (<=25% SLA residuo)   . in tempo",
+      "sforzo": "M (1-2 gg dopo il fix SLA: nuova funzione getSlaStatus + un componente lista; nessuna modifica al modello dati)"
+    },
+    {
+      "titolo": "Vista 'Per UO / Dipartimento' con aging e budget",
+      "descrizione": "Tabella pivot per dipartimento -> UO: numero richieste aperte, di cui in ritardo, budget richiesto e approvato. I campi unitaOperativa/dipartimento esistono gia' sul modello (types/index.ts:249-250) e su Dataverse (dataverseClient.ts:390-391). Serve alla Direzione per capire dove si accumula domanda e ai Direttori di Dipartimento come coda di validazione personale ('le mie richieste da validare' filtrando statoCorrente=IN_VALIDAZIONE_DIPARTIMENTO e dipartimento=proprio).",
+      "wireframe_testuale": "+---------------------------------------------------------------------------+\n| RICHIESTE PER DIPARTIMENTO             anno [2026 v]   [scarica CSV]      |\n+---------------------------------------------------------------------------+\n| Dipartimento / UO       | Aperte | Ritardo | Da validare | Richiesto | OK  |\n|-------------------------+--------+---------+-------------+-----------+-----|\n| v Cardio-Toraco-Vasc.   |   8    |   2 !   |     3       |  420.000  | 180K|\n|    UO Cardiologia PI    |   5    |   1     |     2       |  260.000  | 120K|\n|    UO Chirurgia Torac.  |   3    |   1     |     1       |  160.000  |  60K|\n| > Diagnostica Immagini  |   6    |   0     |     1       |  890.000  | 340K|\n| > Emergenza-Urgenza     |   4    |   3 !   |     0       |  150.000  |  90K|\n+---------------------------------------------------------------------------+\n| TOTALE                  |  18    |   5     |     4       | 1.460.000 | 610K|\n+---------------------------------------------------------------------------+",
+      "sforzo": "M (groupBy client-side sui dati gia' disponibili; export CSV banale)"
+    },
+    {
+      "titolo": "Pipeline approvazioni (kanban per stato)",
+      "descrizione": "Vista a colonne degli stati del workflow con le card richiesta, per rendere visibile dove si fermano le pratiche (oggi 'richiestePerStato' e' calcolato in Dashboard.tsx:58-61 ma MAI renderizzato). Colonne dagli stati di RequestStatus, card colorate per track (TRACK_CONFIGS.colore), con giorni-in-stato ricavabili dallo storico (calculateDaysInStatus, workflow.ts:387-404). Evidenzia i colli di bottiglia in tempo reale invece che solo nel report trimestrale.",
+      "wireframe_testuale": "+------------------------------------------------------------------------------+\n| PIPELINE APPROVAZIONI                                  filtro track: [tutti]|\n+---------------+---------------+---------------+--------------+--------------+\n| SOTTOMESSA(3) | VAL.DIP. (4)  | PRESCREEN (5) | COMMAZ (2)   | APPROV. DS/DA|\n|---------------|---------------|---------------|--------------|--------------|\n| [T2] 2026-011 | [T2] 2026-005 | [T2] 2026-002 | [T4] 2026-001| [T3] 2026-008|\n|  Holter  1g   |  Monitor 4g ! |  Ecografo 6g! |  TAC  12g    |  Eco MSK 2g  |\n| [T3] 2026-015 | [T3] 2026-012 | [T1] 2026-014 | [T4] 2026-004| [T2] 2026-007|\n|  Ampliam. 0g  |  Letti  2g    |  Defib.  6h ! |  RM   8g     |  Pompe   1g  |\n| [T4] 2026-016 | ...           | ...           |              |              |\n+---------------+---------------+---------------+--------------+--------------+\n  card = [track] numero, nome, giorni nello stato ( ! = oltre soglia fase )",
+      "sforzo": "L (componente nuovo; dati gia' presenti in statoCorrente+storico; drag&drop NON necessario in v1, solo lettura)"
+    },
+    {
+      "titolo": "Pannello triage con override motivato del Coordinatore",
+      "descrizione": "Estende il riquadro esito triage di RequestForm.tsx (righe 485-502): mostra track proposto, criterio applicato, warning DGR (oggi persi), e - per il ruolo COORDINATORE_COMMAZ - la possibilita' di confermare o riassegnare il track con motivazione obbligatoria, popolando motivazioneAssegnazioneTrack (types/index.ts:307) e lo storico. Distingue visivamente 'proposta automatica' (flagAutomatico) da 'assegnazione confermata'.",
+      "wireframe_testuale": "+--------------------------------------------------------------------+\n| ESITO TRIAGE AUTOMATICO                                            |\n|                                                                    |\n|  Track proposto:   [ TRACK 2 - FAST TRACK (5-7 gg) ]  (automatico) |\n|  Criterio:         Sotto soglia economica (12.000 < 15.000)        |\n|  /!\\ Warning:      nessuno                                         |\n|                                                                    |\n|  --- Solo Coordinatore CommAz ---------------------------------    |\n|  ( ) Confermo il track proposto                                    |\n|  (x) Riassegno track:  [ TRACK 3 - Semplificata      v ]           |\n|      Motivazione (obbligatoria):                                   |\n|      [ Ampliamento dotazione: richiede valutazione CommAz      ]   |\n|                                                                    |\n|                       [ Annulla ]   [ Assegna track e prosegui ]   |\n+--------------------------------------------------------------------+",
+      "sforzo": "M (UI contenuta; richiede persistenza dei 3 campi triage in dataverseClient.createRequest/updateRequest)"
+    },
+    {
+      "titolo": "Budget: richiesto vs approvato vs plafond per fonte di finanziamento",
+      "descrizione": "Corregge le etichette errate della card budget (Dashboard.tsx:133-149) e aggrega per budget.fonteFinanziamento (types/index.ts:189) e annoRiferimento, confrontando con un plafond configurabile (nuova mini-entita' o costante di configurazione in v1). Rende visibile lo scostamento previsto/impegnato che oggi non esiste da nessuna parte.",
+      "wireframe_testuale": "+---------------------------------------------------------------------+\n| BUDGET 2026 PER FONTE DI FINANZIAMENTO                              |\n+---------------------------------------------------------------------+\n| Piano Investimenti    plafond 2.000.000                             |\n|   approvato  [############------------------]  820.000   (41%)     |\n|   in valutaz.[######--------------------------] 390.000  (+19%)    |\n|   residuo previsto: 790.000                                         |\n|---------------------------------------------------------------------|\n| Fondo Indistinto      plafond   500.000                             |\n|   approvato  [####################----------]  340.000   (68%)     |\n|   in valutaz.[##########----------------------] 210.000  (+42%) /!\\|\n|   /!\\ richieste in valutazione ECCEDONO il plafond di 50.000        |\n|---------------------------------------------------------------------|\n| Donazioni (fuori plafond)                        95.000              |\n+---------------------------------------------------------------------+",
+      "sforzo": "M (aggregazione client-side; il plafond richiede 1 tabella di configurazione o costante; barre CSS senza librerie)"
+    }
+  ],
+  "kpi": [
+    {
+      "nome": "% richieste evase nei tempi per track (SLA compliance)",
+      "formula": "per ogni track T: 100 * count(richieste chiuse con esitoFinale in [APPROVATO,RESPINTO] e (dataDecisione - dataAssegnazioneTrack) <= tempoMassimoGiorni(T)) / count(richieste chiuse del track T). dataDecisione = dataApprovazioneDA (types/index.ts:333) o data dell'evento terminale nello storico.",
+      "dati_necessari": "trackAssegnato, dataAssegnazioneTrack (types/index.ts:241-242), dataApprovazioneDA/esitoFinale (333-338), tempoMassimoGiorni da TRACK_CONFIGS (types/index.ts:457-509).",
+      "dati_mancanti_oggi": "dataAssegnazioneTrack non viene mai scritta (dataverseClient.createRequest righe 78-102 non la include; solo letta a riga 385); dataApprovazioneDA non e' persistita ne' impostata da approveRequest (workflow.ts:236-258 aggiorna solo statoCorrente/storico); convenzione giorni lavorativi vs calendario non definita (da verificare nel regolamento). Finche' requests non e' caricato da Dataverse (page.tsx:26), il KPI non e' calcolabile su dati reali."
+    },
+    {
+      "nome": "Tempo medio per fase del workflow (bottleneck detection)",
+      "formula": "per ogni stato S: media su richieste di sum(intervalli in cui statoCorrente==S), dagli intervalli tra HistoryEntry consecutive (workflow.ts calculateDaysInStatus:387-404, aggregato in calculateWorkflowStats:319-382). Bottleneck = stati con media > soglia (oggi hardcoded 5gg, workflow.ts:374).",
+      "dati_necessari": "storico completo (HistoryEntry con data, statoPrec, statoNuovo - types/index.ts:372-382), persistito in ts_workflow_histories (dataverseClient.ts:329-361).",
+      "dati_mancanti_oggi": "getRequests non fa $expand/lettura di ts_workflow_histories (dataverseClient.ts:131-161): lo storico non viene mai ricaricato, quindi calculateDaysInStatus lavora su array vuoto per dati da Dataverse; calculateDaysInStatus sovrascrive invece di accumulare i rientri nello stesso stato (riga 399); la soglia bottleneck fissa 5gg non ha senso per TRACK_1 (SLA totale 2gg) - va parametrizzata per track."
+    },
+    {
+      "nome": "% conformita' DGR 306/2024 sulle donazioni",
+      "formula": "100 * count(donazioni con conformeDGR306==true e materialiUsoDecicati==false) / count(richieste con isDonazione==true) nel periodo; complementare: numero violazioni intercettate (errori validaDGR306_2024, validations.ts:17-23) e donazioni forzate a TRACK_4 per vincolo DGR (criterio 'HTA Completo - Vincolo DGR 306/2024', triage.ts:316-322).",
+      "dati_necessari": "isDonazione, donazione.materialiUsoDecicati, donazione.conformeDGR306, donazione.valoreDonazione (types/index.ts:211-227); esito triage con criterioApplicato.",
+      "dati_mancanti_oggi": "l'intero oggetto Donation NON e' persistito: createRequest manda solo ts_is_donazione (dataverseClient.ts:97) e mapDataverseToRequest non ricostruisce donazione (righe 424); la tabella ts_donazioni e' documentata (SETUP_DATAVERSE_TABLES.md:334+) ma senza codice client; criterioApplicato/motivazione del triage non salvati. Oggi il KPI e' calcolabile solo in sessione, non storicamente."
+    },
+    {
+      "nome": "Scostamento budget previsto/reale (stima richiesta vs ordinato ESTAR)",
+      "formula": "per richiesta completata: (importoOrdinativoESTAR - budget.valoreStimatoEuro) / budget.valoreStimatoEuro; aggregato: mediana per categoria apparecchiatura e per fonteFinanziamento. Secondo livello: sum(approvato) vs plafond per fonte (vedi miglioria budget).",
+      "dati_necessari": "budget.valoreStimatoEuro (types/index.ts:187), numeroRichiestaESTAR/dataInvioESTAR (341-342), importo effettivo dell'ordinativo (oggi solo in price_list_data.json campo 'Totale Ordinativo'), plafond per fonte (non esiste).",
+      "dati_mancanti_oggi": "manca del tutto il collegamento richiesta->ordinativo: numeroRichiestaESTAR non e' persistito ne' presente in ts_richiestes (dataverseClient.ts); price_list_data.json non ha una chiave riconducibile alla richiesta; la tabella ts_ordini_estar non e' implementata nel client (solo doc, SETUP_DATAVERSE_TABLES.md:306-330) e il suo schema non prevede il lookup alla richiesta - da aggiungere colonna ts_richiesta lookup quando verra' creata; manca l'entita' plafond. E' il KPI col gap dati maggiore: fattibile solo dopo chiusura del ciclo IN_ACQUISIZIONE_ESTAR/COMPLETATA (workflow, gap dedicato)."
+    },
+    {
+      "nome": "Aging medio richieste aperte e % in ritardo (fotografia operativa)",
+      "formula": "aging = media(oggi - dataAssegnazioneTrack) sulle sole richieste NON terminali; % in ritardo = 100 * count(getSlaStatus=='IN_RITARDO') / count(aperte), per track e per dipartimento.",
+      "dati_necessari": "trackAssegnato, dataAssegnazioneTrack, statoCorrente, dipartimento - tutti gia' nel modello.",
+      "dati_mancanti_oggi": "bloccato dal bug isInRitardo sempre false (triage.ts:469+489, confermato) e da dataAssegnazioneTrack mai scritta; giorniTrascorsi/giorniResiduiTrack persistiti ma mai aggiornati (types/index.ts:243-244, nessun writer nel repo) vanno deprecati in favore del calcolo runtime. Dopo i due fix, il KPI e' immediato: e' quello da implementare per primo."
+    }
+  ]
+}
