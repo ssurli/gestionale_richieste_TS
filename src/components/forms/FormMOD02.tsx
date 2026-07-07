@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { FileText, Printer, Save, Plus, Trash2 } from 'lucide-react';
 import { PriceSuggestion, SelectedCatalogItem, CatalogoEstarItem } from '@/components/PriceSuggestion';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { submitTechnologyRequest, PERSISTENCE_ENABLED } from '@/lib/requestService';
+import { mapMod02ToRequest } from '@/lib/formMappers';
 import catalogoEstar from '../../../catalogo_estar.json';
 
 /**
@@ -186,10 +188,24 @@ export function FormMOD02() {
     setSelectedCatalogItem(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('MOD.02 Submitted:', formData);
-    alert('Richiesta ECOGRAFO inviata a: acquisizione.attrezzaturesanitarie@uslnordovest.toscana.it');
+
+    if (!PERSISTENCE_ENABLED) {
+      console.log('MOD.02 Submitted:', formData);
+      alert('Richiesta ECOGRAFO inviata a: acquisizione.attrezzaturesanitarie@uslnordovest.toscana.it');
+      return;
+    }
+
+    try {
+      const esito = await submitTechnologyRequest(mapMod02ToRequest(formData));
+      const avvisi = esito.warnings.length > 0 ? `\n\nAvvisi:\n${esito.warnings.join('\n')}` : '';
+      alert(
+        `Richiesta registrata (ID ${esito.id}).\nTrack assegnato: ${esito.triage.trackAssegnato} — ${esito.triage.motivazione}${avvisi}`
+      );
+    } catch (err) {
+      alert(`Invio non riuscito: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   const handlePrint = () => {

@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Zap, Building2, User, Mail, Phone, FileText, Package, Euro, Calendar, AlertCircle, CheckCircle } from 'lucide-react';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { submitTechnologyRequest, PERSISTENCE_ENABLED } from '@/lib/requestService';
+import { mapFastTrackToRequest } from '@/lib/formMappers';
 
 type FastTrackCategory =
   | 'sostituzione_1_1'
@@ -88,10 +90,29 @@ export function FormFastTrack() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Fast Track Form submitted:', formData);
+    setSubmitError(null);
+    setSubmitMessage(null);
+
+    if (PERSISTENCE_ENABLED) {
+      try {
+        const esito = await submitTechnologyRequest(mapFastTrackToRequest(formData));
+        setSubmitMessage(
+          `Richiesta registrata (ID ${esito.id}). Track assegnato: ${esito.triage.trackAssegnato} — ${esito.triage.motivazione}` +
+            (esito.warnings.length > 0 ? ` | Avvisi: ${esito.warnings.join(' · ')}` : '')
+        );
+      } catch (err) {
+        setSubmitError(err instanceof Error ? err.message : String(err));
+        return; // niente reset: l'utente può correggere e reinviare
+      }
+    } else {
+      console.log('Fast Track Form submitted:', formData);
+    }
+
     setSubmitted(true);
 
     setTimeout(() => {
@@ -604,9 +625,21 @@ export function FormFastTrack() {
               <div className="text-sm text-green-900">
                 <p className="font-semibold">Richiesta Fast Track inviata con successo!</p>
                 <p className="mt-1">
-                  Riceverai conferma di presa in carico entro 1 giorno lavorativo.
-                  Tempo previsto di gestione: 5-7 giorni lavorativi.
+                  {submitMessage ||
+                    'Riceverai conferma di presa in carico entro 1 giorno lavorativo. Tempo previsto di gestione: 5-7 giorni lavorativi.'}
                 </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {submitError && (
+          <div className="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded" role="alert">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+              <div className="text-sm text-red-900">
+                <p className="font-semibold">Invio non riuscito</p>
+                <p className="mt-1 whitespace-pre-line">{submitError}</p>
               </div>
             </div>
           </div>

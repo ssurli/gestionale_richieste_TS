@@ -178,33 +178,69 @@ export class DataverseClient {
    * Crea una nuova richiesta
    */
   async createRequest(data: Partial<TechnologyRequest>): Promise<string> {
-    const body = {
+    const body: Record<string, unknown> = {
+      // NB: ts_numero_progressivo va generato server-side (Autonumber
+      // Dataverse): il client lo invia solo se già assegnato
       ts_numero_progressivo: data.numeroProgressivo,
       ts_nome_apparecchiatura: data.nomeApparecchiatura,
       ts_descrizione: data.descrizioneDettagliata,
+      ts_caratteristiche_tecniche: data.caratteristicheTecniche,
       ts_track: data.trackAssegnato,
       ts_stato: data.statoCorrente,
+      ts_data_assegnazione_track: data.dataAssegnazioneTrack?.toISOString(),
+      ts_motivazione_assegnazione_track: data.motivazioneAssegnazioneTrack,
       ts_tipo_acquisto: data.tipoAcquisto,
       ts_tipo_apparecchiatura: data.tipoApparecchiatura,
       ts_unita_operativa: data.unitaOperativa,
       ts_dipartimento: data.dipartimento,
-      ts_budget_stimato: data.budget?.valoreStimatoEuro,
+      ts_zona_distretto: data.zonaDistretto,
       ts_motivazione_richiesta: data.motivazioneRichiesta,
       ts_impatto_assistenziale: data.impattoAssistenziale,
+      ts_esistono_alternative: data.esistonoAlternative,
+      ts_descrizione_alternative: data.descrizioneAlternative,
       ts_priorita: data.priorita,
+      // Urgenza critica: flag strutturati (Track 1)
+      ts_urgenza_safety: data.urgenzaSafetyCritica,
+      ts_urgenza_blocco_servizio: data.urgenzaBloccoServizio,
+      ts_urgenza_obbligo_normativo: data.urgenzaObbligoNormativo,
+      // Sostituzione
       ts_is_sostituzione: data.isSostituzione,
+      ts_sostituzione_gia_aggiudicata: data.sostituzioneGiaAggiudicata,
+      ts_apparecchiatura_sostituita: data.apparecchiaturaSOStituita,
       ts_motivazione_sostituzione: data.motivoSostituzione,
       ts_dettaglio_motivo_sostituzione: data.dettaglioMotivoSostituzione,
+      // Budget completo
+      ts_budget_stimato: data.budget?.valoreStimatoEuro,
+      ts_budget_iva_esclusa: data.budget?.ivaEsclusa,
+      ts_fonte_finanziamento: data.budget?.fonteFinanziamento,
+      ts_dettaglio_fonte: data.budget?.dettaglioFonte,
+      ts_anno_riferimento: data.budget?.annoRiferimento,
+      ts_capitolo_bilancio: data.budget?.capitoloBilancio,
+      ts_budget_disponibile: data.budget?.budgetDisponibile,
+      ts_importo_disponibile: data.budget?.importoDisponibile,
+      ts_richiesta_integrazione: data.budget?.richiestaIntegrazione,
+      ts_importo_integrazione: data.budget?.importoIntegrazione,
+      // Flag
       ts_richiede_service: data.richiedeService,
       ts_richiede_consumabili: data.richiedeConsumabili,
       ts_is_donazione: data.isDonazione,
       ts_richiede_adeguamenti: data.richiedeAdeguamentiStrutturali,
       ts_descrizione_adeguamenti: data.descrizioneAdeguamenti,
-      // Lookup al richiedente (se disponibile)
-      // "ts_richiedente@odata.bind": `/ts_utentis(${data.richiedenteId})`
+      ts_studio_fattibilita: data.studioFattibilitaRichiesto,
     };
 
-    const response = await this.request('POST', 'ts_richiestes', body);
+    // Lookup al richiedente
+    if (data.richiedenteId) {
+      body['ts_richiedente@odata.bind'] = `/ts_utentis(${assertGuid(data.richiedenteId)})`;
+    }
+
+    // Le chiavi undefined non vanno inviate (Dataverse le interpreterebbe
+    // come azzeramenti espliciti su alcune tipologie di colonna)
+    const payload = Object.fromEntries(
+      Object.entries(body).filter(([, v]) => v !== undefined)
+    );
+
+    const response = await this.request('POST', 'ts_richiestes', payload);
     await this.ensureOk(response, 'Errore creazione richiesta');
 
     // Estrai ID dalla response header
@@ -467,6 +503,17 @@ export class DataverseClient {
       richiedeAdeguamentiStrutturali: item.ts_richiede_adeguamenti || false,
       descrizioneAdeguamenti: item.ts_descrizione_adeguamenti,
       studioFattibilitaRichiesto: item.ts_studio_fattibilita || false,
+      richiedeHTARegionale: item.ts_richiede_hta_regionale || false,
+      motivazioneAssegnazioneTrack: item.ts_motivazione_assegnazione_track,
+      urgenzaSafetyCritica: item.ts_urgenza_safety || false,
+      urgenzaBloccoServizio: item.ts_urgenza_blocco_servizio || false,
+      urgenzaObbligoNormativo: item.ts_urgenza_obbligo_normativo || false,
+      sostituzioneGiaAggiudicata: item.ts_sostituzione_gia_aggiudicata || false,
+      // Campi obbligatori del modello non ancora espansi dalla query:
+      // inizializzati vuoti per non far fallire i consumatori (workflow,
+      // dashboard); lo storico si carica dalla tabella ts_workflow_histories
+      allegati: [],
+      storico: [],
     } as TechnologyRequest;
   }
 

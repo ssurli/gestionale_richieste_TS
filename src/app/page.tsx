@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
@@ -12,6 +12,7 @@ import { MultitrackGuide } from '@/components/MultitrackGuide';
 import { LandingPage } from '@/components/LandingPage';
 import { LoginButton } from '@/components/auth/LoginButton';
 import { useAuth } from '@/contexts/AuthContext';
+import { loadRequests, PERSISTENCE_ENABLED } from '@/lib/requestService';
 import { TechnologyRequest } from '@/types';
 import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route, Zap, CheckCircle } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
@@ -27,6 +28,34 @@ export default function Home() {
   const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [requests, setRequests] = useState<TechnologyRequest[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Carica le richieste da Dataverse quando la persistenza è attiva.
+  // Il ricaricamento al rientro in dashboard/richieste mostra anche le
+  // richieste appena sottomesse dai form.
+  const persistenceActive = PERSISTENCE_ENABLED && isAuthenticated && !isDemoMode;
+  useEffect(() => {
+    if (!persistenceActive) return;
+    if (currentView !== 'dashboard' && currentView !== 'richieste') return;
+
+    let cancelled = false;
+    loadRequests()
+      .then((data) => {
+        if (!cancelled) {
+          setRequests(data);
+          setLoadError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : String(err));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistenceActive, currentView]);
 
   if (isLoading) {
     return (
@@ -186,6 +215,11 @@ export default function Home() {
 
       {/* Main Content */}
       <main className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
+        {loadError && (currentView === 'dashboard' || currentView === 'richieste') && (
+          <div className="max-w-7xl mx-auto mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800" role="alert">
+            Errore nel caricamento delle richieste da Dataverse: {loadError}
+          </div>
+        )}
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
         {currentView === 'richieste' && <RequestManager data={pianoAcquistiData} />}
         {currentView === 'multitrack' && <MultitrackGuide />}

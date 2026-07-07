@@ -269,6 +269,20 @@ ALTRO
 | Descrizione Adeguamenti | ts_descrizione_adeguamenti | Multiple lines of text | ❌ No |
 | Studio Fattibilità | ts_studio_fattibilita | Yes/No | ❌ No |
 
+#### Triage e urgenza (colonne aggiunte con il cablaggio persistenza)
+
+| Display Name | Name | Data Type | Required |
+|--------------|------|-----------|----------|
+| Motivazione Assegnazione Track | ts_motivazione_assegnazione_track | Multiple lines of text | ❌ No |
+| Urgenza Safety Critica | ts_urgenza_safety | Yes/No | ❌ No |
+| Urgenza Blocco Servizio | ts_urgenza_blocco_servizio | Yes/No | ❌ No |
+| Urgenza Obbligo Normativo | ts_urgenza_obbligo_normativo | Yes/No | ❌ No |
+| Sostituzione Già Aggiudicata | ts_sostituzione_gia_aggiudicata | Yes/No | ❌ No |
+
+> ⚠️ **ts_numero_progressivo va configurato come Autonumber** (Power Apps →
+> colonna → Data type: Autonumber, es. formato `{SEQNUM:4}-{YEAR}`): una
+> numerazione generata client-side sarebbe soggetta a duplicati e manipolabile.
+
 ---
 
 ## 📝 Tabella 3: ts_workflow_history
