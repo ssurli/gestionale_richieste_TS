@@ -294,8 +294,18 @@ export function RequestManager({ data }: RequestManagerProps) {
               >
                 {/* Card Header - Always Visible */}
                 <div
-                  className="p-4 cursor-pointer"
+                  className="p-4 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={expandedId === index}
+                  aria-label={`${expandedId === index ? 'Comprimi' : 'Espandi'} dettagli richiesta: ${item.descrizione || 'senza descrizione'}`}
                   onClick={() => setExpandedId(expandedId === index ? null : index)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setExpandedId(expandedId === index ? null : index);
+                    }
+                  }}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
