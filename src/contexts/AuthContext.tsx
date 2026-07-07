@@ -5,20 +5,21 @@
 
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { PublicClientApplication, AccountInfo } from '@azure/msal-browser';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { AccountInfo } from '@azure/msal-browser';
 import { MsalProvider, useMsal, useIsAuthenticated } from '@azure/msal-react';
-import { msalConfig, loginRequest } from '@/lib/msalConfig';
+import { msalConfig, loginRequest, AUTH_DISABLED, isMsalConfigured, msalConfigProblems } from '@/lib/msalConfig';
+import { getMsalInstance } from '@/lib/msalInstance';
 import { dataverseClient } from '@/lib/dataverseClient';
 import type { User } from '@/types';
-
-// Inizializza MSAL instance
-const msalInstance = new PublicClientApplication(msalConfig);
+import { UserRole } from '@/types';
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  /** true quando l'app gira in modalità demo esplicita (NEXT_PUBLIC_AUTH_DISABLED=true) */
+  isDemoMode: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
   account: AccountInfo | null;
@@ -99,6 +100,7 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
     user,
     isAuthenticated,
     isLoading,
+    isDemoMode: false,
     login,
     logout,
     account,
@@ -108,11 +110,77 @@ const AuthProviderInner: React.FC<{ children: React.ReactNode }> = ({ children }
 };
 
 /**
+ * Provider per la modalità demo esplicita: nessuna chiamata MSAL/Dataverse,
+ * utente fittizio locale. Attivabile SOLO con NEXT_PUBLIC_AUTH_DISABLED=true.
+ */
+const DemoAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const demoUser: User = useMemo(
+    () => ({
+      id: 'demo',
+      nome: 'Utente',
+      cognome: 'Demo',
+      email: 'demo@example.invalid',
+      ruolo: UserRole.RESPONSABILE_UO,
+      attivo: true,
+      dataCreazione: new Date(),
+    }),
+    []
+  );
+
+  const value: AuthContextType = {
+    user: demoUser,
+    isAuthenticated: true,
+    isLoading: false,
+    isDemoMode: true,
+    login: async () => {},
+    logout: async () => {},
+    account: null,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+/**
+ * Schermata di errore configurazione: la mancanza delle variabili d'ambiente
+ * blocca l'app in modo visibile invece di lasciarla aperta senza login.
+ */
+const ConfigErrorScreen: React.FC = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="max-w-lg w-full bg-white border border-red-200 rounded-lg shadow p-6">
+      <h1 className="text-lg font-bold text-red-700 mb-2">
+        Configurazione autenticazione incompleta
+      </h1>
+      <p className="text-sm text-gray-700 mb-3">
+        L&apos;applicazione richiede l&apos;accesso con Microsoft Entra ID ma la
+        configurazione non è completa:
+      </p>
+      <ul className="list-disc pl-5 text-sm text-gray-700 mb-3">
+        {msalConfigProblems.map((p) => (
+          <li key={p}>{p}</li>
+        ))}
+      </ul>
+      <p className="text-xs text-gray-500">
+        Impostare le variabili d&apos;ambiente (vedi <code>.env.example</code>) oppure,
+        solo per demo locali senza dati reali, <code>NEXT_PUBLIC_AUTH_DISABLED=true</code>.
+      </p>
+    </div>
+  </div>
+);
+
+/**
  * Auth Provider principale con MSAL wrapper
  */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  if (AUTH_DISABLED) {
+    return <DemoAuthProvider>{children}</DemoAuthProvider>;
+  }
+
+  if (!isMsalConfigured) {
+    return <ConfigErrorScreen />;
+  }
+
   return (
-    <MsalProvider instance={msalInstance}>
+    <MsalProvider instance={getMsalInstance()}>
       <AuthProviderInner>{children}</AuthProviderInner>
     </MsalProvider>
   );

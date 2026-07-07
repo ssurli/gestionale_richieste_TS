@@ -10,6 +10,8 @@ import { PriceList } from '@/components/PriceList';
 import { RequestManager, PianoAcquistiItem } from '@/components/RequestManager';
 import { MultitrackGuide } from '@/components/MultitrackGuide';
 import { LandingPage } from '@/components/LandingPage';
+import { LoginButton } from '@/components/auth/LoginButton';
+import { useAuth } from '@/contexts/AuthContext';
 import { TechnologyRequest } from '@/types';
 import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route, Zap, CheckCircle } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
@@ -21,13 +23,35 @@ const pianoAcquistiData = pianoAcquistiDataRaw as PianoAcquistiItem[];
 type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'fasttrack' | 'semplificato' | 'pricelist' | 'multitrack';
 
 export default function Home() {
+  const { isAuthenticated, isLoading, isDemoMode, login } = useAuth();
   const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [requests, setRequests] = useState<TechnologyRequest[]>([]);
 
-  // Se mostra landing, renderizza solo quella
-  if (showLanding) {
-    return <LandingPage onEnterSystem={() => setShowLanding(false)} />;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Verifica autenticazione…</p>
+      </div>
+    );
+  }
+
+  // Gate di accesso: senza login (o modalità demo esplicita) si resta sulla landing
+  if (showLanding || !isAuthenticated) {
+    return (
+      <LandingPage
+        onEnterSystem={async () => {
+          if (!isAuthenticated) {
+            try {
+              await login();
+            } catch {
+              return; // login annullato/fallito: si resta sulla landing
+            }
+          }
+          setShowLanding(false);
+        }}
+      />
+    );
   }
 
   return (
@@ -148,8 +172,16 @@ export default function Home() {
                 Listino
               </button>
             </div>
+            <LoginButton />
           </div>
         </div>
+        {isDemoMode && (
+          <div className="bg-yellow-50 border-t border-yellow-200 px-4 py-1">
+            <p className="text-center text-xs text-yellow-800">
+              Modalità demo senza autenticazione (NEXT_PUBLIC_AUTH_DISABLED=true): non usare con dati reali
+            </p>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}

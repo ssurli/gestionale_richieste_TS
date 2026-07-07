@@ -3,25 +3,23 @@
  * Gestisce tutte le chiamate API a Dataverse per persistenza dati
  */
 
-import { PublicClientApplication } from '@azure/msal-browser';
-import { msalConfig, tokenRequest } from './msalConfig';
+import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { tokenRequest } from './msalConfig';
+import { ensureMsalInitialized } from './msalInstance';
 import type { TechnologyRequest, User, TrackType, RequestStatus } from '../types';
 
 const DATAVERSE_URL = process.env.NEXT_PUBLIC_DATAVERSE_URL || '';
 const API_VERSION = process.env.NEXT_PUBLIC_DATAVERSE_API_VERSION || 'v9.2';
 
 export class DataverseClient {
-  private msalInstance: PublicClientApplication;
-
-  constructor() {
-    this.msalInstance = new PublicClientApplication(msalConfig);
-  }
-
   /**
-   * Ottiene access token per Dataverse
+   * Ottiene access token per Dataverse.
+   * Usa l'istanza MSAL condivisa con AuthContext (msalInstance.ts): un'istanza
+   * separata non vedrebbe gli account autenticati dal MsalProvider.
    */
   private async getAccessToken(): Promise<string> {
-    const accounts = this.msalInstance.getAllAccounts();
+    const msal = await ensureMsalInitialized();
+    const accounts = msal.getAllAccounts();
 
     if (accounts.length === 0) {
       throw new Error('Nessun utente autenticato. Effettua il login.');
@@ -31,16 +29,21 @@ export class DataverseClient {
 
     try {
       // Prova silent token acquisition
-      const response = await this.msalInstance.acquireTokenSilent({
+      const response = await msal.acquireTokenSilent({
         ...tokenRequest,
         account,
       });
 
       return response.accessToken;
     } catch (error) {
-      // Se silent fallisce, richiedi login interattivo
-      const response = await this.msalInstance.acquireTokenPopup(tokenRequest);
-      return response.accessToken;
+      // Popup interattivo SOLO se il problema è davvero l'interazione richiesta
+      // (token scaduto/consenso): altri errori (rete, config) vanno propagati,
+      // e i browser bloccano comunque i popup fuori da un gesto utente.
+      if (error instanceof InteractionRequiredAuthError) {
+        const response = await msal.acquireTokenPopup(tokenRequest);
+        return response.accessToken;
+      }
+      throw error;
     }
   }
 
@@ -244,7 +247,8 @@ export class DataverseClient {
    * Recupera utente corrente dal token
    */
   async getCurrentUser(): Promise<User | null> {
-    const accounts = this.msalInstance.getAllAccounts();
+    const msal = await ensureMsalInitialized();
+    const accounts = msal.getAllAccounts();
 
     if (accounts.length === 0) {
       return null;
