@@ -3,25 +3,76 @@
  * Gestisce tutte le chiamate API a Dataverse per persistenza dati
  */
 
-import { PublicClientApplication } from '@azure/msal-browser';
-import { msalConfig, tokenRequest } from './msalConfig';
 import type { TechnologyRequest, User, TrackType, RequestStatus } from '../types';
 
 const DATAVERSE_URL = process.env.NEXT_PUBLIC_DATAVERSE_URL || '';
 const API_VERSION = process.env.NEXT_PUBLIC_DATAVERSE_API_VERSION || 'v9.2';
 
-export class DataverseClient {
-  private msalInstance: PublicClientApplication;
+const REQUEST_TIMEOUT_MS = 30_000;
+const MAX_RETRIES = 3;
+// Throttling/indisponibilità temporanea Dataverse
+const RETRYABLE_STATUSES = [429, 503, 504];
 
-  constructor() {
-    this.msalInstance = new PublicClientApplication(msalConfig);
+const GUID_RE = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+/**
+ * Escapa un valore stringa per l'uso dentro un literal di filtro OData
+ * (l'apice si raddoppia): evita che input utente alteri il filtro.
+ */
+export function odataEscape(value: string): string {
+  return value.replace(/'/g, "''");
+}
+
+/** Valida che un id sia un GUID prima di interpolarlo nell'URL */
+function assertGuid(id: string): string {
+  if (!GUID_RE.test(id)) {
+    throw new DataverseError(`ID record non valido: "${id}"`);
   }
+  return id;
+}
+
+/**
+ * Errore tipizzato per le chiamate Dataverse: conserva status HTTP e
+ * dettaglio del body per diagnosi e per distinguere gli errori a monte.
+ */
+export class DataverseError extends Error {
+  constructor(
+    message: string,
+    public readonly status?: number,
+    public readonly detail?: string
+  ) {
+    super(detail ? `${message} — ${detail}` : message);
+    this.name = 'DataverseError';
+  }
+}
+
+export class DataverseClient {
+  /**
+   * @param tokenProvider sorgente alternativa del bearer token. Nel browser
+   * si omette (flusso MSAL condiviso); lato server (Route Handler BFF) si
+   * inietta il token dell'utente inoltrato dalla richiesta HTTP.
+   */
+  constructor(private tokenProvider?: () => Promise<string>) {}
 
   /**
-   * Ottiene access token per Dataverse
+   * Ottiene access token per Dataverse.
+   * Browser: istanza MSAL condivisa con AuthContext (msalInstance.ts) — gli
+   * import MSAL sono dinamici così il modulo resta importabile lato server.
    */
   private async getAccessToken(): Promise<string> {
-    const accounts = this.msalInstance.getAllAccounts();
+    if (this.tokenProvider) {
+      return this.tokenProvider();
+    }
+
+    const [{ ensureMsalInitialized }, { InteractionRequiredAuthError }, { tokenRequest }] =
+      await Promise.all([
+        import('./msalInstance'),
+        import('@azure/msal-browser'),
+        import('./msalConfig'),
+      ]);
+
+    const msal = await ensureMsalInitialized();
+    const accounts = msal.getAllAccounts();
 
     if (accounts.length === 0) {
       throw new Error('Nessun utente autenticato. Effettua il login.');
@@ -31,38 +82,114 @@ export class DataverseClient {
 
     try {
       // Prova silent token acquisition
-      const response = await this.msalInstance.acquireTokenSilent({
+      const response = await msal.acquireTokenSilent({
         ...tokenRequest,
         account,
       });
 
       return response.accessToken;
     } catch (error) {
-      // Se silent fallisce, richiedi login interattivo
-      const response = await this.msalInstance.acquireTokenPopup(tokenRequest);
-      return response.accessToken;
+      // Popup interattivo SOLO se il problema è davvero l'interazione richiesta
+      // (token scaduto/consenso): altri errori (rete, config) vanno propagati,
+      // e i browser bloccano comunque i popup fuori da un gesto utente.
+      if (error instanceof InteractionRequiredAuthError) {
+        const response = await msal.acquireTokenPopup(tokenRequest);
+        return response.accessToken;
+      }
+      throw error;
     }
   }
 
   /**
-   * Headers comuni per richieste Dataverse
+   * Espone il token per chiamate verso il BFF (Authorization: Bearer ...).
    */
-  private async getHeaders(includeContentType = true): Promise<HeadersInit> {
+  async acquireToken(): Promise<string> {
+    return this.getAccessToken();
+  }
+
+  /**
+   * Esegue una chiamata Dataverse con timeout, retry con backoff esponenziale
+   * su 429/503/504 (rispettando Retry-After) e retry sugli errori di rete.
+   * `path` è relativo a /api/data/{version}/.
+   */
+  private async request(
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+    path: string,
+    body?: unknown
+  ): Promise<Response> {
     const token = await this.getAccessToken();
 
-    const headers: HeadersInit = {
-      'Authorization': `Bearer ${token}`,
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
       'OData-MaxVersion': '4.0',
       'OData-Version': '4.0',
-      'Accept': 'application/json',
-      'Prefer': 'return=representation', // Ritorna l'oggetto creato/modificato
+      Accept: 'application/json',
     };
-
-    if (includeContentType) {
+    if (body !== undefined) {
       headers['Content-Type'] = 'application/json';
     }
+    // Ha senso solo sulle scritture: chiede a Dataverse l'oggetto creato/modificato
+    if (method === 'POST' || method === 'PATCH') {
+      headers['Prefer'] = 'return=representation';
+    }
 
-    return headers;
+    const url = `${DATAVERSE_URL}/api/data/${API_VERSION}/${path}`;
+
+    for (let attempt = 0; ; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method,
+          headers,
+          body: body !== undefined ? JSON.stringify(body) : undefined,
+          signal: controller.signal,
+        });
+      } catch (err) {
+        clearTimeout(timer);
+        if (attempt < MAX_RETRIES) {
+          await this.backoff(attempt);
+          continue;
+        }
+        throw new DataverseError(
+          `Errore di rete verso Dataverse (${method} ${path})`,
+          undefined,
+          err instanceof Error ? err.message : String(err)
+        );
+      }
+      clearTimeout(timer);
+
+      if (RETRYABLE_STATUSES.includes(response.status) && attempt < MAX_RETRIES) {
+        const retryAfterSec = Number(response.headers.get('Retry-After'));
+        const overrideMs =
+          Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? retryAfterSec * 1000
+            : undefined;
+        await this.backoff(attempt, overrideMs);
+        continue;
+      }
+
+      return response;
+    }
+  }
+
+  private backoff(attempt: number, overrideMs?: number): Promise<void> {
+    const ms = overrideMs ?? Math.min(8_000, 500 * 2 ** attempt);
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Lancia DataverseError con status e dettaglio del body se la risposta
+   * non è ok. Da usare su ogni chiamata il cui esito non è gestito ad hoc.
+   */
+  private async ensureOk(response: Response, context: string): Promise<Response> {
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new DataverseError(`${context} (HTTP ${response.status})`, response.status, detail);
+    }
+    return response;
   }
 
   // ========================================================================
@@ -73,52 +200,83 @@ export class DataverseClient {
    * Crea una nuova richiesta
    */
   async createRequest(data: Partial<TechnologyRequest>): Promise<string> {
-    const headers = await this.getHeaders();
-
-    const body = {
+    const body: Record<string, unknown> = {
+      // NB: ts_numero_progressivo va generato server-side (Autonumber
+      // Dataverse): il client lo invia solo se già assegnato
       ts_numero_progressivo: data.numeroProgressivo,
       ts_nome_apparecchiatura: data.nomeApparecchiatura,
       ts_descrizione: data.descrizioneDettagliata,
+      ts_caratteristiche_tecniche: data.caratteristicheTecniche,
       ts_track: data.trackAssegnato,
       ts_stato: data.statoCorrente,
+      ts_data_assegnazione_track: data.dataAssegnazioneTrack?.toISOString(),
+      ts_motivazione_assegnazione_track: data.motivazioneAssegnazioneTrack,
       ts_tipo_acquisto: data.tipoAcquisto,
       ts_tipo_apparecchiatura: data.tipoApparecchiatura,
       ts_unita_operativa: data.unitaOperativa,
       ts_dipartimento: data.dipartimento,
-      ts_budget_stimato: data.budget?.valoreStimatoEuro,
+      ts_zona_distretto: data.zonaDistretto,
       ts_motivazione_richiesta: data.motivazioneRichiesta,
       ts_impatto_assistenziale: data.impattoAssistenziale,
+      ts_esistono_alternative: data.esistonoAlternative,
+      ts_descrizione_alternative: data.descrizioneAlternative,
       ts_priorita: data.priorita,
+      // Urgenza critica: flag strutturati (Track 1)
+      ts_urgenza_safety: data.urgenzaSafetyCritica,
+      ts_urgenza_blocco_servizio: data.urgenzaBloccoServizio,
+      ts_urgenza_obbligo_normativo: data.urgenzaObbligoNormativo,
+      // Sostituzione
       ts_is_sostituzione: data.isSostituzione,
+      ts_sostituzione_gia_aggiudicata: data.sostituzioneGiaAggiudicata,
+      ts_apparecchiatura_sostituita: data.apparecchiaturaSOStituita,
       ts_motivazione_sostituzione: data.motivoSostituzione,
       ts_dettaglio_motivo_sostituzione: data.dettaglioMotivoSostituzione,
+      // Budget completo
+      ts_budget_stimato: data.budget?.valoreStimatoEuro,
+      ts_budget_iva_esclusa: data.budget?.ivaEsclusa,
+      ts_fonte_finanziamento: data.budget?.fonteFinanziamento,
+      ts_dettaglio_fonte: data.budget?.dettaglioFonte,
+      ts_anno_riferimento: data.budget?.annoRiferimento,
+      ts_capitolo_bilancio: data.budget?.capitoloBilancio,
+      ts_budget_disponibile: data.budget?.budgetDisponibile,
+      ts_importo_disponibile: data.budget?.importoDisponibile,
+      ts_richiesta_integrazione: data.budget?.richiestaIntegrazione,
+      ts_importo_integrazione: data.budget?.importoIntegrazione,
+      // Flag
       ts_richiede_service: data.richiedeService,
       ts_richiede_consumabili: data.richiedeConsumabili,
       ts_is_donazione: data.isDonazione,
       ts_richiede_adeguamenti: data.richiedeAdeguamentiStrutturali,
       ts_descrizione_adeguamenti: data.descrizioneAdeguamenti,
-      // Lookup al richiedente (se disponibile)
-      // "ts_richiedente@odata.bind": `/ts_utentis(${data.richiedenteId})`
+      ts_studio_fattibilita: data.studioFattibilitaRichiesto,
+      // Procurement (D.Lgs. 36/2023)
+      ts_rup: data.rup,
+      ts_dec: data.dec,
+      ts_cig: data.cig,
+      ts_cup: data.cup,
+      ts_cui: data.cui,
+      ts_numero_atto_approvazione: data.numeroAttoApprovazione,
+      ts_data_atto_approvazione: data.dataAttoApprovazione?.toISOString(),
     };
 
-    const response = await fetch(
-      `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_richiestes`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      }
+    // Lookup al richiedente
+    if (data.richiedenteId) {
+      body['ts_richiedente@odata.bind'] = `/ts_utentis(${assertGuid(data.richiedenteId)})`;
+    }
+
+    // Le chiavi undefined non vanno inviate (Dataverse le interpreterebbe
+    // come azzeramenti espliciti su alcune tipologie di colonna)
+    const payload = Object.fromEntries(
+      Object.entries(body).filter(([, v]) => v !== undefined)
     );
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Errore creazione richiesta: ${response.status} - ${error}`);
-    }
+    const response = await this.request('POST', 'ts_richiestes', payload);
+    await this.ensureOk(response, 'Errore creazione richiesta');
 
     // Estrai ID dalla response header
     const locationHeader = response.headers.get('OData-EntityId');
     if (!locationHeader) {
-      throw new Error('ID richiesta non trovato nella response');
+      throw new DataverseError('ID richiesta non trovato nella response');
     }
 
     const id = locationHeader.match(/\(([^)]+)\)/)?.[1];
@@ -128,33 +286,28 @@ export class DataverseClient {
   /**
    * Recupera tutte le richieste con filtri opzionali
    */
+  /**
+   * NB: eventuali valori utente dentro `filter` vanno escapati dal chiamante
+   * con odataEscape() prima della composizione.
+   */
   async getRequests(filter?: string, orderBy = 'ts_data_creazione desc'): Promise<TechnologyRequest[]> {
-    const headers = await this.getHeaders(false);
-
-    let url = `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_richiestes`;
     const params: string[] = [];
 
     if (orderBy) {
-      params.push(`$orderby=${orderBy}`);
+      params.push(`$orderby=${encodeURIComponent(orderBy)}`);
     }
 
     if (filter) {
-      params.push(`$filter=${filter}`);
+      params.push(`$filter=${encodeURIComponent(filter)}`);
     }
 
     // Espandi lookup per richiedente
     params.push('$expand=ts_richiedente($select=ts_nome,ts_cognome,ts_email)');
 
-    if (params.length > 0) {
-      url += '?' + params.join('&');
-    }
+    const path = 'ts_richiestes' + (params.length > 0 ? '?' + params.join('&') : '');
 
-    const response = await fetch(url, { headers });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Errore recupero richieste: ${response.status} - ${error}`);
-    }
+    const response = await this.request('GET', path);
+    await this.ensureOk(response, 'Errore recupero richieste');
 
     const data = await response.json();
     return this.mapDataverseToRequests(data.value);
@@ -164,20 +317,16 @@ export class DataverseClient {
    * Recupera una richiesta per ID
    */
   async getRequestById(id: string): Promise<TechnologyRequest | null> {
-    const headers = await this.getHeaders(false);
-
-    const url = `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_richiestes(${id})?$expand=ts_richiedente`;
-
-    const response = await fetch(url, { headers });
+    const response = await this.request(
+      'GET',
+      `ts_richiestes(${assertGuid(id)})?$expand=ts_richiedente`
+    );
 
     if (response.status === 404) {
       return null;
     }
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Errore recupero richiesta: ${response.status} - ${error}`);
-    }
+    await this.ensureOk(response, 'Errore recupero richiesta');
 
     const data = await response.json();
     return this.mapDataverseToRequest(data);
@@ -187,53 +336,39 @@ export class DataverseClient {
    * Aggiorna una richiesta esistente
    */
   async updateRequest(id: string, updates: Partial<TechnologyRequest>): Promise<void> {
-    const headers = await this.getHeaders();
-
     const body: any = {};
 
-    if (updates.statoCorrente) body.ts_stato = updates.statoCorrente;
-    if (updates.trackAssegnato) body.ts_track = updates.trackAssegnato;
-    if (updates.nomeApparecchiatura) body.ts_nome_apparecchiatura = updates.nomeApparecchiatura;
-    if (updates.descrizioneDettagliata) body.ts_descrizione = updates.descrizioneDettagliata;
-    if (updates.budget?.valoreStimatoEuro) body.ts_budget_stimato = updates.budget.valoreStimatoEuro;
-    if (updates.motivazioneRichiesta) body.ts_motivazione_richiesta = updates.motivazioneRichiesta;
+    // Confronti su undefined (non truthy): stringa vuota, false e 0 sono
+    // aggiornamenti legittimi che prima venivano scartati in silenzio
+    if (updates.statoCorrente !== undefined) body.ts_stato = updates.statoCorrente;
+    if (updates.trackAssegnato !== undefined) body.ts_track = updates.trackAssegnato;
+    if (updates.nomeApparecchiatura !== undefined) body.ts_nome_apparecchiatura = updates.nomeApparecchiatura;
+    if (updates.descrizioneDettagliata !== undefined) body.ts_descrizione = updates.descrizioneDettagliata;
+    if (updates.budget?.valoreStimatoEuro !== undefined) body.ts_budget_stimato = updates.budget.valoreStimatoEuro;
+    if (updates.motivazioneRichiesta !== undefined) body.ts_motivazione_richiesta = updates.motivazioneRichiesta;
+
+    // Procurement (D.Lgs. 36/2023): compilati nelle fasi post-approvazione
+    if (updates.rup !== undefined) body.ts_rup = updates.rup;
+    if (updates.dec !== undefined) body.ts_dec = updates.dec;
+    if (updates.cig !== undefined) body.ts_cig = updates.cig;
+    if (updates.cup !== undefined) body.ts_cup = updates.cup;
+    if (updates.cui !== undefined) body.ts_cui = updates.cui;
+    if (updates.numeroAttoApprovazione !== undefined) body.ts_numero_atto_approvazione = updates.numeroAttoApprovazione;
+    if (updates.dataAttoApprovazione !== undefined) body.ts_data_atto_approvazione = updates.dataAttoApprovazione.toISOString();
 
     // Aggiungi sempre data ultima modifica
     body.ts_data_ultima_modifica = new Date().toISOString();
 
-    const response = await fetch(
-      `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_richiestes(${id})`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify(body),
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Errore aggiornamento richiesta: ${response.status} - ${error}`);
-    }
+    const response = await this.request('PATCH', `ts_richiestes(${assertGuid(id)})`, body);
+    await this.ensureOk(response, 'Errore aggiornamento richiesta');
   }
 
   /**
    * Elimina una richiesta
    */
   async deleteRequest(id: string): Promise<void> {
-    const headers = await this.getHeaders(false);
-
-    const response = await fetch(
-      `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_richiestes(${id})`,
-      {
-        method: 'DELETE',
-        headers,
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Errore eliminazione richiesta: ${response.status} - ${error}`);
-    }
+    const response = await this.request('DELETE', `ts_richiestes(${assertGuid(id)})`);
+    await this.ensureOk(response, 'Errore eliminazione richiesta');
   }
 
   // ========================================================================
@@ -243,44 +378,55 @@ export class DataverseClient {
   /**
    * Recupera utente corrente dal token
    */
-  async getCurrentUser(): Promise<User | null> {
-    const accounts = this.msalInstance.getAllAccounts();
-
-    if (accounts.length === 0) {
-      return null;
-    }
-
-    const account = accounts[0];
-    const email = account.username;
-
-    // Cerca utente in Dataverse per email
-    const headers = await this.getHeaders(false);
-
-    const filter = `ts_email eq '${email}'`;
-    const url = `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_utentis?$filter=${filter}`;
-
-    const response = await fetch(url, { headers });
+  /**
+   * Cerca un utente in Dataverse per email (escapata: un apice nell'email
+   * non deve poter alterare il filtro OData). Nessuna auto-creazione.
+   */
+  async getUserByEmail(email: string): Promise<User | null> {
+    const filter = `ts_email eq '${odataEscape(email)}'`;
+    const response = await this.request(
+      'GET',
+      `ts_utentis?$filter=${encodeURIComponent(filter)}`
+    );
 
     if (!response.ok) {
       return null;
     }
 
     const data = await response.json();
-
     if (data.value.length === 0) {
-      // Utente non esiste in Dataverse, crealo
-      return this.createUserFromAccount(account);
+      return null;
     }
 
     return this.mapDataverseToUser(data.value[0]);
   }
 
   /**
+   * Recupera l'utente corrente dall'account MSAL (solo browser).
+   */
+  async getCurrentUser(): Promise<User | null> {
+    const { ensureMsalInitialized } = await import('./msalInstance');
+    const msal = await ensureMsalInitialized();
+    const accounts = msal.getAllAccounts();
+
+    if (accounts.length === 0) {
+      return null;
+    }
+
+    const account = accounts[0];
+    const existing = await this.getUserByEmail(account.username);
+    if (existing) {
+      return existing;
+    }
+
+    // Utente non esiste in Dataverse, crealo
+    return this.createUserFromAccount(account);
+  }
+
+  /**
    * Crea utente da account Microsoft
    */
   private async createUserFromAccount(account: any): Promise<User> {
-    const headers = await this.getHeaders();
-
     const [nome, cognome] = (account.name || '').split(' ');
 
     const body = {
@@ -292,18 +438,8 @@ export class DataverseClient {
       ts_ruolo: 'RESPONSABILE_UO', // Ruolo default
     };
 
-    const response = await fetch(
-      `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_utentis`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error('Errore creazione utente');
-    }
+    const response = await this.request('POST', 'ts_utentis', body);
+    await this.ensureOk(response, 'Errore creazione utente');
 
     const locationHeader = response.headers.get('OData-EntityId');
     const id = locationHeader?.match(/\(([^)]+)\)/)?.[1] || '';
@@ -324,7 +460,12 @@ export class DataverseClient {
   // ========================================================================
 
   /**
-   * Aggiungi voce audit trail
+   * Aggiungi voce audit trail.
+   *
+   * IMPORTANTE: in caso di fallimento LANCIA (niente best-effort). L'audit
+   * trail è un requisito di conformità (tracciabilità DEC/RUP): il chiamante
+   * deve scrivere la voce di audit PRIMA di applicare la transizione di stato
+   * e considerare la transizione fallita se questa scrittura non riesce.
    */
   async addWorkflowHistory(
     richiestaId: string,
@@ -334,11 +475,9 @@ export class DataverseClient {
     statoNuovo?: string,
     note?: string
   ): Promise<void> {
-    const headers = await this.getHeaders();
-
     const body = {
-      'ts_richiesta@odata.bind': `/ts_richiestes(${richiestaId})`,
-      'ts_utente@odata.bind': `/ts_utentis(${utenteId})`,
+      'ts_richiesta@odata.bind': `/ts_richiestes(${assertGuid(richiestaId)})`,
+      'ts_utente@odata.bind': `/ts_utentis(${assertGuid(utenteId)})`,
       ts_azione: azione,
       ts_stato_precedente: statoPrecedente,
       ts_stato_nuovo: statoNuovo,
@@ -346,18 +485,8 @@ export class DataverseClient {
       ts_data_azione: new Date().toISOString(),
     };
 
-    const response = await fetch(
-      `${DATAVERSE_URL}/api/data/${API_VERSION}/ts_workflow_histories`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      }
-    );
-
-    if (!response.ok) {
-      console.error('Errore salvataggio workflow history');
-    }
+    const response = await this.request('POST', 'ts_workflow_histories', body);
+    await this.ensureOk(response, 'Errore salvataggio audit trail (workflow history)');
   }
 
   // ========================================================================
@@ -425,6 +554,26 @@ export class DataverseClient {
       richiedeAdeguamentiStrutturali: item.ts_richiede_adeguamenti || false,
       descrizioneAdeguamenti: item.ts_descrizione_adeguamenti,
       studioFattibilitaRichiesto: item.ts_studio_fattibilita || false,
+      richiedeHTARegionale: item.ts_richiede_hta_regionale || false,
+      motivazioneAssegnazioneTrack: item.ts_motivazione_assegnazione_track,
+      urgenzaSafetyCritica: item.ts_urgenza_safety || false,
+      urgenzaBloccoServizio: item.ts_urgenza_blocco_servizio || false,
+      urgenzaObbligoNormativo: item.ts_urgenza_obbligo_normativo || false,
+      sostituzioneGiaAggiudicata: item.ts_sostituzione_gia_aggiudicata || false,
+      rup: item.ts_rup,
+      dec: item.ts_dec,
+      cig: item.ts_cig,
+      cup: item.ts_cup,
+      cui: item.ts_cui,
+      numeroAttoApprovazione: item.ts_numero_atto_approvazione,
+      dataAttoApprovazione: item.ts_data_atto_approvazione
+        ? new Date(item.ts_data_atto_approvazione)
+        : undefined,
+      // Campi obbligatori del modello non ancora espansi dalla query:
+      // inizializzati vuoti per non far fallire i consumatori (workflow,
+      // dashboard); lo storico si carica dalla tabella ts_workflow_histories
+      allegati: [],
+      storico: [],
     } as TechnologyRequest;
   }
 

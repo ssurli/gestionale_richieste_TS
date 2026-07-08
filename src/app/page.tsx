@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { FormMOD01 } from '@/components/forms/FormMOD01';
 import { FormMOD02 } from '@/components/forms/FormMOD02';
@@ -10,6 +10,9 @@ import { PriceList } from '@/components/PriceList';
 import { RequestManager, PianoAcquistiItem } from '@/components/RequestManager';
 import { MultitrackGuide } from '@/components/MultitrackGuide';
 import { LandingPage } from '@/components/LandingPage';
+import { LoginButton } from '@/components/auth/LoginButton';
+import { useAuth } from '@/contexts/AuthContext';
+import { loadRequests, PERSISTENCE_ENABLED } from '@/lib/requestService';
 import { TechnologyRequest } from '@/types';
 import { FileText, LayoutDashboard, Plus, Stethoscope, DollarSign, ClipboardList, Route, Zap, CheckCircle } from 'lucide-react';
 import priceListData from '../../price_list_data.json';
@@ -21,17 +24,74 @@ const pianoAcquistiData = pianoAcquistiDataRaw as PianoAcquistiItem[];
 type ViewType = 'dashboard' | 'richieste' | 'mod01' | 'mod02' | 'fasttrack' | 'semplificato' | 'pricelist' | 'multitrack';
 
 export default function Home() {
+  const { isAuthenticated, isLoading, isDemoMode, login } = useAuth();
   const [showLanding, setShowLanding] = useState(true);
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
   const [requests, setRequests] = useState<TechnologyRequest[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Se mostra landing, renderizza solo quella
-  if (showLanding) {
-    return <LandingPage onEnterSystem={() => setShowLanding(false)} />;
+  // Carica le richieste da Dataverse quando la persistenza è attiva.
+  // Il ricaricamento al rientro in dashboard/richieste mostra anche le
+  // richieste appena sottomesse dai form.
+  const persistenceActive = PERSISTENCE_ENABLED && isAuthenticated && !isDemoMode;
+  useEffect(() => {
+    if (!persistenceActive) return;
+    if (currentView !== 'dashboard' && currentView !== 'richieste') return;
+
+    let cancelled = false;
+    loadRequests()
+      .then((data) => {
+        if (!cancelled) {
+          setRequests(data);
+          setLoadError(null);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : String(err));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [persistenceActive, currentView]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <p className="text-gray-600">Verifica autenticazione…</p>
+      </div>
+    );
+  }
+
+  // Gate di accesso: senza login (o modalità demo esplicita) si resta sulla landing
+  if (showLanding || !isAuthenticated) {
+    return (
+      <LandingPage
+        onEnterSystem={async () => {
+          if (!isAuthenticated) {
+            try {
+              await login();
+            } catch {
+              return; // login annullato/fallito: si resta sulla landing
+            }
+          }
+          setShowLanding(false);
+        }}
+      />
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Skip link per navigazione da tastiera (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-blue-700 focus:px-4 focus:py-2 focus:rounded focus:shadow"
+      >
+        Salta al contenuto principale
+      </a>
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
@@ -148,12 +208,25 @@ export default function Home() {
                 Listino
               </button>
             </div>
+            <LoginButton />
           </div>
         </div>
+        {isDemoMode && (
+          <div className="bg-yellow-50 border-t border-yellow-200 px-4 py-1">
+            <p className="text-center text-xs text-yellow-800">
+              Modalità demo senza autenticazione (NEXT_PUBLIC_AUTH_DISABLED=true): non usare con dati reali
+            </p>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
-      <main className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
+      <main id="main-content" className={currentView === 'dashboard' ? 'max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8' : ''}>
+        {loadError && (currentView === 'dashboard' || currentView === 'richieste') && (
+          <div className="max-w-7xl mx-auto mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800" role="alert">
+            Errore nel caricamento delle richieste da Dataverse: {loadError}
+          </div>
+        )}
         {currentView === 'dashboard' && <Dashboard requests={requests} />}
         {currentView === 'richieste' && <RequestManager data={pianoAcquistiData} />}
         {currentView === 'multitrack' && <MultitrackGuide />}
@@ -172,6 +245,14 @@ export default function Home() {
           </p>
           <p className="text-center text-xs text-gray-500 mt-2">
             Azienda USL Toscana Nord Ovest - Dipartimento Tecnico - UOC Tecnologie
+          </p>
+          <p className="text-center text-xs mt-2">
+            <a
+              href="/accessibilita"
+              className="text-blue-600 underline hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+            >
+              Dichiarazione di accessibilità
+            </a>
           </p>
         </div>
       </footer>

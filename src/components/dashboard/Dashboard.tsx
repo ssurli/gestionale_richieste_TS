@@ -9,6 +9,15 @@ import {
   TRACK_CONFIGS
 } from '@/types';
 import { calcolaGiorniResidui, isInRitardo } from '@/lib/triage';
+import {
+  codaPerTrack,
+  aggregatoPerUnita,
+  budgetAggregato,
+  percentualeInRitardo,
+  getSlaStatus,
+  type SlaStatus,
+} from '@/lib/sla';
+import { formatEuro } from '@/lib/numberFormat';
 import { Clock, AlertTriangle, CheckCircle, XCircle, TrendingUp } from 'lucide-react';
 
 interface DashboardProps {
@@ -36,15 +45,14 @@ export function Dashboard({ requests }: DashboardProps) {
              r.statoCorrente === RequestStatus.COMPLETATA;
     }).length;
 
+    // Tempo di approvazione EFFETTIVO: da assegnazione track alla decisione DA
+    // (non now(): quello cresceva indefinitamente falsando la media)
     const tempiApprovazione = requests
-      .filter(r => r.statoCorrente === RequestStatus.APPROVATA && r.dataAssegnazioneTrack)
-      .map(r => {
-        const giorni = Math.floor(
-          (new Date().getTime() - new Date(r.dataAssegnazioneTrack!).getTime()) /
-          (1000 * 60 * 60 * 24)
-        );
-        return giorni;
-      });
+      .filter(r => r.statoCorrente === RequestStatus.APPROVATA && r.dataAssegnazioneTrack && r.dataApprovazioneDA)
+      .map(r => Math.floor(
+        (new Date(r.dataApprovazioneDA!).getTime() - new Date(r.dataAssegnazioneTrack!).getTime()) /
+        (1000 * 60 * 60 * 24)
+      ));
 
     const tempoMedioApprovazione = tempiApprovazione.length > 0
       ? tempiApprovazione.reduce((a, b) => a + b, 0) / tempiApprovazione.length
@@ -89,6 +97,11 @@ export function Dashboard({ requests }: DashboardProps) {
 
   if (!stats) return <div>Caricamento...</div>;
 
+  const code = codaPerTrack(requests);
+  const perUnita = aggregatoPerUnita(requests);
+  const budget = budgetAggregato(requests);
+  const percRitardo = percentualeInRitardo(requests);
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -122,8 +135,8 @@ export function Dashboard({ requests }: DashboardProps) {
           color="purple"
         />
         <StatCard
-          title="Alert Scadenze"
-          value={stats.alertTempiScadenza.length}
+          title="Aperte in Ritardo"
+          value={`${stats.alertTempiScadenza.length} (${Math.round(percRitardo)}%)`}
           icon={<AlertTriangle className="w-8 h-8 text-red-600" />}
           color="red"
         />
@@ -131,22 +144,95 @@ export function Dashboard({ requests }: DashboardProps) {
 
       {/* Budget Overview */}
       <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Budget Overview</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <h2 className="text-xl font-semibold mb-4">Budget</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-sm text-gray-600">Budget Totale Richiesto</p>
-            <p className="text-2xl font-bold text-gray-900">
-              €{stats.budgetUtilizzato.toLocaleString('it-IT')}
-            </p>
+            <p className="text-sm text-gray-600">Richiesto (totale)</p>
+            <p className="text-2xl font-bold text-gray-900">{formatEuro(budget.richiestoTotale, false)}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Budget Disponibile</p>
-            <p className="text-2xl font-bold text-green-600">
-              €{stats.budgetDisponibile.toLocaleString('it-IT')}
-            </p>
+            <p className="text-sm text-gray-600">Approvato</p>
+            <p className="text-2xl font-bold text-green-600">{formatEuro(budget.approvato, false)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">In valutazione</p>
+            <p className="text-2xl font-bold text-blue-600">{formatEuro(budget.inValutazione, false)}</p>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600">Respinto</p>
+            <p className="text-2xl font-bold text-gray-500">{formatEuro(budget.respinto, false)}</p>
           </div>
         </div>
       </div>
+
+      {/* Scadenzario SLA per track */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Scadenzario SLA per Track</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left font-semibold text-gray-700">Track</th>
+                <th className="px-4 py-2 text-right font-semibold text-gray-700">Aperte</th>
+                <th className="px-4 py-2 text-right font-semibold text-green-700">In tempo</th>
+                <th className="px-4 py-2 text-right font-semibold text-amber-700">In scadenza</th>
+                <th className="px-4 py-2 text-right font-semibold text-red-700">In ritardo</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {code.map((c) => (
+                <tr key={c.track}>
+                  <td className="px-4 py-2">
+                    <span className="inline-flex items-center gap-2">
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: TRACK_CONFIGS[c.track].colore }}
+                        aria-hidden="true"
+                      />
+                      {TRACK_CONFIGS[c.track].nome}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-right font-medium">{c.totaleAperte}</td>
+                  <td className="px-4 py-2 text-right text-green-700">{c.inTempo}</td>
+                  <td className="px-4 py-2 text-right text-amber-700">{c.inScadenza}</td>
+                  <td className="px-4 py-2 text-right font-bold text-red-700">{c.inRitardo}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Vista per UO / dipartimento */}
+      {perUnita.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-4">Per Unità Operativa / Dipartimento</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left font-semibold text-gray-700">Dipartimento</th>
+                  <th className="px-4 py-2 text-left font-semibold text-gray-700">Unità Operativa</th>
+                  <th className="px-4 py-2 text-right font-semibold text-gray-700">Aperte</th>
+                  <th className="px-4 py-2 text-right font-semibold text-red-700">In ritardo</th>
+                  <th className="px-4 py-2 text-right font-semibold text-gray-700">Budget richiesto</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {perUnita.slice(0, 15).map((r) => (
+                  <tr key={`${r.dipartimento}-${r.unita}`}>
+                    <td className="px-4 py-2">{r.dipartimento}</td>
+                    <td className="px-4 py-2">{r.unita}</td>
+                    <td className="px-4 py-2 text-right font-medium">{r.totaleAperte}</td>
+                    <td className="px-4 py-2 text-right font-bold text-red-700">{r.inRitardo}</td>
+                    <td className="px-4 py-2 text-right">{formatEuro(r.budgetRichiesto, false)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Track Distribution */}
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -226,7 +312,7 @@ export function Dashboard({ requests }: DashboardProps) {
                   Stato
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Giorni
+                  SLA
                 </th>
               </tr>
             </thead>
@@ -251,7 +337,9 @@ export function Dashboard({ requests }: DashboardProps) {
                     )}
                   </td>
                   <td className="px-4 py-3 text-sm">{req.statoCorrente}</td>
-                  <td className="px-4 py-3 text-sm">{req.giorniTrascorsi}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <SlaBadge status={getSlaStatus(req)} residui={calcolaGiorniResidui(req)} />
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -260,6 +348,23 @@ export function Dashboard({ requests }: DashboardProps) {
       </div>
     </div>
   );
+}
+
+interface SlaBadgeProps {
+  status: SlaStatus;
+  residui: number;
+}
+
+/** Badge stato SLA con testo esplicito (non solo colore, per accessibilità) */
+function SlaBadge({ status, residui }: SlaBadgeProps) {
+  const config: Record<SlaStatus, { label: string; className: string }> = {
+    IN_TEMPO: { label: `In tempo (${residui}gg)`, className: 'bg-green-100 text-green-800' },
+    IN_SCADENZA: { label: `In scadenza (${residui}gg)`, className: 'bg-amber-100 text-amber-800' },
+    IN_RITARDO: { label: `In ritardo (${Math.abs(residui)}gg)`, className: 'bg-red-100 text-red-800' },
+    NON_APPLICABILE: { label: '—', className: 'bg-gray-100 text-gray-500' },
+  };
+  const { label, className } = config[status];
+  return <span className={`px-2 py-1 rounded-full text-xs font-medium ${className}`}>{label}</span>;
 }
 
 interface StatCardProps {

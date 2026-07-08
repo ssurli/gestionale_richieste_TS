@@ -1,0 +1,62 @@
+{
+  "mappa_repo": {
+    "moduli": {
+      "auth": {
+        "file": ["src/lib/msalConfig.ts", "src/contexts/AuthContext.tsx", "src/components/auth/LoginButton.tsx"],
+        "note": "MSAL browser, cacheLocation sessionStorage (msalConfig.ts:19), authority con fallback 'common' (msalConfig.ts:14), scope Dataverse user_impersonation + User.Read (msalConfig.ts:49-54). CONFERMATO: dataverseClient.ts:17 crea una SECONDA PublicClientApplication separata da quella del provider React."
+      },
+      "data_access": {
+        "file": ["src/lib/dataverseClient.ts (452 righe)"],
+        "note": "SPA chiama Dataverse DIRETTAMENTE dal browser con token delegato (CONFERMATO, dataverseClient.ts:104-111). Nessun retry/backoff su 429/503, nessun timeout. addWorkflowHistory: su errore HTTP fa solo console.error (CONFERMATO, dataverseClient.ts:357-360) → audit trail può fallire silenziosamente. Filtri OData costruiti per concatenazione di stringhe (dataverseClient.ts:259). Mapping parziale: molti campi di TechnologyRequest non vengono mai persistiti da createRequest (dataverseClient.ts:78-102); lookup richiedente commentato (dataverseClient.ts:100-101)."
+      },
+      "business_logic": {
+        "file": ["src/lib/triage.ts (490)", "src/lib/validations.ts (335)", "src/lib/workflow.ts (411)", "src/lib/reports.ts (398)"],
+        "note": "Triage a cascata Track1→Service/Consumabili→Track4→Track2→Track3→default Track4 (triage.ts:26-106). Urgenza critica via keyword-matching su testo libero (triage.ts:117-156, CONFERMATO). Soglie: €15K Fast Track (triage.ts:193-199), €50K donazioni (triage.ts:244-246, 306-313), €100K HTA (triage.ts:341-347), €30K canone service (triage.ts:376), 5 anni durata (triage.ts:384), 30% penali (triage.ts:392-399). BUG CONFERMATO: calcolaGiorniResidui fa Math.max(0,...) (triage.ts:469) quindi isInRitardo()<0 mai vero (triage.ts:488-490). Enforcement ruoli SOLO client-side (workflow.ts:154-178); executeTransition aggiorna solo l'oggetto in memoria (workflow.ts:183-210)."
+      },
+      "modello_dati": {
+        "file": ["src/types/index.ts (510 righe)"],
+        "note": "TechnologyRequest (types:232-354), User+UserRole 12 ruoli (types:44-57), 4 track con SLA (TRACK_CONFIGS types:457-509), Attachment con url senza storage reale (types:359-367), HistoryEntry (types:372-382). Nessun campo RUP/DEC/CIG/CUI (DA VERIFICARE in Fase 4)."
+      },
+      "ui": {
+        "file": ["src/components/forms/* (5 form, 617-1186 righe l'uno)", "dashboard/Dashboard.tsx (291)", "RequestManager.tsx (486)", "PriceList.tsx", "PriceSuggestion.tsx", "MultitrackGuide.tsx", "LandingPage.tsx"],
+        "note": "Forte duplicazione tra i 5 form. Dati listino statici in catalogo_estar.json e price_list_data.json (root)."
+      },
+      "deploy_doc": {
+        "file": ["vercel.json", "ARCHITECTURE.md", "WORKFLOW.md", "DEPLOYMENT_POWER_PLATFORM.md", "SETUP_DATAVERSE_TABLES.md", "NEXT_STEPS.md"],
+        "note": "Deploy Vercel; alternativa Azure SWA West Europe documentata. Config via NEXT_PUBLIC_* (.env.example): solo client id/tenant/URL pubblici, NESSUN segreto server-side trovato (CONFERMATO su .env.example; da riverificare su Vercel)."
+      },
+      "test": { "file": [], "note": "CONFERMATO: nessun test, nessuno script di test in package.json:6-12." }
+    },
+    "flusso": "Form (React Hook Form) → eseguiTriage() client-side → dataverseClient.createRequest() dal browser → transizioni via workflow.ts (solo client) → addWorkflowHistory() best-effort → report client-side (reports.ts).",
+    "integrazione_m365_esistente": "Solo Entra ID (SSO) + Dataverse. Nessuna integrazione SharePoint/Graph/Power Automate (CONFERMATO: nessun riferimento a graph.microsoft.com nel codice).",
+    "debito_tecnico_chiave": [
+      "Audit trail best-effort (dataverseClient.ts:357-360)",
+      "Nessun enforcement server-side di ruoli/validazioni (workflow.ts client-only)",
+      "Nessun retry/backoff/timeout verso Dataverse",
+      "Bug isInRitardo mai true (triage.ts:469,488-490)",
+      "Persistenza parziale del modello (createRequest vs TechnologyRequest)",
+      "Zero test automatici",
+      "Form monolitici duplicati (fino a 1186 righe)"
+    ]
+  },
+  "assegnazioni": [
+    { "fase": 2, "ruolo": "Audit codice & architettura Next.js/TS", "focus": "dataverseClient, auth, triage/validations/workflow, mapping Dataverse, qualità, testabilità", "output": "fase2_audit.json" },
+    { "fase": 3, "ruolo": "Specialista M365/SharePoint/Graph", "focus": "fascicolo documentale per richiesta, PDF+metadati, report in SPO, permessi Sites.Selected, opzioni A/B/C", "output": "fase3_sharepoint.json" },
+    { "fase": 4, "ruolo": "Compliance PA sanitaria", "focus": "audit trail, DGR 306/2024 e 737/2022, GDPR, D.Lgs. 36/2023, accessibilità AgID", "output": "fase4_conformita.json" },
+    { "fase": 5, "ruolo": "Analista dominio HTA/UX", "focus": "triage edge case, SLA/scadenzario, dashboard, catalogo ESTAR, KPI", "output": "fase5_dominio.json" }
+  ],
+  "conflitti_previsti": [
+    { "tema": "BFF server-side (sicurezza) vs semplicità SPA attuale (velocità)", "criterio_risoluzione": "introdurre BFF in modo incrementale solo sui percorsi critici (scritture workflow/audit), lasciando le letture in SPA finché non migrate" },
+    { "tema": "SharePoint via Dataverse nativo (poco codice, metadati limitati) vs Graph Sites.Selected (controllo, più sforzo)", "criterio_risoluzione": "default A+C; B solo se servono metadati/permessi fini non coperti" },
+    { "tema": "Immutabilità audit trail vs correzioni operative", "criterio_risoluzione": "append-only con voci di rettifica, mai update/delete" },
+    { "tema": "Hosting Vercel (attuale) vs Azure SWA West Europe (residenza EU)", "criterio_risoluzione": "decisione in Ondata 3 con DPO; i dati restano comunque in Dataverse/SPO EU, l'app è statica" }
+  ],
+  "domande_aperte": [
+    "Sito SharePoint di destinazione: toscananordovest.sharepoint.com/sites/DipartimentoTecnico — ASSUNZIONE DA VERIFICARE",
+    "Tenant: toscananordovest.onmicrosoft.com — ASSUNZIONE DA VERIFICARE",
+    "La tabella ts_ordini_estar esiste in Dataverse ed è usata? (citata in doc, da verificare nel codice in Fase 5)",
+    "Numerazione progressiva richieste: chi la genera e con quali garanzie di unicità?",
+    "Esiste già una app registration confidential client utilizzabile per un BFF?",
+    "SLA in giorni di calendario o lavorativi?"
+  ]
+}

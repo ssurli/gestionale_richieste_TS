@@ -1,0 +1,232 @@
+{
+  "strada_consigliata": {
+    "scelta": "A (Dataverse SharePoint document management nativo su ts_richiestes) per il fascicolo + C (Power Automate) per generazione PDF/filing con metadati e notifiche; B (Graph Sites.Selected da Route Handler Next.js) come estensione mirata solo per elenco documenti in UI custom, deposito report trimestrali e link profondi.",
+    "motivazione": "Il codice reale orienta fortemente su A+C: (1) l'app oggi e' interamente client-side — src/app/ contiene solo layout.tsx e page.tsx, nessun app/api esiste, e dataverseClient.ts usa @azure/msal-browser (src/lib/dataverseClient.ts:6,17) — quindi l'opzione B richiede di introdurre da zero il primo layer server-side (confidential client, validazione JWT, gestione segreti), mentre A si attiva con pura configurazione Power Platform su tabelle gia' progettate (SETUP_DATAVERSE_TABLES.md:88). (2) Il token gia' richiesto in msalConfig.ts:49-54 (Dataverse user_impersonation) permette alla UI di leggere le entita' sharepointdocument/sharepointdocumentlocation via Dataverse Web API SENZA nuovi permessi Graph ne' admin consent aggiuntivo: elenco documenti e absoluteurl (deep link) arrivano dallo stesso client pattern di dataverseClient.ts:131-161. (3) NEXT_STEPS.md:246-267 pianifica gia' 5 flussi Power Automate su cambio stato ts_richieste: aggiungere al medesimo trigger 'When a row is modified' la generazione del PDF MOD.01/MOD.02 (oggi file statici nel repo: 'MOD.01_RICHIESTA ACQUISTO ELM.pdf', 'MOD_02_RICHIESTA ACQUISTO ECOGRAFI.pdf') e il deposito con metadati e' incrementale e no-code. (4) B resta l'estensione giusta dove A e' debole — metadati custom sulle colonne della libreria, deposito report trimestrali da reports.ts, listing con filtri nella UI custom (Dashboard.tsx/RequestManager.tsx) — e va fatta a privilegio minimo con Sites.Selected sul solo sito DipartimentoTecnico. Attachment.url (src/types/index.ts:364) diventa il webUrl SharePoint in tutti e tre i casi, senza modificare l'interfaccia.",
+    "alternative_valutate": [
+      {
+        "opzione": "A — Dataverse SharePoint document management nativo su ts_richiestes",
+        "pro": "Zero codice per il fascicolo: cartella per record creata automaticamente alla prima interazione documentale; integrazione supportata Microsoft; la UI puo' leggere elenco documenti e absoluteurl via Dataverse Web API con il token user_impersonation GIA' richiesto in msalConfig.ts:51 (stesso pattern di dataverseClient.ts); versioning/cestino/retention/eDiscovery di SPO gratis; nessuna nuova app registration.",
+        "contro": "Nomi cartella generati come '{primaryname}_{GUID}' poco leggibili; NON propaga i security role Dataverse a SharePoint: chiunque abbia accesso al sito vede tutti i fascicoli (serve sito dedicato a permessi stretti); niente metadati custom automatici sulle colonne SPO; la document location e' per-record, scomodo per viste trasversali (tutti i verbali CommAz).",
+        "sforzo": "Basso: 0.5-1 giorno di configurazione Power Platform admin + 1-2 giorni per superficie UI (lista documenti via sharepointdocuments + link). Nessun deploy backend."
+      },
+      {
+        "opzione": "B — Microsoft Graph diretto con Sites.Selected da Route Handler Next.js",
+        "pro": "Controllo totale su naming cartelle (numeroProgressivo es. 2025-001), colonne/metadati, viste filtrate, upload chunked; privilegio minimo reale (Sites.Selected granted sul solo sito, NO Sites.ReadWrite.All); indipendente da licenze Power Automate premium; permette enforcement RBAC applicativo (matrice PERMISSIONS di ARCHITECTURE.md:484-491) lato server prima di ogni operazione.",
+        "contro": "Oggi non esiste alcun codice server: src/app/ ha solo layout.tsx e page.tsx e l'auth e' msal-browser (dataverseClient.ts:6); servono nuova app registration confidential client, validazione JWT in ingresso, gestione segreti (Vercel env/Key Vault), rotazione credenziali, gestione 429; il token applicativo bypassa i permessi utente su SPO: l'autorizzazione per-richiesta diventa responsabilita' del Route Handler.",
+        "sforzo": "Medio-alto: 4-7 giorni (app registration + grant per-sito + graphClient con backoff + 3 route handler + validazione token + colonne libreria + integrazione UI)."
+      },
+      {
+        "opzione": "C — Power Automate: cambio stato -> genera PDF, deposita con metadati, notifica Teams/Outlook",
+        "pro": "Coerente con i 5 flussi gia' pianificati in NEXT_STEPS.md:246-267 sullo stesso trigger Dataverse; generazione PDF da template Word (MOD.01/MOD.02) no-code con 'Populate a Microsoft Word template' + 'Convert file to PDF'; scrive metadati SPO con 'Update file properties'; notifiche Teams/Outlook native; manutenibile da power user AUSL senza deploy; gira interamente nel tenant EU.",
+        "contro": "Non copre upload interattivo di allegati dal form ne' listing nella UI custom (Dashboard.tsx/RequestManager.tsx); connettori Word Online (Business) e Dataverse sono premium (licenza Power Automate per l'account di servizio — ASSUNZIONE DA VERIFICARE: NEXT_STEPS.md:12 dichiara 'Licenza Power Platform confermata attiva'); logica versionata fuori dal repo git; limiti throughput connettore su volumi alti (irrilevante per i volumi HTA attesi).",
+        "sforzo": "Basso-medio: 2-3 giorni per flusso PDF+filing+notifiche, in linea con la stima '1-2 giorni' gia' in NEXT_STEPS.md:246."
+      }
+    ]
+  },
+  "permessi_richiesti": [
+    {
+      "permesso": "Dynamics CRM / Dataverse user_impersonation",
+      "tipo": "Delegated (SPA esistente)",
+      "chi_approva": "Gia' concesso con admin consent (NEXT_STEPS.md:44-51; msalConfig.ts:51) — nessuna azione",
+      "note": "Con l'opzione A copre anche lettura delle entita' sharepointdocument/sharepointdocumentlocation via Dataverse Web API: elenco documenti e deep link senza nuovi permessi Graph."
+    },
+    {
+      "permesso": "Attivazione 'Document management' SharePoint sull'environment Dataverse + abilitazione sulla tabella ts_richieste",
+      "tipo": "Configurazione Power Platform (non e' un permesso OAuth)",
+      "chi_approva": "Power Platform Administrator (o System Administrator dell'environment HTA Production, NEXT_STEPS.md:77)",
+      "note": "Power Apps -> Settings -> Integration -> Document management settings: selezionare ts_richieste e impostare URL sito https://toscananordovest.sharepoint.com/sites/DipartimentoTecnico (ASSUNZIONE DA VERIFICARE). L'environment deve essere nella stessa region EU del tenant SPO (istanza crm4/EMEA, NEXT_STEPS.md:101)."
+    },
+    {
+      "permesso": "Microsoft Graph Sites.Selected",
+      "tipo": "Application — su NUOVA app registration confidential client server-side (distinta dalla SPA di msalConfig.ts:11-17)",
+      "chi_approva": "Global Administrator o Privileged Role Administrator (admin consent a livello tenant)",
+      "note": "Solo per l'opzione B. Il consent da solo NON concede accesso ad alcun sito: senza il grant per-sito successivo il token non puo' fare nulla. Esplicitamente NO Sites.ReadWrite.All / Sites.Read.All."
+    },
+    {
+      "permesso": "Grant Sites.Selected con role 'write' sul solo sito DipartimentoTecnico",
+      "tipo": "Permission grant per-sito via Graph: POST /sites/{siteId}/permissions",
+      "chi_approva": "SharePoint Administrator (esegue la chiamata con un tool admin che dispone di Sites.FullControl.All, o via PnP PowerShell Grant-PnPAzureADAppSitePermission)",
+      "note": "Body: {\"roles\":[\"write\"],\"grantedToIdentities\":[{\"application\":{\"id\":\"<GRAPH_CLIENT_ID>\",\"displayName\":\"Gestionale HTA - Docs\"}}]}. 'write' basta per upload+metadati; evitare 'fullcontrol'. Operazione una tantum, da documentare per audit."
+    },
+    {
+      "permesso": "Connessioni Power Automate: Dataverse, SharePoint, Word Online (Business), Office 365 Outlook, Microsoft Teams",
+      "tipo": "Connettori delegated su account di servizio dedicato (es. svc-hta@usltoscananordovest.it — ASSUNZIONE DA VERIFICARE)",
+      "chi_approva": "Power Platform Administrator: verifica che la DLP policy dell'environment collochi questi connettori nello stesso gruppo Business; IT per creazione account di servizio con licenza Power Automate premium e permesso 'Contribute' (Edit) sulla sola libreria destinazione",
+      "note": "Solo per l'opzione C. L'account di servizio NON deve essere site collection admin: membership 'Edit' sulla libreria Fascicoli Richieste TS e' sufficiente."
+    },
+    {
+      "permesso": "Creazione sito/libreria e colonne SharePoint",
+      "tipo": "Amministrazione SharePoint Online (una tantum)",
+      "chi_approva": "SharePoint Administrator + site owner del Dipartimento Tecnico",
+      "note": "Creazione libreria 'Fascicoli Richieste TS' e 'Report Trimestrali' (o unica libreria con cartella dedicata), colonne della mappatura, indicizzazione colonne, permessi sito ristretti ai ruoli del processo HTA (UserRole in src/types/index.ts:44-57)."
+    },
+    {
+      "permesso": "Client secret / certificato del confidential client",
+      "tipo": "Credenziale (non OAuth) — preferire certificato a secret",
+      "chi_approva": "IT AUSL: emissione, custodia e rotazione (max 180 giorni se secret)",
+      "note": "Storage: Vercel Environment Variables (encrypted, scope Production) oppure Azure Key Vault se deploy Azure SWA/App Service (DEPLOYMENT_POWER_PLATFORM.md:532). MAI con prefisso NEXT_PUBLIC_ (le var NEXT_PUBLIC_ finiscono nel bundle client, pattern attuale di msalConfig.ts:13-15 valido solo per valori pubblici)."
+    }
+  ],
+  "mappatura_documentale": [
+    {
+      "campo_origine": "TechnologyRequest.id (src/types/index.ts:234, GUID ts_richiestaid)",
+      "colonna_sharepoint": "tsRichiestaId",
+      "tipo": "Single line of text",
+      "indicizzata": "si (chiave di join per il listing via $filter — obbligatoria per evitare list view threshold)"
+    },
+    {
+      "campo_origine": "TechnologyRequest.numeroProgressivo (src/types/index.ts:235; primary column ts_numero_progressivo, SETUP_DATAVERSE_TABLES.md:98)",
+      "colonna_sharepoint": "tsNumeroProgressivo",
+      "tipo": "Single line of text",
+      "indicizzata": "si (usata anche come nome cartella fascicolo, es. 2025-001)"
+    },
+    {
+      "campo_origine": "TechnologyRequest.trackAssegnato (src/types/index.ts:241, enum TrackType TRACK_1..TRACK_4)",
+      "colonna_sharepoint": "tsTrack",
+      "tipo": "Choice (TRACK_1, TRACK_2, TRACK_3, TRACK_4)",
+      "indicizzata": "si"
+    },
+    {
+      "campo_origine": "TechnologyRequest.statoCorrente (src/types/index.ts:240, enum RequestStatus — 14 valori, src/types/index.ts:24-39)",
+      "colonna_sharepoint": "tsStato",
+      "tipo": "Choice (stessi 14 valori di RequestStatus)",
+      "indicizzata": "si"
+    },
+    {
+      "campo_origine": "TechnologyRequest.unitaOperativa (src/types/index.ts:249)",
+      "colonna_sharepoint": "tsUnitaOperativa",
+      "tipo": "Single line of text",
+      "indicizzata": "si"
+    },
+    {
+      "campo_origine": "TechnologyRequest.dipartimento (src/types/index.ts:250)",
+      "colonna_sharepoint": "tsDipartimento",
+      "tipo": "Single line of text",
+      "indicizzata": "si"
+    },
+    {
+      "campo_origine": "TechnologyRequest.budget.valoreStimatoEuro (src/types/index.ts:187)",
+      "colonna_sharepoint": "tsImporto",
+      "tipo": "Currency (EUR)",
+      "indicizzata": "no"
+    },
+    {
+      "campo_origine": "CIG — NON presente in TechnologyRequest ne' in SETUP_DATAVERSE_TABLES.md (ASSUNZIONE DA VERIFICARE: aggiungere campo ts_cig alla tabella Dataverse e all'interfaccia; il CIG nasce in fase ESTAR, vicino a numeroRichiestaESTAR src/types/index.ts:342)",
+      "colonna_sharepoint": "tsCIG",
+      "tipo": "Single line of text",
+      "indicizzata": "si (chiave di ricerca amministrativa)"
+    },
+    {
+      "campo_origine": "Classificazione documento (nuovo metadato applicativo, non in TechnologyRequest)",
+      "colonna_sharepoint": "tsTipoDocumento",
+      "tipo": "Choice (MOD01, MOD02, ALLEGATO_TECNICO, PREVENTIVO, VERBALE_COMMAZ, PARERE_HTA, ATTO_APPROVAZIONE, REPORT_TRIMESTRALE)",
+      "indicizzata": "si"
+    },
+    {
+      "campo_origine": "Attachment.caricatoDa (src/types/index.ts:366) / email utente MSAL",
+      "colonna_sharepoint": "tsCaricatoDa",
+      "tipo": "Single line of text (email; in alternativa Person se gli utenti sono nel tenant)",
+      "indicizzata": "no"
+    },
+    {
+      "campo_origine": "QuarterlyReport.anno (src/types/index.ts:389)",
+      "colonna_sharepoint": "tsAnno",
+      "tipo": "Number (intero)",
+      "indicizzata": "no"
+    },
+    {
+      "campo_origine": "QuarterlyReport.trimestre (src/types/index.ts:390)",
+      "colonna_sharepoint": "tsTrimestre",
+      "tipo": "Number (1-4)",
+      "indicizzata": "no"
+    },
+    {
+      "campo_origine": "Attachment.nome/tipo/dimensione/url/dataCaricamento (src/types/index.ts:361-365)",
+      "colonna_sharepoint": "colonne native: FileLeafRef, File_x0020_Type, File_x0020_Size, (webUrl da driveItem), Created",
+      "tipo": "native SPO",
+      "indicizzata": "gestite da SPO"
+    }
+  ],
+  "snippet": [
+    {
+      "titolo": "Client Graph server-side: token client_credentials (Sites.Selected) + retry 429/Retry-After con backoff",
+      "file_proposto": "src/lib/graph/graphClient.ts",
+      "codice": "/**\n * src/lib/graph/graphClient.ts — SOLO SERVER (Route Handlers).\n * Confidential client (client_credentials) con Sites.Selected: il token .default\n * contiene esclusivamente i permessi applicativi consentiti (NO Sites.ReadWrite.All).\n * NB: app registration DISTINTA dalla SPA di src/lib/msalConfig.ts:11-17 (public client).\n * Nessun segreto hardcoded: env server-side (senza prefisso NEXT_PUBLIC_) o Azure Key Vault.\n */\nimport 'server-only';\n\nconst TENANT_ID = process.env.GRAPH_TENANT_ID!;         // es. usltoscananordovest.onmicrosoft.com (ASSUNZIONE DA VERIFICARE)\nconst CLIENT_ID = process.env.GRAPH_CLIENT_ID!;\nconst CLIENT_SECRET = process.env.GRAPH_CLIENT_SECRET!;  // Vercel encrypted env / Azure Key Vault reference — MAI in repo\nexport const SP_SITE_ID = process.env.SP_SITE_ID!;       // GET /sites/toscananordovest.sharepoint.com:/sites/DipartimentoTecnico (una tantum)\nexport const SP_DRIVE_ID = process.env.SP_DRIVE_ID!;     // drive della libreria \"Fascicoli Richieste TS\"\nexport const SP_LIST_ID = process.env.SP_LIST_ID!;       // list id della stessa libreria (per query su colonne)\n\nconst GRAPH = 'https://graph.microsoft.com/v1.0';\nexport { GRAPH };\n\nlet cached: { token: string; exp: number } | null = null;\n\nexport async function getGraphToken(): Promise<string> {\n  if (cached && Date.now() < cached.exp - 60_000) return cached.token;\n  const res = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },\n    body: new URLSearchParams({\n      client_id: CLIENT_ID,\n      client_secret: CLIENT_SECRET,\n      grant_type: 'client_credentials',\n      scope: 'https://graph.microsoft.com/.default',\n    }),\n  });\n  if (!res.ok) throw new Error(`Token Graph fallito: ${res.status} ${await res.text()}`);\n  const j = await res.json();\n  cached = { token: j.access_token, exp: Date.now() + j.expires_in * 1000 };\n  return cached.token;\n}\n\n/** fetch verso Graph con gestione throttling: onora Retry-After su 429/503, backoff esponenziale altrimenti. */\nexport async function graphFetch(url: string, init: RequestInit = {}, maxRetries = 4): Promise<Response> {\n  for (let attempt = 0; ; attempt++) {\n    const token = await getGraphToken();\n    const res = await fetch(url, {\n      ...init,\n      headers: { ...(init.headers ?? {}), Authorization: `Bearer ${token}` },\n    });\n    if ((res.status === 429 || res.status === 503 || res.status === 504) && attempt < maxRetries) {\n      const retryAfter = Number(res.headers.get('Retry-After'));\n      const waitMs = (Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 2 ** attempt) * 1000;\n      await new Promise((r) => setTimeout(r, waitMs));\n      continue;\n    }\n    return res;\n  }\n}\n"
+    },
+    {
+      "titolo": "Route Handler POST: upload allegato nel fascicolo (cartella = numeroProgressivo) con metadati su listItem/fields; upload session per file > 4 MB",
+      "file_proposto": "src/app/api/richieste/[id]/documenti/route.ts (export POST)",
+      "codice": "/**\n * src/app/api/richieste/[id]/documenti/route.ts — POST: upload file nel fascicolo con metadati.\n * Cartella fascicolo = numeroProgressivo (primary column univoca, SETUP_DATAVERSE_TABLES.md:98).\n * Il client invia multipart/form-data: file + campo 'metadati' (JSON derivato da TechnologyRequest).\n * PREREQUISITO: validare il bearer token Entra ID dell'utente (jwks) prima di usare il token app —\n * oggi l'app e' interamente client-side (src/app/ contiene solo layout.tsx e page.tsx), questo\n * Route Handler introduce il primo layer server-side.\n */\nimport { NextRequest, NextResponse } from 'next/server';\nimport { GRAPH, SP_SITE_ID, SP_DRIVE_ID, graphFetch } from '@/lib/graph/graphClient';\nimport { verifyEntraToken } from '@/lib/graph/verifyToken'; // jose + JWKS tenant: aud/iss/exp\n\ninterface DocumentoMetadati {\n  richiestaId: string;          // TechnologyRequest.id (src/types/index.ts:234)\n  numeroProgressivo: string;    // es. \"2025-001\" (src/types/index.ts:235)\n  track?: string;               // trackAssegnato (src/types/index.ts:241)\n  stato: string;                // statoCorrente (src/types/index.ts:240)\n  unitaOperativa: string;       // src/types/index.ts:249\n  dipartimento: string;         // src/types/index.ts:250\n  importo?: number;             // budget.valoreStimatoEuro (src/types/index.ts:187)\n  cig?: string;                 // ASSUNZIONE DA VERIFICARE: campo non presente in TechnologyRequest\n  tipoDocumento: 'MOD01' | 'MOD02' | 'ALLEGATO_TECNICO' | 'PREVENTIVO'\n    | 'VERBALE_COMMAZ' | 'PARERE_HTA' | 'ATTO_APPROVAZIONE' | 'REPORT_TRIMESTRALE';\n}\n\nexport async function POST(req: NextRequest, { params }: { params: { id: string } }) {\n  const user = await verifyEntraToken(req.headers.get('authorization'));\n  if (!user) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });\n\n  const form = await req.formData();\n  const file = form.get('file') as File | null;\n  const meta = JSON.parse((form.get('metadati') as string) ?? '{}') as DocumentoMetadati;\n  if (!file || !meta.numeroProgressivo) {\n    return NextResponse.json({ error: 'file o metadati mancanti' }, { status: 400 });\n  }\n\n  const folder = encodeURIComponent(meta.numeroProgressivo); // 1 cartella per record ts_richiestes\n  const name = encodeURIComponent(file.name.replace(/[#%*:<>?/\\\\|]/g, '_'));\n  const bytes = Buffer.from(await file.arrayBuffer());\n\n  // 1) Upload contenuto. <= 4 MB: PUT diretto; oltre: createUploadSession + chunk da 5-10 MiB.\n  let item: { id: string; webUrl: string; size: number };\n  if (bytes.length <= 4 * 1024 * 1024) {\n    const up = await graphFetch(\n      `${GRAPH}/sites/${SP_SITE_ID}/drives/${SP_DRIVE_ID}/root:/${folder}/${name}:/content`,\n      { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' }, body: bytes },\n    );\n    if (!up.ok) return NextResponse.json({ error: await up.text() }, { status: up.status });\n    item = await up.json();\n  } else {\n    const sess = await graphFetch(\n      `${GRAPH}/sites/${SP_SITE_ID}/drives/${SP_DRIVE_ID}/root:/${folder}/${name}:/createUploadSession`,\n      { method: 'POST', headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({ item: { '@microsoft.graph.conflictBehavior': 'rename' } }) },\n    );\n    const { uploadUrl } = await sess.json();\n    const CHUNK = 5 * 1024 * 1024;\n    let last: Response | null = null;\n    for (let off = 0; off < bytes.length; off += CHUNK) {\n      const end = Math.min(off + CHUNK, bytes.length);\n      last = await fetch(uploadUrl, { // upload session: niente Authorization header\n        method: 'PUT',\n        headers: {\n          'Content-Length': String(end - off),\n          'Content-Range': `bytes ${off}-${end - 1}/${bytes.length}`,\n        },\n        body: bytes.subarray(off, end),\n      });\n    }\n    if (!last?.ok) return NextResponse.json({ error: 'upload session fallita' }, { status: 502 });\n    item = await last.json();\n  }\n\n  // 2) Metadati sulle colonne della libreria (vedi mappatura_documentale).\n  const patch = await graphFetch(\n    `${GRAPH}/sites/${SP_SITE_ID}/drives/${SP_DRIVE_ID}/items/${item.id}/listItem/fields`,\n    { method: 'PATCH', headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({\n        tsRichiestaId: params.id,\n        tsNumeroProgressivo: meta.numeroProgressivo,\n        tsTrack: meta.track ?? '',\n        tsStato: meta.stato,\n        tsUnitaOperativa: meta.unitaOperativa,\n        tsDipartimento: meta.dipartimento,\n        tsImporto: meta.importo ?? null,\n        tsCIG: meta.cig ?? '',\n        tsTipoDocumento: meta.tipoDocumento,\n        tsCaricatoDa: user.email,\n      }) },\n  );\n  if (!patch.ok) return NextResponse.json({ error: await patch.text() }, { status: patch.status });\n\n  // 3) Risposta nella forma dell'interfaccia Attachment (src/types/index.ts:359-367):\n  //    finalmente Attachment.url punta a storage reale.\n  return NextResponse.json({\n    id: item.id,\n    nome: file.name,\n    tipo: file.type,\n    dimensione: item.size,\n    url: item.webUrl,               // deep link SharePoint\n    dataCaricamento: new Date().toISOString(),\n    caricatoDa: user.email,\n  }, { status: 201 });\n}\n"
+    },
+    {
+      "titolo": "Route Handler GET: elenco documenti di una richiesta via $filter su colonna indicizzata tsRichiestaId, mappato su Attachment[] (src/types/index.ts:359)",
+      "file_proposto": "src/app/api/richieste/[id]/documenti/route.ts (export GET)",
+      "codice": "/**\n * src/app/api/richieste/[id]/documenti/route.ts — GET: elenco documenti del fascicolo.\n * Query sulla lista SharePoint filtrando la colonna indicizzata tsRichiestaId\n * (indicizzazione obbligatoria: evita il list view threshold 5000 e il fallimento del $filter).\n * Output: Attachment[] coerente con src/types/index.ts:359-367, consumabile da\n * RequestManager.tsx / Dashboard.tsx senza cambiare il tipo.\n */\nimport { NextRequest, NextResponse } from 'next/server';\nimport { GRAPH, SP_SITE_ID, SP_LIST_ID, graphFetch } from '@/lib/graph/graphClient';\nimport { verifyEntraToken } from '@/lib/graph/verifyToken';\nimport type { Attachment } from '@/types';\n\nexport async function GET(req: NextRequest, { params }: { params: { id: string } }) {\n  const user = await verifyEntraToken(req.headers.get('authorization'));\n  if (!user) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });\n\n  const url =\n    `${GRAPH}/sites/${SP_SITE_ID}/lists/${SP_LIST_ID}/items` +\n    `?$expand=fields($select=tsTipoDocumento,tsNumeroProgressivo,tsCaricatoDa),driveItem` +\n    `&$filter=fields/tsRichiestaId eq '${encodeURIComponent(params.id)}'`;\n\n  const res = await graphFetch(url, {\n    // richiesto da Graph per filtri su colonne non indicizzate; innocuo se la colonna e' indicizzata\n    headers: { Prefer: 'HonorNonIndexedQueriesWarningMayFailRandomly' },\n  });\n  if (!res.ok) return NextResponse.json({ error: await res.text() }, { status: res.status });\n\n  const data = await res.json();\n  const allegati: (Attachment & { tipoDocumento?: string })[] = (data.value ?? [])\n    .filter((it: any) => it.driveItem?.file) // esclude le cartelle\n    .map((it: any) => ({\n      id: it.driveItem.id,\n      nome: it.driveItem.name,\n      tipo: it.driveItem.file.mimeType ?? '',\n      dimensione: it.driveItem.size ?? 0,\n      url: it.driveItem.webUrl,                       // Attachment.url = link reale SPO\n      dataCaricamento: new Date(it.driveItem.createdDateTime),\n      caricatoDa: it.fields?.tsCaricatoDa ?? '',\n      tipoDocumento: it.fields?.tsTipoDocumento,\n    }));\n\n  return NextResponse.json(allegati);\n}\n"
+    },
+    {
+      "titolo": "Costruzione link profondi (fascicolo, documento, vista filtrata) per Dashboard.tsx e RequestManager.tsx",
+      "file_proposto": "src/lib/documentLinks.ts",
+      "codice": "/**\n * src/lib/documentLinks.ts — costruzione link profondi (usabile anche client-side: nessun segreto).\n * Uso: Dashboard.tsx (riga richiesta -> pulsante \"Fascicolo\") e RequestManager.tsx\n * (dettaglio richiesta -> lista allegati con <a href={att.url}>).\n */\n\n/** Base sito: ASSUNZIONE DA VERIFICARE. Esporre via env pubblica (e' un URL, non un segreto). */\nconst SP_SITE_URL =\n  process.env.NEXT_PUBLIC_SP_SITE_URL ??\n  'https://toscananordovest.sharepoint.com/sites/DipartimentoTecnico';\nconst SP_LIBRARY_PATH = process.env.NEXT_PUBLIC_SP_LIBRARY_PATH ?? 'FascicoliRichiesteTS';\n\n/** Link profondo alla CARTELLA fascicolo di una richiesta (vista libreria filtrata sulla cartella). */\nexport function buildFascicoloLink(numeroProgressivo: string): string {\n  const folderPath = `/sites/DipartimentoTecnico/${SP_LIBRARY_PATH}/${numeroProgressivo}`;\n  return `${SP_SITE_URL}/${SP_LIBRARY_PATH}/Forms/AllItems.aspx?id=${encodeURIComponent(folderPath)}`;\n}\n\n/** Link profondo al SINGOLO documento: usare sempre driveItem.webUrl restituito dalle API\n *  (gia' presente in Attachment.url dopo la Fase 3) — apre Office online / anteprima PDF. */\nexport function buildDocumentLink(att: { url: string }): string {\n  return att.url;\n}\n\n/** Vista libreria filtrata per metadato (es. tutti i verbali CommAz di una UO). */\nexport function buildFilteredViewLink(colonna: string, valore: string): string {\n  return `${SP_SITE_URL}/${SP_LIBRARY_PATH}/Forms/AllItems.aspx` +\n    `?useFiltersInViewXml=1&FilterField1=${encodeURIComponent(colonna)}` +\n    `&FilterValue1=${encodeURIComponent(valore)}&FilterType1=Text`;\n}\n\n// Esempio d'uso in src/components/RequestManager.tsx (dettaglio richiesta):\n//   <a href={buildFascicoloLink(request.numeroProgressivo)} target=\"_blank\" rel=\"noopener noreferrer\">\n//     Apri fascicolo SharePoint\n//   </a>\n//   {request.allegati.map(a => (\n//     <a key={a.id} href={a.url} target=\"_blank\" rel=\"noopener noreferrer\">{a.nome}</a>\n//   ))}\n"
+    },
+    {
+      "titolo": "Route Handler POST: deposito report trimestrale (PDF/XLSX da src/lib/reports.ts) nella libreria con metadati anno/trimestre",
+      "file_proposto": "src/app/api/reports/quarterly/route.ts",
+      "codice": "/**\n * src/app/api/reports/quarterly/route.ts — POST: genera report trimestrale e lo deposita in SharePoint.\n * Riusa generateQuarterlyReport/formatReportAsText (src/lib/reports.ts:17,265) e valorizza\n * QuarterlyReport.fileReportPDF (src/types/index.ts:426) con l'URL SPO reale.\n * PDF via pdf-lib / @react-pdf/renderer, Excel via exceljs (dipendenze da aggiungere) —\n * in alternativa la generazione PDF puo' restare al flusso Power Automate (opzione C).\n */\nimport { NextRequest, NextResponse } from 'next/server';\nimport { GRAPH, SP_SITE_ID, SP_DRIVE_ID, graphFetch } from '@/lib/graph/graphClient';\nimport { verifyEntraToken } from '@/lib/graph/verifyToken';\n\nexport async function POST(req: NextRequest) {\n  const user = await verifyEntraToken(req.headers.get('authorization'));\n  if (!user) return NextResponse.json({ error: 'Non autorizzato' }, { status: 401 });\n\n  const { anno, trimestre, pdfBase64, xlsxBase64 } = await req.json();\n  const results: Record<string, string> = {};\n\n  for (const [ext, b64] of [['pdf', pdfBase64], ['xlsx', xlsxBase64]] as const) {\n    if (!b64) continue;\n    const name = `Report_TS_${anno}_Q${trimestre}.${ext}`;\n    const up = await graphFetch(\n      `${GRAPH}/sites/${SP_SITE_ID}/drives/${SP_DRIVE_ID}/root:/Report Trimestrali/${name}:/content`,\n      { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream' },\n        body: Buffer.from(b64, 'base64') },\n    );\n    if (!up.ok) return NextResponse.json({ error: await up.text() }, { status: up.status });\n    const item = await up.json();\n    await graphFetch(`${GRAPH}/sites/${SP_SITE_ID}/drives/${SP_DRIVE_ID}/items/${item.id}/listItem/fields`, {\n      method: 'PATCH', headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ tsTipoDocumento: 'REPORT_TRIMESTRALE', tsAnno: anno,\n                             tsTrimestre: trimestre, tsCaricatoDa: user.email }),\n    });\n    results[ext] = item.webUrl; // -> QuarterlyReport.fileReportPDF\n  }\n  return NextResponse.json(results, { status: 201 });\n}\n"
+    }
+  ],
+  "rischi": [
+    {
+      "rischio": "Residenza dati EU: Dataverse (crm4/EMEA, NEXT_STEPS.md:101) e SharePoint Online risiedono nel tenant EU, ma i Route Handler Next.js su Vercel girano di default su serverless functions in us-east-1 (iad1): i byte dei documenti sanitari transiterebbero fuori UE durante upload/download.",
+      "mitigazione": "Impostare in vercel.json la region EU delle functions (\"regions\": [\"fra1\"] o \"cdg1\") — oggi vercel.json:1-5 non specifica alcuna region — oppure preferire Azure Static Web Apps/App Service West Europe come gia' raccomandato in NEXT_STEPS.md:197-204 e DEPLOYMENT_POWER_PLATFORM.md:532. Le opzioni A e C non hanno questo problema: tutto resta nel boundary Microsoft EU."
+    },
+    {
+      "rischio": "Throttling Microsoft Graph/SharePoint (HTTP 429/503): raffiche di upload o polling del listing possono far scattare i limiti per app+sito; ignorare Retry-After porta a blocchi prolungati.",
+      "mitigazione": "graphFetch centralizza la gestione: onora Retry-After, backoff esponenziale (max 4 retry), cache del token app. Inoltre: niente polling dalla UI (caricare l'elenco on-demand), $select/$expand minimi, eventuale coda con concorrenza 1-2 per upload multipli."
+    },
+    {
+      "rischio": "Opzione A non propaga la security Dataverse a SharePoint: chi ha accesso al sito vede TUTTI i fascicoli, in contrasto con la matrice RBAC per ruolo (ARCHITECTURE.md:484-496, view_own_requests vs view_all_requests).",
+      "mitigazione": "Sito o site collection DEDICATA al processo HTA con membership ristretta ai ruoli trasversali (CommAz, USL TS/PM, Direzioni); i richiedenti di UO accedono ai documenti solo attraverso la UI (opzione B: il Route Handler applica il RBAC applicativo prima di servire contenuti). Non riusare un sito dipartimentale generico."
+    },
+    {
+      "rischio": "Con Sites.Selected application il token bypassa i permessi dell'utente finale: un Route Handler senza autorizzazione diventa un canale di esfiltrazione dei documenti dell'intero sito.",
+      "mitigazione": "Ogni route valida il bearer token Entra ID dell'utente (verifica firma JWKS, audience, issuer) e applica hasPermission() per ruolo prima di chiamare Graph; log di audit (chi/quando/quale documento) in ts_workflow_histories via addWorkflowHistory (dataverseClient.ts:329)."
+    },
+    {
+      "rischio": "Segreti nel pattern attuale: tutte le env del progetto sono NEXT_PUBLIC_* (msalConfig.ts:13-15) e finiscono nel bundle client; replicare il pattern per il client secret Graph lo esporrebbe pubblicamente.",
+      "mitigazione": "GRAPH_CLIENT_SECRET/GRAPH_TENANT_ID/SP_* SENZA prefisso NEXT_PUBLIC_, marcate 'server-only' (import 'server-only' nel modulo); su Vercel: Environment Variables encrypted; su Azure: Key Vault reference. Preferire certificato a client secret; rotazione max 180 giorni."
+    },
+    {
+      "rischio": "List view threshold SharePoint (5000 item) e filtri Graph su colonne non indicizzate falliscono al crescere dei documenti.",
+      "mitigazione": "Indicizzare da subito tsRichiestaId, tsNumeroProgressivo, tsStato, tsTrack, tsUnitaOperativa, tsDipartimento, tsCIG, tsTipoDocumento (farlo PRIMA di superare 5000 item); struttura a cartelle per fascicolo riduce gli item per vista."
+    },
+    {
+      "rischio": "Doppio fascicolo divergente: attivando sia il document management nativo (opzione A, location auto '{nome}_{GUID}') sia una libreria custom via Graph/Power Automate si creano due posti diversi per gli stessi documenti.",
+      "mitigazione": "Una sola libreria fisica: attivare il document management nativo puntandolo alla libreria 'Fascicoli Richieste TS' e creare le sharepointdocumentlocation via flusso Power Automate alla creazione della richiesta, con folder path = numeroProgressivo, cosi' record Dataverse, Graph e flussi convergono sulla stessa cartella."
+    },
+    {
+      "rischio": "Campo CIG assente dal modello dati (nessuna occorrenza in src/): la metadatazione richiesta non e' alimentabile.",
+      "mitigazione": "Aggiungere ts_cig alla tabella ts_richieste (SETUP_DATAVERSE_TABLES.md) e cig?: string a TechnologyRequest accanto a numeroRichiestaESTAR (src/types/index.ts:342), valorizzato nella fase IN_ACQUISIZIONE_ESTAR."
+    },
+    {
+      "rischio": "Connettori premium Power Automate (Dataverse, Word Online Business) e generazione PDF: senza licenza adeguata sull'account di servizio i flussi dell'opzione C non girano.",
+      "mitigazione": "Verificare la licenza dichiarata attiva (NEXT_STEPS.md:12) copra Power Automate premium per l'account di servizio; fallback: generare il PDF lato server nel Route Handler (pdf-lib) e lasciare a Power Automate solo filing e notifiche."
+    },
+    {
+      "rischio": "Nomi file/cartella con caratteri vietati SPO (# % * : < > ? / \\ |) o duplicati di numeroProgressivo generano errori 400/409 in upload.",
+      "mitigazione": "Sanitizzazione nel Route Handler (gia' nello snippet upload); numeroProgressivo e' primary column quindi univoco per costruzione; conflictBehavior 'rename' sull'upload session."
+    }
+  ],
+  "assunzioni_da_verificare": [
+    "URL sito destinazione https://toscananordovest.sharepoint.com/sites/DipartimentoTecnico: placeholder, il sito potrebbe non esistere o avere altro nome/percorso.",
+    "Tenant toscananordovest.onmicrosoft.com: NEXT_STEPS.md:74 e :117 usano email @usltoscananordovest.it, quindi il tenant reale e' verosimilmente usltoscananordovest.onmicrosoft.com — verificare il verified domain effettivo.",
+    "L'environment Dataverse 'HTA Production' esiste ed e' in region EMEA (URL crm4, NEXT_STEPS.md:101) nello stesso tenant/geo del sito SharePoint (requisito per il document management nativo).",
+    "La licenza Power Platform 'confermata attiva' (NEXT_STEPS.md:12) include Power Automate premium (connettore Dataverse) e Word Online (Business) per la generazione PDF dei flussi opzione C.",
+    "Esiste (o puo' essere creato) un account di servizio per le connessioni Power Automate (es. svc-hta@usltoscananordovest.it).",
+    "Il campo CIG non esiste nel modello (nessuna occorrenza in src/ ne' in SETUP_DATAVERSE_TABLES.md): va aggiunto ts_cig a Dataverse e a TechnologyRequest prima di poterlo scrivere come metadato SPO.",
+    "Le tabelle Dataverse sono da guida di setup manuale (SETUP_DATAVERSE_TABLES.md): non verificabile dal repo che siano gia' state create in produzione con i nomi logici indicati.",
+    "Piattaforma di deploy finale: vercel.json:1-5 (Vercel, nessuna region configurata) vs Azure SWA West Europe (NEXT_STEPS.md:197-204); la scelta condiziona dove girano i Route Handlers e la residenza EU del transito documenti. Nota: Azure Static Web Apps esegue le API Next.js su managed functions — verificare il supporto del runtime Next.js 14 ibrido, altrimenti Azure App Service West Europe.",
+    "La UI attuale non ha alcuna superficie allegati (nessuna occorrenza di 'allegat'/'Attachment' in Dashboard.tsx e RequestManager.tsx): i punti di aggancio dei deep link sono da creare, non da modificare.",
+    "DLP policy dell'environment Power Platform: i connettori SharePoint/Dataverse/Outlook/Teams/Word devono essere nello stesso gruppo Business.",
+    "MOD.01/MOD.02 esistono solo come PDF statici nel repo: i template Word (.docx con content control) per 'Populate a Microsoft Word template' vanno prodotti ex novo."
+  ]
+}

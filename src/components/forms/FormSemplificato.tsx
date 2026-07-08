@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { CheckCircle, Building2, User, Mail, Phone, FileText, Package, Euro, Gift, AlertTriangle, TrendingUp } from 'lucide-react';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { submitTechnologyRequest, PERSISTENCE_ENABLED } from '@/lib/requestService';
+import { mapSemplificatoToRequest } from '@/lib/formMappers';
 
 type SemplificataCategory = 'donazione' | 'ampliamento' | 'upgrade';
 
@@ -100,6 +102,7 @@ export function FormSemplificato() {
 
   const [submitted, setSubmitted] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [submitMessage, setSubmitMessage] = useState<string | null>(null);
 
   const validateDonazione = (): string[] => {
     const errors: string[] = [];
@@ -127,7 +130,7 @@ export function FormSemplificato() {
     return errors;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const errors = validateDonazione();
@@ -137,7 +140,23 @@ export function FormSemplificato() {
       return; // Blocca invio se ci sono errori critici
     }
 
-    console.log('Form Semplificato submitted:', formData);
+    if (PERSISTENCE_ENABLED) {
+      try {
+        const esito = await submitTechnologyRequest(mapSemplificatoToRequest(formData));
+        setSubmitMessage(
+          `Richiesta registrata (ID ${esito.id}). Track assegnato: ${esito.triage.trackAssegnato} — ${esito.triage.motivazione}` +
+            (esito.warnings.length > 0 ? ` | Avvisi: ${esito.warnings.join(' · ')}` : '')
+        );
+      } catch (err) {
+        setValidationErrors([
+          `❌ Invio non riuscito: ${err instanceof Error ? err.message : String(err)}`,
+        ]);
+        return; // niente reset: l'utente può correggere e reinviare
+      }
+    } else {
+      console.log('Form Semplificato submitted:', formData);
+    }
+
     setSubmitted(true);
 
     setTimeout(() => {
@@ -830,8 +849,8 @@ export function FormSemplificato() {
               <div className="text-sm text-green-900">
                 <p className="font-semibold">Richiesta Procedura Semplificata inviata con successo!</p>
                 <p className="mt-1">
-                  Riceverai conferma di presa in carico entro 2 giorni lavorativi.
-                  Tempo previsto di gestione: 15-20 giorni lavorativi.
+                  {submitMessage ||
+                    'Riceverai conferma di presa in carico entro 2 giorni lavorativi. Tempo previsto di gestione: 15-20 giorni lavorativi.'}
                 </p>
               </div>
             </div>

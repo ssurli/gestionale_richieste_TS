@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { FileText, Printer, Save } from 'lucide-react';
 import { PriceSuggestion, SelectedCatalogItem, CatalogoEstarItem } from '@/components/PriceSuggestion';
 import { CurrencyInput } from '@/components/CurrencyInput';
+import { submitTechnologyRequest, PERSISTENCE_ENABLED } from '@/lib/requestService';
+import { mapMod01ToRequest } from '@/lib/formMappers';
 import catalogoEstar from '../../../catalogo_estar.json';
 
 /**
@@ -106,10 +108,24 @@ export function FormMOD01() {
     setSelectedCatalogItem(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('MOD.01 Submitted:', formData);
-    alert('Richiesta inviata a: acquisizione.attrezzaturesanitarie@uslnordovest.toscana.it');
+
+    if (!PERSISTENCE_ENABLED) {
+      console.log('MOD.01 Submitted:', formData);
+      alert('Richiesta inviata a: acquisizione.attrezzaturesanitarie@uslnordovest.toscana.it');
+      return;
+    }
+
+    try {
+      const esito = await submitTechnologyRequest(mapMod01ToRequest(formData));
+      const avvisi = esito.warnings.length > 0 ? `\n\nAvvisi:\n${esito.warnings.join('\n')}` : '';
+      alert(
+        `Richiesta registrata (ID ${esito.id}).\nTrack assegnato: ${esito.triage.trackAssegnato} — ${esito.triage.motivazione}${avvisi}`
+      );
+    } catch (err) {
+      alert(`Invio non riuscito: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   const handlePrint = () => {

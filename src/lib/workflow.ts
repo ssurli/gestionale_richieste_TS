@@ -404,8 +404,9 @@ function calculateDaysInStatus(request: TechnologyRequest): Record<string, numbe
 }
 
 /**
- * Genera ID univoco
+ * Genera ID univoco (per voci di audit trail: serve unicità stabile,
+ * non un valore pseudo-casuale soggetto a collisioni)
  */
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return crypto.randomUUID();
 }

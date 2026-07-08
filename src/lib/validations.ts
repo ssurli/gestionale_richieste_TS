@@ -278,6 +278,43 @@ export function validaBudget(budget: BudgetCoverage): ValidationResult {
 }
 
 /**
+ * Valida i dati di tracciabilità del procedimento di acquisto
+ * (D.Lgs. 36/2023). Da eseguire nelle fasi post-approvazione, quando i
+ * codici vengono assegnati. Non blocca la sottomissione iniziale.
+ *
+ * - CIG (ANAC): 10 caratteri alfanumerici
+ * - CUP: 15 caratteri alfanumerici
+ */
+export function validaProcurement(dati: {
+  cig?: string;
+  cup?: string;
+  rup?: string;
+}): ValidationResult {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  if (dati.cig) {
+    const cig = dati.cig.trim().toUpperCase();
+    if (!/^[0-9A-Z]{10}$/.test(cig)) {
+      errors.push('CIG non valido: sono attesi 10 caratteri alfanumerici');
+    }
+  }
+
+  if (dati.cup) {
+    const cup = dati.cup.trim().toUpperCase();
+    if (!/^[0-9A-Z]{15}$/.test(cup)) {
+      errors.push('CUP non valido: sono attesi 15 caratteri alfanumerici');
+    }
+  }
+
+  if (dati.cig && !dati.rup) {
+    warnings.push('⚠️ CIG assegnato ma RUP non indicato: verificare la nomina del RUP');
+  }
+
+  return { isValid: errors.length === 0, errors, warnings };
+}
+
+/**
  * Valida coerenza complessiva richiesta
  */
 export function validaCoerenzaRichiesta(richiesta: {
